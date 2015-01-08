@@ -1,0 +1,714 @@
+unit ufrmProductTracking;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicDT, PropFilerEh, DB, ADODB, Menus, PropStorageEh,
+  ActnList, ImgList, GridsEh, DBGridEh, StdCtrls, ExtCtrls, DBCtrls,
+  ComCtrls, ToolWin, Mask, DBCtrlsEh;
+
+type
+  TComponentInfo = record
+    ComponentID: integer;
+    ComponentSeriesID: integer;
+  end;
+
+  TfrmProductTracking = class(TfrmDBBasicDT)
+    Panel1: TPanel;
+    adt_activeProductTrackingID: TAutoIncField;
+    adt_activeProductionScheduleID: TIntegerField;
+    adt_activeProductSerialNumber: TStringField;
+    adt_activeWarrentycardCode: TStringField;
+    adt_activeWarrentycardReturnDate: TDateTimeField;
+    adt_activeRemarks: TStringField;
+    adt_activeProductionStartTime: TDateTimeField;
+    adt_activeProductTrackingStatesID: TIntegerField;
+    adt_activeProductTrackingStatesName: TStringField;
+    adt_activeModel: TStringField;
+    adt_active2ProductTrackingID: TAutoIncField;
+    adt_active2ProductionScheduleID: TIntegerField;
+    adt_active2ProductSerialNumber: TStringField;
+    adt_active2WarrentycardCode: TStringField;
+    adt_active2WarrentycardReturnDate: TDateTimeField;
+    adt_active2Remarks: TStringField;
+    adt_active2ProductionStartTime: TDateTimeField;
+    adt_active2ProductTrackingStatesID: TIntegerField;
+    adt_active2ProductTrackingStatesName: TStringField;
+    adt_active2Model: TStringField;
+    gboxComponentTrack: TGroupBox;
+    gridComponentTrack: TDBGridEh;
+    GroupBox3: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    gboxScan: TGroupBox;
+    Label4: TLabel;
+    Panel2: TPanel;
+    btnQuery: TButton;
+    dtpScheduleDate: TDateTimePicker;
+    Label5: TLabel;
+    edtComponentItem: TEdit;
+    LabelPrompt: TLabel;
+    adt_component: TADODataSet;
+    ds_component: TDataSource;
+    adt_componentProductComponentTrackingID: TAutoIncField;
+    adt_componentProductTrackingID: TIntegerField;
+    adt_componentComponentID: TIntegerField;
+    adt_componentComponentSerialNumber: TStringField;
+    adt_componentComponentItem: TStringField;
+    adt_componentComponentSeriesName: TStringField;
+    Label8: TLabel;
+    dbtxtTrackingID: TDBText;
+    dbtxtScheduleID: TDBText;
+    Label9: TLabel;
+    edtComponentSN: TEdit;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeProductSeriesName: TStringField;
+    adt_active2CustomerNumber: TStringField;
+    adt_active2CustomerName: TStringField;
+    adt_active2ProductSeriesName: TStringField;
+    Label10: TLabel;
+    dbtxtCustomerName: TDBText;
+    dbtxtModel: TDBText;
+    Label11: TLabel;
+    dbtxtProductSN: TDBText;
+    dbtxtPackgeType: TDBText;
+    LabelComponentID: TLabel;
+    adt_activeModelID: TIntegerField;
+    adt_active2ModelID: TIntegerField;
+    Label7: TLabel;
+    dbtxtTrackingStatesID: TDBText;
+    adt_activeScheduleStartTime: TDateTimeField;
+    adt_active2ScheduleStartTime: TDateTimeField;
+    Label6: TLabel;
+    Label12: TLabel;
+    dbtxtCustomerNumber: TDBText;
+    adt_activeCustomerID: TIntegerField;
+    adt_activeCustomerOrderNumber: TStringField;
+    adt_activeATD: TDateTimeField;
+    adt_activeCustomerPurchaseOrderNumber: TStringField;
+    adt_activeCountry: TStringField;
+    adt_activeCustomerAddress: TStringField;
+    adt_activeContactPerson: TStringField;
+    adt_activeTelephone: TStringField;
+    adt_activeFax: TStringField;
+    adt_activeProductSeriesID: TIntegerField;
+    adt_activeProductSeriesDesc: TStringField;
+    adt_activeProductSeriesChineseDesc: TStringField;
+    adt_active2CustomerID: TIntegerField;
+    adt_active2CustomerOrderNumber: TStringField;
+    adt_active2ATD: TDateTimeField;
+    adt_active2CustomerPurchaseOrderNumber: TStringField;
+    adt_active2Country: TStringField;
+    adt_active2CustomerAddress: TStringField;
+    adt_active2ContactPerson: TStringField;
+    adt_active2Telephone: TStringField;
+    adt_active2Fax: TStringField;
+    adt_active2ProductSeriesID: TIntegerField;
+    adt_active2ProductSeriesDesc: TStringField;
+    adt_active2ProductSeriesChineseDesc: TStringField;
+    adt_activeLine: TStringField;
+    adt_activeRTD: TDateTimeField;
+    adt_activeETD: TDateTimeField;
+    adt_activeModelDescription: TStringField;
+    adt_activeProductPackgeType: TStringField;
+    adt_activeProductGrossWeight: TStringField;
+    adt_activeProductSize: TStringField;
+    adt_activeCustomerOrderID: TAutoIncField;
+    adt_active2Line: TStringField;
+    adt_active2CustomerOrderID: TAutoIncField;
+    adt_active2RTD: TDateTimeField;
+    adt_active2ETD: TDateTimeField;
+    adt_active2ModelDescription: TStringField;
+    adt_active2ProductPackgeType: TStringField;
+    adt_active2ProductGrossWeight: TStringField;
+    adt_active2ProductSize: TStringField;
+    adt_activeIsCHN: TStringField;
+    adt_active2IsCHN: TStringField;
+    Timer1: TTimer;
+    Splitter2: TSplitter;
+    adt_activeCustomerOrderStatesName: TStringField;
+    adt_active2CustomerOrderStatesName: TStringField;
+    procedure adt_activeAfterScroll(DataSet: TDataSet);
+    procedure edtComponentItemKeyPress(Sender: TObject; var Key: Char);
+    procedure btnQueryClick(Sender: TObject);
+    procedure edtComponentSNKeyPress(Sender: TObject; var Key: Char);
+    procedure edtComponentSNExit(Sender: TObject);
+    procedure gridDataGetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+    procedure gridData2GetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+    procedure gridComponentTrackGetCellParams(Sender: TObject;
+      Column: TColumnEh; AFont: TFont; var Background: TColor;
+      State: TGridDrawState);
+    procedure adt_active2AfterScroll(DataSet: TDataSet);
+    procedure gridData2Enter(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ComponentSNKeyPressEnter;
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uMJ, ufrmDBBasic;
+
+{$R *.dfm}
+
+{ TfrmProductTracking }
+
+procedure TfrmProductTracking.SetData;
+var
+  adt_productDate: TADODataSet;
+begin
+  DM.DataSetQuery(adt_component, 'EXEC usp_GetProductComponentTracking @ProductTrackingID=0');
+  adt_productDate := TADODataSet.Create(nil);
+  try
+    DM.DataSetQuery(adt_productDate, 'EXEC usp_GetMinScheduleStartTime');
+    if adt_productDate.RecordCount = 1 then
+      dtpScheduleDate.DateTime := adt_productDate.fieldbyname('MinScheduleStartTime').AsDateTime
+    else
+      dtpScheduleDate.DateTime := now();
+  finally
+    adt_productDate.Free;
+  end;
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetProductTracking @ProductionScheduleID=0');
+  DM.DataSetQuery(adt_active2, 'EXEC usp_GetProductTracking @ProductionScheduleID=0');
+end;
+
+procedure TfrmProductTracking.SetUI;
+begin
+  inherited;
+  BorderIcons := [];
+  PnlTop.Visible := false;
+{  tbtnExit.Visible := false;
+  tbtnFilter.Visible := false;
+  tbtnFind.Visible := false;
+  tbtnOperation.Visible := false;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast];  }
+end;
+
+procedure TfrmProductTracking.SetAccess;
+begin
+  inherited;
+  edtComponentSN.Enabled := false;
+  edtComponentSN.ParentColor := true;
+  gridData.Enabled := false;
+  gridData2.Enabled := false;
+  gridData.ParentColor := true;
+  gridData2.ParentColor := true;
+  gridComponentTrack.ReadOnly := true;
+  gridComponentTrack.ParentColor := true;
+  Timer1.Enabled := false;
+  case gVars.CurUserLevel of
+    3:
+      begin
+        gridData.Enabled := true;
+        gridData2.Enabled := true;
+        gridData.ParentColor := false;
+        gridData2.ParentColor := false;
+        gboxScan.Visible := false;
+      end;
+    21:
+      Timer1.Enabled := true;
+  end;
+  btnQuery.Click;
+end;
+
+procedure TfrmProductTracking.gridDataGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  //inherited;
+end;
+
+procedure TfrmProductTracking.gridData2GetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  //inherited;
+end;
+
+procedure TfrmProductTracking.btnQueryClick(Sender: TObject);
+var
+  TrackingStatesID1, TrackingStatesID2: string;
+begin
+  case gVars.CurUserLevel of
+    1:
+      begin
+        TrackingStatesID1 := '1';
+        TrackingStatesID2 := '2';
+      end;
+    3:
+      begin
+        TrackingStatesID1 := '1';
+        TrackingStatesID2 := '2';
+      end;
+    21:
+      begin
+        case gVars.CurLoginID of
+          62:
+            begin
+              TrackingStatesID1 := '1';
+              TrackingStatesID2 := '2';
+            end;
+          63:
+            begin
+              TrackingStatesID1 := '2';
+              TrackingStatesID2 := '3';
+            end;
+          101:
+            begin
+              TrackingStatesID1 := '3';
+              TrackingStatesID2 := '4';
+            end;
+          102:
+            begin
+              TrackingStatesID1 := '0';
+              TrackingStatesID2 := '10';
+            end;
+        end;
+      end;
+  end;
+
+  adt_active.AfterScroll := nil;
+  try
+    if ((TrackingStatesID1 <> '0') and (TrackingStatesID1 <> '10')) then
+    begin
+      DM.DataSetQuery(adt_active, 'EXEC usp_GetProductTracking @ProductTrackingStatesID=''' + TrackingStatesID1
+        + ''',@ScheduleStartTime=''' + FormatDateTime('YYYY-mm-dd', dtpScheduleDate.DateTime) + ''''
+        + ',@Col=''ProductTrackingID''');
+      DM.DataSetQuery(adt_active2, 'EXEC usp_GetProductTracking @ProductTrackingStatesID=' + TrackingStatesID2
+        + ',@ScheduleStartTime=''' + FormatDateTime('YYYY-mm-dd', dtpScheduleDate.DateTime) + ''''
+        + ',@Col=''ProductTrackingID desc''');
+    end
+    else
+    begin
+      DM.DataSetQuery(adt_active, 'EXEC usp_GetProductTracking2 @ProductTrackingStatesID=0,@ScheduleStartTime=''' + FormatDateTime('YYYY-mm-dd', dtpScheduleDate.DateTime) + '''');
+      DM.DataSetQuery(adt_active2, 'EXEC usp_GetProductTracking2 @ProductTrackingStatesID=10,@ScheduleStartTime=''' + FormatDateTime('YYYY-mm-dd', dtpScheduleDate.DateTime) + ''''
+        + ',@Col=''ProductTrackingID desc''');
+    end;
+  finally
+    adt_active.AfterScroll := adt_activeAfterScroll;
+    adt_active.First;
+  end;
+end;
+
+procedure TfrmProductTracking.adt_activeAfterScroll(DataSet: TDataSet);
+var
+//  adt_packge: TADODataSet;
+  sqlConst: string;
+begin
+  inherited;
+  if DataSet.RecordCount > 0 then
+  begin
+    if gridComponentTrack.DataSource.DataSet = nil then
+    begin
+      gridComponentTrack.DataSource.DataSet := adt_component;
+      gridComponentTrack.DataSource.DataSet.Active := false;
+      gridComponentTrack.DataSource.DataSet.Active := true;
+    end;
+    gboxComponentTrack.Caption := 'Component Of Model : ' + DataSet.fieldbyname('Model').AsString
+      + ' / Unit SN. : ' + DataSet.fieldbyname('ProductSerialNumber').AsString
+      + ' / ID : ' + DataSet.fieldbyname('ProductTrackingID').AsString;
+
+    if dbtxtTrackingStatesID.Caption = '1' then
+      sqlConst := ',@Station=1';
+    if dbtxtTrackingStatesID.Caption = '2' then
+      sqlConst := ',@Station=2';
+    if dbtxtTrackingStatesID.Caption = '3' then
+      sqlConst := ',@Station=3';
+    //if dbtxtTrackingStatesID.Caption = '0' then
+    if gVars.CurLoginID = 102 then
+      sqlConst := ',@Station=0';
+    DM.DataSetQuery(adt_component, 'EXEC usp_GetProductComponentTracking @ProductTrackingID='
+      + DataSet.fieldbyname('ProductTrackingID').AsString + sqlConst);
+    if DataSet.fieldbyname('CustomerID').AsInteger = 230 then
+    begin
+      dbtxtPackgeType.Caption := 'ÊµÄ¾°ü×°';
+    end;
+   // else
+     // dbtxtPackgeType.DataSource.DataSet := adt_active;
+    {
+    adt_packge := TADODataSet.Create(nil);
+    try
+      gboxComponentTrack.Caption := 'Component Of Model : ' + DataSet.fieldbyname('Model').AsString
+        + ' / Unit SN. : ' + DataSet.fieldbyname('ProductSerialNumber').AsString
+        + ' / ID : ' + DataSet.fieldbyname('ProductTrackingID').AsString;
+      DM.DataSetQuery(adt_component, 'EXEC usp_GetProductComponentTracking @ProductTrackingID='
+        + DataSet.fieldbyname('ProductTrackingID').AsString);
+      DM.DataSetQuery(adt_packge, 'EXEC usp_GetProductPackgeCUD @ProductSeriesID='
+        + gridData.DataSource.DataSet.FieldByName('ProductSeriesID').AsString
+        + ',@IsCHN=' + gridData.DataSource.DataSet.FieldByName('IsCHN').AsString);
+      if adt_packge.RecordCount > 0 then
+        dbtxtPackgeType.Caption := adt_packge.fieldbyname('ProductPackgeType').AsString;
+    finally
+      adt_packge.Free;
+    end;
+    }
+  end
+  else
+  begin
+    gridComponentTrack.DataSource.DataSet := nil;
+    gboxComponentTrack.Caption := '';
+  end;
+end;
+
+procedure TfrmProductTracking.gridData2Enter(Sender: TObject);
+begin
+  inherited;
+  adt_active2.AfterScroll := adt_active2AfterScroll;
+end;
+
+procedure TfrmProductTracking.adt_active2AfterScroll(DataSet: TDataSet);
+var
+  adt_packge: TADODataSet;
+begin
+  inherited;
+  if gridData2.DataSource.DataSet.RecordCount > 0 then
+  begin
+    adt_packge := TADODataSet.Create(nil);
+    try
+      gboxComponentTrack.Caption := 'Component Of Model : ' + DataSet.fieldbyname('Model').AsString
+        + ' / Product SN. : ' + DataSet.fieldbyname('ProductSerialNumber').AsString;
+
+      DM.DataSetQuery(adt_component, 'EXEC usp_GetProductComponentTracking @ProductTrackingID='
+        + DataSet.fieldbyname('ProductTrackingID').AsString);
+
+      DM.DataSetQuery(adt_packge, 'EXEC usp_GetProductPackgeCUD @ProductSeriesID='
+        + gridData.DataSource.DataSet.FieldByName('ProductSeriesID').AsString
+        + ',@IsCHN=' + gridData.DataSource.DataSet.FieldByName('IsCHN').AsString);
+      if adt_packge.RecordCount > 0 then
+        dbtxtPackgeType.Caption := adt_packge.fieldbyname('ProductPackgeType').AsString;
+    finally
+      adt_packge.Free;
+    end;
+  end;
+end;
+
+procedure TfrmProductTracking.edtComponentSNExit(Sender: TObject);
+begin
+  inherited;
+  edtComponentSN.Clear;
+  edtComponentSN.Enabled := false;
+  edtComponentSN.Color := clBtnFace;
+end;
+
+procedure TfrmProductTracking.edtComponentItemKeyPress(Sender: TObject;
+  var Key: Char);
+
+  function CheckScanInfo(Model, ScanComponentItem: string): TComponentInfo;
+  var
+    adt_bom: TADODataSet;
+    componentInfo: TComponentInfo;
+  begin
+    adt_bom := TADODataSet.Create(nil);
+    try
+      DM.DataSetQuery(adt_bom, 'EXEC usp_GetBOM_NoLine @Model='''
+        + Model + ''',@ComponentItem=''' + ScanComponentItem + '''');
+      if adt_bom.RecordCount > 0 then
+      begin
+        componentInfo.ComponentID := adt_bom.fieldbyname('ComponentID').AsInteger;
+        componentInfo.ComponentSeriesID := adt_bom.fieldbyname('ComponentSeriesID').AsInteger;
+      end
+      else
+      begin
+        componentInfo.ComponentID := 0;
+        componentInfo.ComponentSeriesID := 0;
+      end;
+      Result := componentInfo;
+    finally
+      adt_bom.Free;
+    end;
+  end;
+
+var
+  compInfo: TComponentInfo;
+begin
+  edtComponentSN.Clear;
+  edtComponentSN.Enabled := false;
+  edtComponentSN.Color := clBtnFace;
+  if (Key = #13) then
+  begin
+    if gridComponentTrack.DataSource.DataSet = nil then
+    begin
+      showmessage('gridComponentTrack isn''t connect to db.');
+      exit;
+    end;
+    if gridComponentTrack.DataSource.DataSet.RecordCount = 0 then
+    begin
+      showmessage('gridComponentTrack haven''t record.');
+      exit;
+    end;
+    if edtComponentItem.Text = '' then
+    begin
+      showmessage('Please input part no.');
+      exit;
+    end;
+    compInfo := CheckScanInfo(Trim(dbtxtModel.Caption), Trim(edtComponentItem.Text));
+    LabelComponentID.Caption := IntToStr(compInfo.ComponentID);
+    if compInfo.ComponentID = 0 then
+    begin
+      ShowMessage('Not exist this component in database.');
+      edtComponentSN.Enabled := false;
+      edtComponentSN.Color := clBtnFace;
+      //GroupBox1.Enabled := false;
+      edtComponentItem.SetFocus;
+      edtComponentItem.SelectAll;
+      exit;
+    end
+    else
+    begin
+      gridComponentTrack.DataSource.DataSet.First;
+      while not gridComponentTrack.DataSource.DataSet.Eof do
+      begin
+        if gridComponentTrack.DataSource.DataSet.FieldByName('ComponentID').AsString
+          = LabelComponentID.Caption then
+        begin
+          gridComponentTrack.DataSource.DataSet.GetBookmark;
+          Break;
+        end;
+        gridComponentTrack.DataSource.DataSet.Next;
+      end;
+      edtComponentSN.Enabled := true;
+      edtComponentSN.Color := clWindow;
+      //GroupBox1.Enabled := true;
+      edtComponentSN.SetFocus;
+      edtComponentSN.SelectAll;
+      if compInfo.ComponentSeriesID <> 113 then
+      begin
+        edtComponentSN.Text := '1';
+        ComponentSNKeyPressEnter;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmProductTracking.edtComponentSNKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if (Key = #13) then
+  begin
+    ComponentSNKeyPressEnter;
+  end;
+end;
+
+procedure TfrmProductTracking.ComponentSNKeyPressEnter;
+
+  function CheckScanInfoIsFullyIn1stStation(TrackingID, TrackingStatesID: integer): Boolean;
+  var
+    sqlConst: string;
+    adt_pc: TADODataSet;
+  begin
+    adt_pc := TADODataSet.Create(nil);
+    try
+      if TrackingStatesID = 1 then
+        sqlConst := ',@Station=1';
+      if TrackingStatesID = 2 then
+        sqlConst := ',@Station=2';
+      if TrackingStatesID = 3 then
+        sqlConst := ',@Station=3';
+      if TrackingStatesID = 0 then
+        sqlConst := ',@Station=0';
+      DM.DataSetQuery(adt_pc, 'EXEC usp_GetProductComponentTracking '
+        + ' @ProductTrackingID=' + IntToStr(TrackingID)
+        + ',@ComponentSerialNumber=''''' + sqlConst);
+      if adt_pc.RecordCount = 0 then
+        Result := True
+      else
+        Result := False;
+    finally
+      adt_pc.Free;
+    end;
+  end;
+
+begin
+  if edtComponentSN.Text = '' then
+  begin
+    showmessage('Please input component serial number.');
+    exit;
+  end;
+  gridData.DataSource.DataSet.DisableControls;
+  gridComponentTrack.DataSource.DataSet.DisableControls;
+  try
+    DM.DataSetModify('EXEC usp_UpdateProductComponentTracking '
+      + ' @ProductTrackingID=' + dbtxtTrackingID.Caption
+      + ',@ComponentID=' + LabelComponentID.Caption
+      + ',@ComponentSerialNumber=''' + trim(edtComponentSN.Text) + '''');
+    if CheckScanInfoIsFullyIn1stStation(StrToInt(dbtxtTrackingID.Caption),
+      StrToInt(dbtxtTrackingStatesID.Caption)) then
+    begin
+      DM.DataSetModify('EXEC usp_UpdateProductTracking '
+        + ' @ProductTrackingID=' + dbtxtTrackingID.Caption
+        + ',@ProductTrackingStatesID=' + IntToStr(StrToInt(dbtxtTrackingStatesID.Caption) + 1));
+      btnQuery.Click;
+      if gridData.DataSource.DataSet.RecordCount = 0 then
+      begin
+        gridData.DataSource.DataSet := nil;
+        gridData.DataSource.DataSet := adt_active;
+      end;
+    end
+    else
+    begin
+      gridComponentTrack.DataSource.DataSet.Active := false;
+      gridComponentTrack.DataSource.DataSet.Active := true;
+      gridComponentTrack.DataSource.DataSet.First;
+      if gridComponentTrack.DataSource.DataSet.FieldByName('ComponentID').AsString
+        <> LabelComponentID.Caption then
+      begin
+        while not gridComponentTrack.DataSource.DataSet.Eof do
+        begin
+          if gridComponentTrack.DataSource.DataSet.FieldByName('ComponentID').AsString
+            = LabelComponentID.Caption then Break;
+          gridComponentTrack.DataSource.DataSet.Next;
+        end;
+      end;
+    end;
+  finally
+    gridComponentTrack.DataSource.DataSet.EnableControls;
+    gridData.DataSource.DataSet.EnableControls;
+    edtComponentSN.Clear;
+    edtComponentSN.Enabled := false;
+    edtComponentSN.Color := clBtnFace;
+    //GroupBox1.Enabled := true;
+    edtComponentItem.Clear;
+    edtComponentItem.SetFocus;
+  end;
+end;
+
+procedure TfrmProductTracking.gridComponentTrackGetCellParams(
+  Sender: TObject; Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  if trim(gridComponentTrack.DataSource.DataSet.fieldbyname('ComponentSerialNumber').AsString) <> '' then
+    Background := clYellow;
+end;
+
+procedure TfrmProductTracking.Timer1Timer(Sender: TObject);
+begin
+  inherited;
+  btnQuery.Click;
+  //check us50 data is fully automatic, if the data is fully then update states to um50
+end;
+
+      {
+      bk := gridData.DataSource.DataSet.GetBookmark;
+      try
+        btnQuery.Click;
+        if gridData.DataSource.DataSet.RecordCount <> 0 then
+          gridData.DataSource.DataSet.GotoBookmark(bk)
+        else
+        begin
+          gridData.DataSource.DataSet := nil;
+          gridData.DataSource.DataSet := adt_active;
+        end;
+      finally
+        gridData.DataSource.DataSet.FreeBookmark(bk);
+      end;
+      }
+      {
+      if gridData.DataSource.DataSet.FieldByName('Country').AsString = 'chn' then
+        IsCHN := 1
+      else
+        IsCHN := 0;
+
+      sqlConst := ' and p.ProductSeriesID=' + gridData.DataSource.DataSet.FieldByName('ProductSeriesID').AsString;
+      sqlConst := sqlConst + ' and p.IsCHN=' + IntToStr(IsCHN);
+      DM.DataSetQuery(adt_packge, Format(sQueryProductPackgeCUDSQL, [sqlConst]));
+
+      DM.DataSetQuery(adt_packge, 'EXEC usp_GetProductPackgeCUD @ProductSeriesID='
+        + gridData.DataSource.DataSet.FieldByName('ProductSeriesID').AsString
+        + ',@IsCHN=' + IntToStr(IsCHN));
+       }
+
+    {
+    sqlConst := ' and ProductTrackingID=' + IntToStr(TrackingID);
+    sqlConst := sqlConst + ' and (ltrim(rtrim(ComponentSerialNumber))='''' '
+      + ' or (ltrim(rtrim(ComponentSerialNumber)) is null))';
+    if TrackingStatesID = 1 then
+      sqlConst := sqlConst + ' and ComponentSeriesID in (''113'',''114'',''115'',''122'')';
+    if TrackingStatesID = 2 then
+      sqlConst := sqlConst + ' and ComponentSeriesID in (''113'',''114'',''115'',''122'',''117'',''118'')';
+          //DM.DataSetQuery(adt_pc, Format(sQueryProductComponentTrackingSQL, [sqlConst]));
+    }
+   // sqlConst := ' and Model=''' + Model + '''';
+   // sqlConst := sqlConst + ' and ComponentItem=''' + ScanComponentItem + '''';
+      //DM.DataSetQuery(adt_bom, Format(sQueryBOMSQL, [sqlConst]));
+        {
+    DM.DataSetModify(Format(sUpdateProductTrackingSQL,
+      [,
+      FormatDateTime('YYYY-mm-dd hh:mm', now), TrackingID]));
+
+  ComponentID := StrToInt();
+  TrackingID := StrToInt();
+  DM.DataSetModify(Format(sUpdateProductComponentTrackingSQL,
+    [, TrackingID, ComponentID]));
+var
+  sqlConst1, sqlConst2: string;
+  sqlConst1 := '';
+  sqlConst2 := '';
+  case gVars.CurUserLevel of
+    3:
+      begin
+        sqlConst1 := ' and ProductTrackingStatesID=1';
+        sqlConst2 := ' and ProductTrackingStatesID=2';
+      end;
+    21:
+      begin
+        case gVars.CurLoginID of
+          62:
+            begin
+              sqlConst1 := ' and ProductTrackingStatesID=1';
+              sqlConst2 := ' and ProductTrackingStatesID=2';
+            end;
+          63:
+            begin
+              sqlConst1 := ' and ProductTrackingStatesID=2';
+              sqlConst2 := ' and ProductTrackingStatesID=3';
+            end;
+        end;
+      end;
+  end;
+  sqlConst1 := sqlConst1 + ' and 0=1';
+
+
+      gridComponentTrack.DataSource.DataSet.Active := false;
+      //gridData.DataSource.DataSet.AfterScroll := nil;
+      gridData.DataSource.DataSet.Active := false;
+      gridData.DataSource.DataSet.Active := true;
+      gridData2.DataSource.DataSet.Active := false;
+      gridData2.DataSource.DataSet.Active := true;
+      //gridData.DataSource.DataSet.AfterScroll := adt_activeAfterScroll;
+      gridComponentTrack.DataSource.DataSet.Active := true;      }
+
+{
+  DM.DataSetQuery(adt_active, format(sQueryProductTrackingSQL, [' and 0=1']));
+  DM.DataSetQuery(adt_active2, format(sQueryProductTrackingSQL, [' and 0=1']));
+  DM.DataSetQuery(adt_component, format(sQueryProductComponentTrackingSQL, [' and 0=1']));
+}
+{
+  sqlConst1 := sqlConst1 + ' and Convert(varchar(10),ScheduleStartTime,120)='''
+    + FormatDateTime('YYYY-mm-dd', dtpScheduleDate.DateTime) + '''';
+  sqlConst2 := sqlConst2 + ' and Convert(varchar(10),ScheduleStartTime,120)='''
+    + FormatDateTime('YYYY-mm-dd', dtpScheduleDate.DateTime) + '''';
+  DM.DataSetQuery(adt_active, format(sQueryProductTrackingSQL, [sqlConst1]));
+  DM.DataSetQuery(adt_active2, format(sQueryProductTrackingSQL, [sqlConst2]));
+
+
+        sqlConst := ' and ProductTrackingID=' + DataSet.fieldbyname('ProductTrackingID').AsString;
+      DM.DataSetQuery(adt_component, Format(sQueryProductComponentTrackingSQL, [sqlConst]));
+
+}
+    //DM.DataSetQuery(adt_productDate, sQueryMinScheduleStartTimeSQL);
+
+end.
+

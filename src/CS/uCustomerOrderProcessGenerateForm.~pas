@@ -1,0 +1,752 @@
+unit uCustomerOrderProcessGenerateForm;
+
+interface
+
+uses SysUtils, DBCtrls, Controls, Classes, Variants,
+  ADODB, Dialogs, Forms, WordXP, OleServer, IniFiles, math,
+  uMainframeCustomerOrder, ufrmCustomerOrderProcess, uDMEntity, uDMManager;
+
+type
+
+  TCustomerOrderProcessGenerateForm = class
+    constructor Create; virtual;
+    destructor Destroy; override;
+  public
+    procedure GenerateForm(CustomerOrderProcess: TfrmCustomerOrderProcess);
+    procedure GenerateOA(CustomerOrderProcess: TfrmCustomerOrderProcess);
+    procedure GenerateInvoice(CustomerOrderProcess: TfrmCustomerOrderProcess);
+    procedure GeneratePackingList(CustomerOrderProcess: TfrmCustomerOrderProcess);
+    procedure GenerateDeliveryNote(CustomerOrderProcess: TfrmCustomerOrderProcess);
+  end;
+implementation
+
+uses DataModule, uMJ, ufrmDBBasicTreeDT, uGenerateNote;
+
+constructor TCustomerOrderProcessGenerateForm.Create;
+begin
+
+end;
+
+destructor TCustomerOrderProcessGenerateForm.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TCustomerOrderProcessGenerateForm.GenerateForm(CustomerOrderProcess: TfrmCustomerOrderProcess);
+begin
+  with CustomerOrderProcess do
+  begin
+    if cbbFormType.Text = 'OA' then
+    begin
+      if gridData2.DataSource.DataSet.RecordCount = 0 then
+      begin
+        ShowMessage('Please select data for processing.');
+        exit;
+      end;
+    end;
+
+    if LowerCase(cbbFormType.Text) = 'oa' then
+      GenerateOA(CustomerOrderProcess)
+    else if LowerCase(cbbFormType.Text) = 'invoice' then
+      GenerateInvoice(CustomerOrderProcess)
+    else if LowerCase(cbbFormType.Text) = 'packing' then
+      GeneratePackingList(CustomerOrderProcess)
+    else if LowerCase(cbbFormType.Text) = 'deliverynote' then
+      GenerateDeliveryNote(CustomerOrderProcess);
+  end;
+end;
+
+procedure TCustomerOrderProcessGenerateForm.GenerateOA(CustomerOrderProcess: TfrmCustomerOrderProcess);
+var
+  oTable: WordXP.Table;
+  a, b, c, d, e, f, g, h, i, j, k, l, m, n, p, q, r, s, t, u, v, w, x: OleVariant;
+  Template, NewTemplate, DocumentType, isVisible, ItemIndex: OleVariant;
+  ContractDate, custNum, custName, FullName, CustAddress, custPONum, CommunicatorPhone, OACustName, MNum, RTD: string; //model,
+  CommunicatorFax, Telephone, ContactPerson, PriceTerms, PaymentTerms, Fax, formName: string;
+  Country, ChineseName, Destination, Freight: string;
+  //rtd: TDateTime;
+  y, orderRecordCount, CustomerID, ModelID, totalOrderQty, plantID: integer;
+  totalAmount, carriage, totalAmountAndCarriage: Double;
+  adt_cust, adt_communicator, adt_price: TADODataSet;
+begin
+  with CustomerOrderProcess do
+  begin
+    if Trim(edtForm.Text) = '' then
+    begin
+      ShowMessage('Please input freight cost.');
+      exit;
+    end;
+    carriage := StrToFloat(Trim(edtForm.Text));
+    gridData2.DataSource.DataSet.First;
+    ContractDate := gridData2.DataSource.DataSet.fieldbyname('ContractDate').AsString;
+    custNum := gridData2.DataSource.DataSet.fieldbyname('CustomerNumber').AsString;
+    custName := gridData2.DataSource.DataSet.fieldbyname('CustomerName').AsString;
+    custPONum := gridData2.DataSource.DataSet.fieldbyname('CustomerPurchaseOrderNumber').AsString;
+  //rtd := gridData2.DataSource.DataSet.fieldbyname('RTD').AsDateTime;
+    CustomerID := gridData2.DataSource.DataSet.fieldbyname('CustomerID').AsInteger;
+    ModelID := gridData2.DataSource.DataSet.fieldbyname('ModelID').AsInteger;
+    PlantID := gridData2.DataSource.DataSet.fieldbyname('PlantID').AsInteger;
+    Country := gridData2.DataSource.DataSet.fieldbyname('Country').AsString;
+    ChineseName := gridData2.DataSource.DataSet.fieldbyname('ChineseName').AsString;
+    MNum := gridData2.DataSource.DataSet.fieldbyname('MNumber').AsString;
+    RTD := gridData2.DataSource.DataSet.fieldbyname('RTD').AsString;
+    Destination := gridData2.DataSource.DataSet.fieldbyname('Destination').AsString;
+    Freight := gridData2.DataSource.DataSet.fieldbyname('Freight').AsString;
+    if PlantID in () then
+      OACustName := ChineseName
+    else
+      OACustName := custName;
+{    if LowerCase(Country) = 'chn' then
+      OACustName := ChineseName
+    else
+      OACustName := custName;   }
+    totalOrderQty := gridData2.FieldColumns['CustomerOrderQuantity'].Footer.SumValue;
+    totalAmount := gridData2.FieldColumns['TotalAmount'].Footer.SumValue;
+    totalAmountAndCarriage := totalAmount + carriage;
+    orderRecordCount := gridData2.DataSource.DataSet.RecordCount;
+
+    adt_cust := TADODataSet.Create(nil);
+    adt_communicator := TADODataSet.Create(nil);
+    adt_price := TADODataSet.Create(nil);
+    DM.DataSetQuery(adt_communicator, 'EXEC usp_GetCommunicator @LoginID=' + IntToStr(objCurUser.LoginID));
+    DM.DataSetQuery(adt_cust, 'EXEC usp_GetCustomer @CustomerNumber=''' + custNum + '''');
+    DM.DataSetQuery(adt_price, 'EXEC usp_GetPrice @CustomerID='
+      + IntToStr(CustomerID) + ',@ModelID=' + IntToStr(ModelID));
+    CommunicatorPhone := adt_communicator.fieldbyname('CommunicatorPhone').AsString;
+    CommunicatorFax := adt_communicator.fieldbyname('CommunicatorFax').AsString;
+    FullName := adt_cust.fieldbyname('FullName').AsString;
+    CustAddress := adt_cust.fieldbyname('CustomerAddress').AsString;
+    ContactPerson := adt_cust.fieldbyname('ContactPerson').AsString;
+    Telephone := adt_cust.fieldbyname('Telephone').AsString;
+    Fax := adt_cust.fieldbyname('Fax').AsString;
+    adt_price.First;
+    PriceTerms := adt_price.fieldbyname('PriceTerms').AsString;
+    PaymentTerms := adt_price.fieldbyname('PaymentTerms').AsString;
+
+    try
+      try
+        WordApplication1.Connect;
+      except
+        Beep;
+        MessageDlg('无法连接，没有安装Word', mtError, [mbOK], 0);
+        Abort;
+      end;
+
+      case PlantID of
+        1:
+          begin
+            formName := 'OA38';
+            if LowerCase(custNum) = 'c7tn' then
+            begin
+              formName := 'C7TNOA';
+            end;
+          end;
+        2:
+          formName := 'OA72';
+        3:
+          formName := 'OA80';
+        4:
+          formName := 'OA80';
+        5:
+          formName := 'OA80';
+        7:
+          formName := 'POOversea';
+        9:
+          formName := 'POOversea';
+        10:
+          formName := 'POOversea';
+        11:
+          formName := 'POOversea';
+        12:
+          formName := 'POOversea';
+      end;
+      WordApplication1.Visible := true;
+      Template := ExtractFilePath(application.ExeName) + 'FormTemplate\' + formName; //'FormTemplate\OASuzhou.dot';
+      NewTemplate := False;
+      DocumentType := wdNewBlankDocument;
+      isVisible := true;
+      WordApplication1.Documents.Add(Template, NewTemplate, DocumentType, isVisible);
+      itemIndex := 1;
+      WordDocument1.ConnectTo(WordApplication1.Documents.Item(itemIndex));
+
+      if LowerCase(custNum) <> 'c7tn' then
+      begin
+        a := 'mCustName';
+        b := 'mCommunicator';
+        c := 'mCommunicatorTel';
+        d := 'mCommunicatorFax';
+        e := 'mContactName';
+        f := 'mContactName2';
+        g := 'mCustPO';
+        h := 'mDate';
+        i := 'mFax';
+        j := 'mAmount';
+        k := 'mOrder';
+        l := 'mCarriage';
+        m := 'mCustNo';
+        n := 'mMNo';
+        p := 'mRTD';
+        q := 'mTelephone';
+        r := 'mFullname';
+        s := 'mCustAddress';
+        t := 'mContactPerson';
+        u := 'mDestination';
+        v := 'mPaymentTerms';
+        w := 'mFreight';
+        x := 'mPriceTerms';
+        if (PlantID = 7) or (PlantID = 9) or (PlantID = 10) or (PlantID = 11) or (PlantID = 12) then
+        begin
+          WordDocument1.Bookmarks.Item(a).Range.Text := OACustName;
+          WordDocument1.Bookmarks.Item(m).Range.Text := custNum;
+          WordDocument1.Bookmarks.Item(b).Range.Text := gVars.CurUserDisplayName;
+          WordDocument1.Bookmarks.Item(g).Range.Text := custPONum;
+          WordDocument1.Bookmarks.Item(h).Range.Text := FormatDateTime('YYYY-mm-dd', now);
+          WordDocument1.Bookmarks.Item(n).Range.Text := MNum;
+          WordDocument1.Bookmarks.Item(p).Range.Text := RTD;
+          WordDocument1.Bookmarks.Item(i).Range.Text := 'Fax' + Fax;
+          WordDocument1.Bookmarks.Item(q).Range.Text := 'Tel' + Telephone;
+          WordDocument1.Bookmarks.Item(r).Range.Text := FullName;
+          WordDocument1.Bookmarks.Item(s).Range.Text := CustAddress;
+          WordDocument1.Bookmarks.Item(t).Range.Text := 'ContactPerson' + ContactPerson;
+          WordDocument1.Bookmarks.Item(u).Range.Text := Destination;
+          WordDocument1.Bookmarks.Item(v).Range.Text := PaymentTerms;
+          WordDocument1.Bookmarks.Item(w).Range.Text := Freight;
+          WordDocument1.Bookmarks.Item(x).Range.Text := PriceTerms;
+          //WordDocument1.Bookmarks.Item(j).Range.Text := FloatToStr(totalAmountAndCarriage);
+        end
+        else
+        begin
+          WordDocument1.Bookmarks.Item(a).Range.Text := OACustName;
+          WordDocument1.Bookmarks.Item(b).Range.Text := gVars.CurUserDisplayName;
+          WordDocument1.Bookmarks.Item(c).Range.Text := CommunicatorPhone;
+          WordDocument1.Bookmarks.Item(d).Range.Text := CommunicatorFax;
+          WordDocument1.Bookmarks.Item(e).Range.Text := ContactPerson;
+          WordDocument1.Bookmarks.Item(f).Range.Text := ContactPerson;
+          WordDocument1.Bookmarks.Item(g).Range.Text := custPONum;
+          WordDocument1.Bookmarks.Item(h).Range.Text := FormatDateTime('YYYY-mm-dd', now);
+          WordDocument1.Bookmarks.Item(i).Range.Text := Fax;
+          WordDocument1.Bookmarks.Item(j).Range.Text := FloatToStr(totalAmountAndCarriage);
+          WordDocument1.Bookmarks.Item(l).Range.Text := '运费: ' + trim(edtForm.Text);
+        end;
+
+        if PlantID = 1 then
+        begin
+          oTable := WordDocument1.Tables.Add(WordDocument1.Bookmarks.Item(k).Range,
+            orderRecordCount + 2, 8, EmptyParam, EmptyParam);
+          oTable.Cell(1, 1).Range.Text := '订单号'; //'谷轮订单号';
+          oTable.Cell(1, 2).Range.Text := '型号';
+          oTable.Cell(1, 3).Range.Text := '数量';
+          oTable.Cell(1, 4).Range.Text := '单价';
+          oTable.Cell(1, 5).Range.Text := '总价';
+          oTable.Cell(1, 6).Range.Text := '价格条款';
+          oTable.Cell(1, 7).Range.Text := '下单日';
+          oTable.Cell(1, 8).Range.Text := '出厂日';
+          gridData2.DataSource.DataSet.First;
+          for y := 1 to orderRecordCount do
+          begin
+            oTable.Cell(1 + y, 1).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderNumber').AsString;
+            oTable.Cell(1 + y, 2).Range.Text := gridData2.DataSource.DataSet.FieldByName('Model').AsString;
+            oTable.Cell(1 + y, 3).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsString;
+            oTable.Cell(1 + y, 4).Range.Text := gridData2.DataSource.DataSet.FieldByName('Price').AsString;
+            oTable.Cell(1 + y, 5).Range.Text := gridData2.DataSource.DataSet.FieldByName('TotalAmount').AsString;
+            oTable.Cell(1 + y, 6).Range.Text := PriceTerms;
+            oTable.Cell(1 + y, 7).Range.Text := gridData2.DataSource.DataSet.FieldByName('ContractDate').AsString;
+            oTable.Cell(1 + y, 8).Range.Text := gridData2.DataSource.DataSet.FieldByName('ETD').AsString;
+            gridData2.DataSource.DataSet.Next;
+          end;
+          oTable.Cell(3 + orderRecordCount, 1).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 2).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 3).Range.Text := IntToStr(totalOrderQty);
+          oTable.Cell(3 + orderRecordCount, 4).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 5).Range.Text := FloatToStr(totalAmount);
+          oTable.Cell(3 + orderRecordCount, 6).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 7).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 8).Range.Text := '';
+        end
+        else if (PlantID = 2) or (PlantID = 3) or (PlantID = 4) or (PlantID = 5) then
+        begin
+          oTable := WordDocument1.Tables.Add(WordDocument1.Bookmarks.Item(k).Range,
+            orderRecordCount + 2, 7, EmptyParam, EmptyParam);
+          oTable.Cell(1, 1).Range.Text := '型号';
+          oTable.Cell(1, 2).Range.Text := '型号描述';
+          oTable.Cell(1, 3).Range.Text := '数量';
+          oTable.Cell(1, 4).Range.Text := '单价';
+          oTable.Cell(1, 5).Range.Text := '总价';
+          oTable.Cell(1, 6).Range.Text := '下单日';
+          oTable.Cell(1, 7).Range.Text := '出厂日';
+          gridData2.DataSource.DataSet.First;
+          for y := 1 to orderRecordCount do
+          begin
+            oTable.Cell(1 + y, 1).Range.Text := gridData2.DataSource.DataSet.FieldByName('Model').AsString;
+            oTable.Cell(1 + y, 2).Range.Text := gridData2.DataSource.DataSet.FieldByName('ModelDescription').AsString;
+            oTable.Cell(1 + y, 3).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsString;
+            oTable.Cell(1 + y, 4).Range.Text := gridData2.DataSource.DataSet.FieldByName('Price').AsString;
+            oTable.Cell(1 + y, 5).Range.Text := gridData2.DataSource.DataSet.FieldByName('TotalAmount').AsString;
+            oTable.Cell(1 + y, 6).Range.Text := gridData2.DataSource.DataSet.FieldByName('ContractDate').AsString;
+            oTable.Cell(1 + y, 7).Range.Text := gridData2.DataSource.DataSet.FieldByName('ETD').AsString;
+            gridData2.DataSource.DataSet.Next;
+          end;
+          oTable.Cell(3 + orderRecordCount, 1).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 2).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 3).Range.Text := IntToStr(totalOrderQty);
+          oTable.Cell(3 + orderRecordCount, 4).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 5).Range.Text := FloatToStr(totalAmount);
+          oTable.Cell(3 + orderRecordCount, 6).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 7).Range.Text := '';
+        end
+        else if (PlantID = 7) or (PlantID = 9) or (PlantID = 10) or (PlantID = 11) or (PlantID = 12) then
+        begin
+          oTable := WordDocument1.Tables.Add(WordDocument1.Bookmarks.Item(k).Range,
+            orderRecordCount + 2, 7, EmptyParam, EmptyParam);
+          oTable.Cell(1, 1).Range.Text := 'Order No.'; //'谷轮订单号';
+          oTable.Cell(1, 2).Range.Text := 'Model';
+          oTable.Cell(1, 3).Range.Text := 'Quantity';
+          oTable.Cell(1, 4).Range.Text := 'Currency';
+          oTable.Cell(1, 5).Range.Text := 'Price';
+          oTable.Cell(1, 6).Range.Text := 'Total Amount';
+          //oTable.Cell(1, 6).Range.Text := 'PriceTerms';
+          oTable.Cell(1, 7).Range.Text := 'Contact Date';
+          //oTable.Cell(1, 7).Range.Text := 'ATD';
+          gridData2.DataSource.DataSet.First;
+          for y := 1 to orderRecordCount do
+          begin
+            oTable.Cell(1 + y, 1).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderNumber').AsString;
+            oTable.Cell(1 + y, 2).Range.Text := gridData2.DataSource.DataSet.FieldByName('Model').AsString;
+            oTable.Cell(1 + y, 3).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsString;
+            oTable.Cell(1 + y, 4).Range.Text := gridData2.DataSource.DataSet.FieldByName('Currency').AsString;
+            oTable.Cell(1 + y, 5).Range.Text := gridData2.DataSource.DataSet.FieldByName('Price').AsString;
+            oTable.Cell(1 + y, 6).Range.Text := gridData2.DataSource.DataSet.FieldByName('TotalAmount').AsString;
+            //oTable.Cell(1 + y, 6).Range.Text := PriceTerms;
+            oTable.Cell(1 + y, 7).Range.Text := gridData2.DataSource.DataSet.FieldByName('ContractDate').AsString;
+            //oTable.Cell(1 + y, 8).Range.Text := gridData2.DataSource.DataSet.FieldByName('ETD').AsString;
+            gridData2.DataSource.DataSet.Next;
+          end;
+          oTable.Cell(3 + orderRecordCount, 1).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 2).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 3).Range.Text := IntToStr(totalOrderQty);
+          oTable.Cell(3 + orderRecordCount, 4).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 5).Range.Text := '';
+          oTable.Cell(3 + orderRecordCount, 6).Range.Text := FloatToStr(totalAmount);
+          oTable.Cell(3 + orderRecordCount, 7).Range.Text := '';
+          //oTable.Cell(3 + orderRecordCount, 7).Range.Text := '';
+          //oTable.Cell(3 + orderRecordCount, 8).Range.Text := '';
+        end;
+
+        oTable.Range.Select;
+        oTable.Range.Font.Size := 10;
+        oTable.Range.Font.Bold := 1;
+      end
+      else //custNum = 'c7tn'
+      begin
+        a := 'mCustPONo';
+        b := 'mOrderDate';
+        //c := 'mAmount';
+        d := 'mTotalQty';
+        e := 'mTotalPrice';
+        f := 'mCarriage';
+        g := 'mTotalPrice2';
+        h := 'mTotalPrice3';
+        i := 'mOADate';
+        j := 'mTotalPriceDaxie';
+        k := 'mOrder';
+        WordDocument1.Bookmarks.Item(a).Range.Text := custPONum;
+        WordDocument1.Bookmarks.Item(b).Range.Text := ContractDate;
+        //WordDocument1.Bookmarks.Item(c).Range.Text := FloatToStr(totalAmount);
+        WordDocument1.Bookmarks.Item(d).Range.Text := '总数量:' + IntToStr(totalOrderQty);
+        WordDocument1.Bookmarks.Item(e).Range.Text := '金额:' + FloatToStr(totalAmount);
+        WordDocument1.Bookmarks.Item(f).Range.Text := '运费:' + trim(edtForm.Text);
+        WordDocument1.Bookmarks.Item(g).Range.Text := '付款总金额:' + FloatToStr(totalAmountAndCarriage);
+        WordDocument1.Bookmarks.Item(h).Range.Text := FloatToStr(totalAmount);
+        WordDocument1.Bookmarks.Item(i).Range.Text := FormatDateTime('YYYY-mm-dd', now);
+        WordDocument1.Bookmarks.Item(j).Range.Text := mjSmallTOBig(totalAmount);
+
+        oTable := WordDocument1.Tables.Add(WordDocument1.Bookmarks.Item(k).Range,
+          orderRecordCount + 2, 8, EmptyParam, EmptyParam);
+        oTable.Cell(1, 1).Range.Text := '谷轮订单号';
+        oTable.Cell(1, 2).Range.Text := '型号';
+        oTable.Cell(1, 3).Range.Text := '数量';
+        oTable.Cell(1, 4).Range.Text := '单价(不含运费)';
+        oTable.Cell(1, 5).Range.Text := '总价';
+        oTable.Cell(1, 6).Range.Text := '价格条款';
+        oTable.Cell(1, 7).Range.Text := '下单日';
+        oTable.Cell(1, 8).Range.Text := '出厂日';
+        gridData2.DataSource.DataSet.First;
+        for y := 1 to orderRecordCount do
+        begin
+          oTable.Cell(1 + y, 1).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderNumber').AsString;
+          oTable.Cell(1 + y, 2).Range.Text := gridData2.DataSource.DataSet.FieldByName('Model').AsString;
+          oTable.Cell(1 + y, 3).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsString;
+          oTable.Cell(1 + y, 4).Range.Text := gridData2.DataSource.DataSet.FieldByName('Price').AsString;
+          oTable.Cell(1 + y, 5).Range.Text := gridData2.DataSource.DataSet.FieldByName('TotalAmount').AsString;
+          oTable.Cell(1 + y, 6).Range.Text := PriceTerms;
+          oTable.Cell(1 + y, 7).Range.Text := gridData2.DataSource.DataSet.FieldByName('ContractDate').AsString;
+          oTable.Cell(1 + y, 8).Range.Text := gridData2.DataSource.DataSet.FieldByName('ETD').AsString;
+          gridData2.DataSource.DataSet.Next;
+        end;
+        oTable.Cell(3 + orderRecordCount, 1).Range.Text := '';
+        oTable.Cell(3 + orderRecordCount, 2).Range.Text := '';
+        oTable.Cell(3 + orderRecordCount, 3).Range.Text := IntToStr(totalOrderQty);
+        oTable.Cell(3 + orderRecordCount, 4).Range.Text := '';
+        oTable.Cell(3 + orderRecordCount, 5).Range.Text := FloatToStr(totalAmount);
+        oTable.Cell(3 + orderRecordCount, 6).Range.Text := '';
+        oTable.Cell(3 + orderRecordCount, 7).Range.Text := '';
+        oTable.Cell(3 + orderRecordCount, 8).Range.Text := '';
+      end;
+
+      WordApplication1.Disconnect;
+    except on E: Exception do
+      begin
+        ShowMessage(E.Message);
+        WordApplication1.Disconnect;
+      end;
+    end;
+    adt_cust.Free;
+    adt_communicator.Free;
+    adt_price.Free;
+  end;
+end;
+
+procedure TCustomerOrderProcessGenerateForm.GenerateInvoice(CustomerOrderProcess: TfrmCustomerOrderProcess);
+var
+  InvoiceMacroName, FileName, ConfirmConversions, ReadOnly, AddToRecentFiles,
+    PasswordDocument, PasswordTemplate, Revert,
+    WritePasswordDocument, WritePasswordTemplate, Format: olevariant;
+  aWdLine, aCount, aNothing, aEnd, aStart: olevariant;
+  r: TIniFile;
+  InvoicePath, WPlantPath, InvoiceNum, OrderNum: string;
+  PlantID: integer;
+  adt_order: TADODataSet;
+begin
+  with CustomerOrderProcess do
+  begin
+    r := TIniFile.Create(ChangeFileExt(ParamStr(0), '.ini'));
+    InvoiceMacroName := r.ReadString('Invoice', 'InvoiceMacroName', '');
+
+    OrderNum := '';
+    InvoiceNum := trim(edtForm.Text);
+    adt_order := TADODataSet.Create(nil);
+    try
+      DM.DataSetQuery(adt_order, 'EXEC usp_GetCustomerOrder @InvoiceNumber=''' + InvoiceNum + ''',@Col =''CustomerOrderID''');
+      if adt_order.RecordCount > 0 then
+      begin
+        adt_order.First;
+        PlantID := adt_order.fieldbyname('PlantID').AsInteger;
+        while not adt_order.Eof do
+        begin
+          OrderNum := OrderNum + adt_order.fieldbyname('CustomerOrderNumber').AsString + ' ';
+          adt_order.Next;
+        end;
+      end
+      else
+      begin
+        ShowMessage('Can''t find this invoice no.');
+        Exit;
+      end;
+    finally
+      adt_order.Free;
+    end;
+
+    if PlantID = 1 then
+      WPlantPath := 'Plt38'
+    else if PlantID = 2 then
+      WPlantPath := 'Plt72'
+    else
+      WPlantPath := 'Plt80';
+    InvoicePath := 'W:\' + WPlantPath + '\SPLN\';
+
+    try
+      WordApplication1.Connect;
+    except
+      Beep;
+      MessageDlg('无法连接，没有安装Word', mtError, [mbOK], 0);
+      Abort;
+    end;
+
+    try
+      WordApplication1.Visible := true;
+
+      FileName := InvoicePath + InvoiceNum + '.txt';
+      ConfirmConversions := False;
+      ReadOnly := False;
+      AddToRecentFiles := False;
+      PasswordDocument := '';
+      PasswordTemplate := '';
+      Revert := True;
+      WritePasswordDocument := '';
+      WritePasswordTemplate := '';
+      Format := wdOpenFormatAuto;
+
+      WordApplication1.Documents.Open(FileName, ConfirmConversions,
+        ReadOnly, AddToRecentFiles, PasswordDocument, PasswordTemplate,
+        Revert, WritePasswordDocument, WritePasswordTemplate, Format,
+        EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam);
+
+      aWdLine := wdLine;
+      aCount := 22;
+      aNothing := EmptyParam;
+      aStart := wdCharacter;
+      aEnd := 65;
+      WordApplication1.Selection.MoveDown(aWdLine, aCount, aNothing); //移动焦点
+      WordApplication1.Selection.MoveRight(aStart, aEnd, aNothing);
+      WordApplication1.Selection.Text := OrderNum;
+
+      WordApplication1.Documents.Application.Run(InvoiceMacroName, EmptyParam
+        , EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam
+        , EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam
+        , EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam
+        , EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam
+        , EmptyParam, EmptyParam, EmptyParam, EmptyParam, EmptyParam
+        , EmptyParam, EmptyParam, EmptyParam, EmptyParam);
+
+      WordApplication1.Disconnect;
+    except on E: Exception do
+      begin
+        ShowMessage(E.Message);
+        WordApplication1.Disconnect;
+      end;
+    end;
+  end;
+end;
+
+procedure TCustomerOrderProcessGenerateForm.GeneratePackingList(
+  CustomerOrderProcess: TfrmCustomerOrderProcess);
+var
+  oTable: WordXP.Table;
+  a, b, c, d: OleVariant;
+  Template, NewTemplate, DocumentType, isVisible, ItemIndex: OleVariant;
+  InvoiceNumber, custNum, custName, formName: string; //model,
+  y, x, orderRecordCount, totalCarton, modTC, orderQty: integer;
+  adt1: TADODataSet;
+  PackQty: integer;
+  NetWeightPerPCS, GrossWeight, Dimensions, aLength, aWidth, aHeight: string;
+begin
+  adt1 := TADODataSet.Create(nil);
+  with CustomerOrderProcess do
+  begin
+    orderRecordCount := gridData2.DataSource.DataSet.RecordCount;
+
+    gridData2.DataSource.DataSet.First;
+    custNum := gridData2.DataSource.DataSet.fieldbyname('CustomerNumber').AsString;
+    custName := gridData2.DataSource.DataSet.fieldbyname('CustomerName').AsString;
+    InvoiceNumber := gridData2.DataSource.DataSet.fieldbyname('InvoiceNumber').AsString;
+
+    try
+      try
+        WordApplication1.Connect;
+      except
+        Beep;
+        MessageDlg('无法连接，没有安装Word', mtError, [mbOK], 0);
+        Abort;
+      end;
+      formName := 'ExportPackingList';
+
+      WordApplication1.Visible := true;
+      Template := ExtractFilePath(application.ExeName) + 'FormTemplate\' + formName; //'FormTemplate\OASuzhou.dot';
+      NewTemplate := False;
+      DocumentType := wdNewBlankDocument;
+      isVisible := true;
+      WordApplication1.Documents.Add(Template, NewTemplate, DocumentType, isVisible);
+      itemIndex := 1;
+      WordDocument1.ConnectTo(WordApplication1.Documents.Item(itemIndex));
+
+      a := 'mCustomerCode';
+      b := 'mCustomerName';
+      c := 'mInvoiceNumber';
+      d := 'mPackingList';
+
+      WordDocument1.Bookmarks.Item(a).Range.Text := custNum;
+      WordDocument1.Bookmarks.Item(b).Range.Text := custName;
+      WordDocument1.Bookmarks.Item(c).Range.Text := InvoiceNumber;
+
+      oTable := WordDocument1.Tables.Add(WordDocument1.Bookmarks.Item(d).Range,
+        orderRecordCount + 2, 12, EmptyParam, EmptyParam);
+      oTable.Cell(1, 1).Range.Text := 'PACKAGE SEQUENT NO.'; //'谷轮订单号';
+      oTable.Cell(1, 2).Range.Text := 'TYPE OF PACKAGE';
+      oTable.Cell(1, 3).Range.Text := 'U NO.';
+      oTable.Cell(1, 4).Range.Text := 'PART NO.';
+      oTable.Cell(1, 5).Range.Text := 'MODEL DESCRIPTION';
+      oTable.Cell(1, 6).Range.Text := 'GOODS QTY.';
+      oTable.Cell(1, 7).Range.Text := 'TOTAL CARTONS/PACKAGES';
+      oTable.Cell(1, 8).Range.Text := 'NET WEIGHT PER PCS (KG)';
+      oTable.Cell(1, 9).Range.Text := 'NET WEIGHT (KGS)';
+      oTable.Cell(1, 10).Range.Text := 'GROSS WEIGHT  (KG)';
+      oTable.Cell(1, 11).Range.Text := 'DIMENSIONS (L*W*H)';
+      oTable.Cell(1, 12).Range.Text := 'CUBIC METERS    (M3)';
+
+      x := 1;
+      modTC := 0;
+      totalCarton := 1;
+      gridData2.DataSource.DataSet.First;
+      for y := 1 to orderRecordCount do
+      begin
+        oTable.Cell(x + y, 1).Range.Text := '';
+        oTable.Cell(x + y, 2).Range.Text := 'CASE';
+        oTable.Cell(x + y, 3).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderNumber').AsString;
+        oTable.Cell(x + y, 4).Range.Text := gridData2.DataSource.DataSet.FieldByName('Model').AsString;
+        oTable.Cell(x + y, 5).Range.Text := gridData2.DataSource.DataSet.FieldByName('ModelDescription').AsString;
+        orderQty := gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsInteger;
+        if orderQty = 1 then
+        begin
+          oTable.Cell(x + y, 6).Range.Text := IntToStr(orderQty);
+          oTable.Cell(x + y, 7).Range.Text := IntToStr(orderQty);
+          PackQty := 1;
+        end
+        else
+        begin
+          PackQty := 2;
+          modTC := orderQty mod 2;
+          if modTC = 0 then
+          begin
+            totalCarton := orderQty div 2;
+            oTable.Cell(x + y, 6).Range.Text := IntToStr(orderQty);
+            oTable.Cell(x + y, 7).Range.Text := IntToStr(totalCarton);
+          end
+          else if modTC = 1 then
+          begin
+            totalCarton := orderQty - 1;
+            oTable.Cell(x + y, 6).Range.Text := IntToStr(totalCarton);
+            oTable.Cell(x + y, 7).Range.Text := IntToStr(totalCarton div 2);
+          end;
+        end;
+
+        DM.DataSetQuery(adt1, 'select * from ModelPackingParameter where ModelID='
+          + gridData2.DataSource.DataSet.FieldByName('ModelID').AsString + ' and Quantity=' + IntToStr(PackQty));
+        if adt1.RecordCount = 0 then
+        begin
+          ShowMessage('please input Model Packing Parameter in Warehouse Menu.');
+          exit;
+        end;
+        NetWeightPerPCS := adt1.FieldByName('NetWeightPerPCS').AsString;
+        GrossWeight := adt1.FieldByName('GrossWeight').AsString;
+        Dimensions := adt1.FieldByName('Dimensions').AsString;
+
+        oTable.Cell(x + y, 8).Range.Text := NetWeightPerPCS;
+        oTable.Cell(x + y, 9).Range.Text := FloatToStr(StrToFloat(NetWeightPerPCS) * gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsFloat);
+        oTable.Cell(x + y, 10).Range.Text := FloatToStr(StrToFloat(GrossWeight) * totalCarton);
+        oTable.Cell(x + y, 11).Range.Text := Dimensions;
+        aLength := Copy(Dimensions, 1, pos('*', Dimensions) - 1);
+        aWidth := Copy(Dimensions, pos('*', Dimensions) + 1, (mjPosEnd('*', Dimensions) - 1) - (pos('*', Dimensions) + 1));
+        aHeight := Copy(Dimensions, mjPosEnd('*', Dimensions) + 1, Length(Dimensions));
+        if aLength = '' then aLength := '0';
+        if aWidth = '' then aWidth := '0';
+        if aHeight = '' then aHeight := '0';
+        oTable.Cell(x + y, 12).Range.Text := FloatToStr(StrToFloat(aLength) * StrToFloat(aWidth) * StrToFloat(aHeight) * totalCarton);
+
+        if (orderQty <> 1) and (modTC = 1) then
+        begin
+          x := x + 1;
+          oTable.Cell(x + y, 1).Range.Text := '';
+          oTable.Cell(x + y, 2).Range.Text := 'CASE';
+          oTable.Cell(x + y, 3).Range.Text := gridData2.DataSource.DataSet.FieldByName('CustomerOrderNumber').AsString;
+          oTable.Cell(x + y, 4).Range.Text := gridData2.DataSource.DataSet.FieldByName('Model').AsString;
+          oTable.Cell(x + y, 5).Range.Text := gridData2.DataSource.DataSet.FieldByName('ModelDescription').AsString;
+          oTable.Cell(x + y, 6).Range.Text := '1'; //gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsString;
+          oTable.Cell(x + y, 7).Range.Text := '1';
+
+          DM.DataSetQuery(adt1, 'select * from ModelPackingParameter where ModelID='
+            + gridData2.DataSource.DataSet.FieldByName('ModelID').AsString + ' and Quantity=1');
+          if adt1.RecordCount = 0 then
+          begin
+            ShowMessage('please input Model Packing Parameter in Warehouse Menu.');
+            exit;
+          end;
+          NetWeightPerPCS := adt1.FieldByName('NetWeightPerPCS').AsString;
+          GrossWeight := adt1.FieldByName('GrossWeight').AsString;
+          Dimensions := adt1.FieldByName('Dimensions').AsString;
+
+          oTable.Cell(x + y, 8).Range.Text := NetWeightPerPCS;
+          oTable.Cell(x + y, 9).Range.Text := FloatToStr(StrToFloat(NetWeightPerPCS) * gridData2.DataSource.DataSet.FieldByName('CustomerOrderQuantity').AsFloat);
+          oTable.Cell(x + y, 10).Range.Text := GrossWeight;
+          oTable.Cell(x + y, 11).Range.Text := Dimensions;
+          aLength := Copy(Dimensions, 1, pos('*', Dimensions) - 1);
+          aWidth := Copy(Dimensions, pos('*', Dimensions) + 1, (mjPosEnd('*', Dimensions) - 1) - (pos('*', Dimensions) + 1));
+          aHeight := Copy(Dimensions, mjPosEnd('*', Dimensions) + 1, Length(Dimensions));
+          if aLength = '' then aLength := '0';
+          if aWidth = '' then aWidth := '0';
+          if aHeight = '' then aHeight := '0';
+          oTable.Cell(x + y, 12).Range.Text := FloatToStr(StrToFloat(aLength) * StrToFloat(aWidth) * StrToFloat(aHeight));
+        end;
+        gridData2.DataSource.DataSet.Next;
+      end;
+      {
+      oTable.Cell(3 + orderRecordCount, 1).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 2).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 3).Range.Text := ''; //IntToStr(totalOrderQty);
+      oTable.Cell(3 + orderRecordCount, 4).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 5).Range.Text := ''; //FloatToStr(totalAmount);
+      oTable.Cell(3 + orderRecordCount, 6).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 7).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 8).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 9).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 10).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 11).Range.Text := '';
+      oTable.Cell(3 + orderRecordCount, 12).Range.Text := '';
+          }
+      adt1.Free;
+      oTable.Range.Select;
+      oTable.Range.Font.Size := 10;
+      oTable.Range.Font.Bold := 1;
+
+      WordApplication1.Disconnect;
+    except on E: Exception do
+      begin
+        ShowMessage(E.Message);
+        WordApplication1.Disconnect;
+      end;
+    end;
+
+  end;
+end;
+
+procedure TCustomerOrderProcessGenerateForm.GenerateDeliveryNote(
+  CustomerOrderProcess: TfrmCustomerOrderProcess);
+var
+  a: TGenerateNote;
+  adt1: TADODataSet;
+  COID, customernumber, customername, modelinvolved, etd: string;
+begin
+  etd := '';
+  COID := '(';
+  with CustomerOrderProcess do
+  begin
+    adt_active2.First;
+    while not adt_active2.Eof do
+    begin
+      if etd = '' then
+        etd := adt_active2.FieldByName('ETD').AsString;
+      if adt_active2.FieldByName('ModelInvolved').AsString <> '' then
+        COID := COID + '''' + adt_active2.FieldByName('CustomerOrderID').AsString + ''',';
+      adt_active2.Next;
+    end;
+  end;
+  COID := copy(COID, 0, (length(COID) - 1)) + ')';
+
+  if COID = ')' then
+  begin
+    ShowMessage('Refresh data.');
+    Exit;
+  end;
+  a := TGenerateNote.Create;
+  adt1 := TADODataSet.Create(nil);
+  DM.DataSetQuery(adt1, 'select distinct customernumber,customername,modelinvolved from viewcustomerorder'
+    + ' where CustomerOrderID in ' + COID
+    + ' and modelinvolved is not null order by customernumber');
+  while not adt1.Eof do
+  begin
+    customernumber := adt1.fieldbyname('customernumber').AsString;
+    customername := adt1.fieldbyname('customername').AsString;
+    modelinvolved := adt1.fieldbyname('modelinvolved').AsString;
+    a.GenerateNote(COID, customernumber, customername, modelinvolved, etd);
+
+    adt1.Next;
+  end;
+  adt1.Free;
+  a.Free;
+end;
+
+
+
+
+end.
+

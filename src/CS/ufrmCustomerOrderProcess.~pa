@@ -1,0 +1,882 @@
+unit ufrmCustomerOrderProcess;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, PropFilerEh, MemTableDataEh, Db,
+  DataDriverEh, MemTableEh, ADODB, Menus, PropStorageEh, ActnList, ImgList,
+  StdCtrls, Buttons, ComCtrls, GridsEh, DBGridEh, DBCtrls, ToolWin,
+  ExtCtrls, WordXP, OleServer, IniFiles, AppEvnts, ufrmDBBasicTreeDT,
+  DBCtrlsEh, Mask, DBLookupEh;
+
+type
+
+  TfrmCustomerOrderProcess = class(TfrmDBBasicTreeDT)
+    adt_activeCustomerOrderID: TAutoIncField;
+    adt_activeCustomerOrderNumber: TStringField;
+    adt_activeMNumber: TStringField;
+    adt_activeInvoiceNumber: TStringField;
+    adt_activeCustomerID: TIntegerField;
+    adt_activeModelID: TIntegerField;
+    adt_activePrice: TFloatField;
+    adt_activeCustomerOrderQuantity: TFloatField;
+    adt_activeTotalAmount: TFloatField;
+    adt_activeContractDate: TDateTimeField;
+    adt_activeRTD: TDateTimeField;
+    adt_activeETD: TDateTimeField;
+    adt_activeATD: TDateTimeField;
+    adt_activeETA: TDateTimeField;
+    adt_activeATA: TDateTimeField;
+    adt_activeRemark: TStringField;
+    adt_activeCustomerOrderStatesID: TIntegerField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeModel: TStringField;
+    adt_activeCustomerOrderStatesName: TStringField;
+    adt_activeCustomerPuchaseOrderNumber: TStringField;
+    adt_activeReasonOfDelayDesc: TStringField;
+    adt_active2CustomerOrderID: TAutoIncField;
+    adt_active2CustomerOrderNumber: TStringField;
+    adt_active2MNumber: TStringField;
+    adt_active2InvoiceNumber: TStringField;
+    adt_active2CustomerID: TIntegerField;
+    adt_active2ModelID: TIntegerField;
+    adt_active2Price: TFloatField;
+    adt_active2CustomerOrderQuantity: TFloatField;
+    adt_active2TotalAmount: TFloatField;
+    adt_active2ContractDate: TDateTimeField;
+    adt_active2RTD: TDateTimeField;
+    adt_active2ETD: TDateTimeField;
+    adt_active2ATD: TDateTimeField;
+    adt_active2ETA: TDateTimeField;
+    adt_active2ATA: TDateTimeField;
+    adt_active2Remark: TStringField;
+    adt_active2CustomerOrderStatesID: TIntegerField;
+    adt_active2CustomerNumber: TStringField;
+    adt_active2CustomerName: TStringField;
+    adt_active2Model: TStringField;
+    adt_active2CustomerOrderStatesName: TStringField;
+    adt_active2CustomerPuchaseOrderNumber: TStringField;
+    adt_active2ReasonOfDelayDesc: TStringField;
+    adt_activeCurrency: TStringField;
+    adt_active2Currency: TStringField;
+    MenuSelectForOperation: TMenuItem;
+    pageCtrlOP: TPageControl;
+    tbsMF: TTabSheet;
+    tbsForm: TTabSheet;
+    gboxMF: TGroupBox;
+    btnUpload: TButton;
+    cbbMFType: TComboBox;
+    adt_activeReasonOfDelayID: TIntegerField;
+    adt_activePlantCode: TStringField;
+    adt_active2ReasonOfDelayID: TIntegerField;
+    adt_active2PlantCode: TStringField;
+    cbbMFTypeDetail: TComboBox;
+    adt_activePlantID: TIntegerField;
+    adt_active2PlantID: TIntegerField;
+    MenuConfirmOrder: TMenuItem;
+    edtMFAttach: TEdit;
+    LabelMFAttach: TLabel;
+    gboxMF2: TGroupBox;
+    adt_activeCOGenerateTime: TDateTimeField;
+    adt_active2COGenerateTime: TDateTimeField;
+    adt_active2COConfirmedTime: TDateTimeField;
+    gboxForm: TGroupBox;
+    btnGenerateForm: TButton;
+    cbbFormType: TComboBox;
+    WordDocument1: TWordDocument;
+    WordApplication1: TWordApplication;
+    WordFont1: TWordFont;
+    gboxForm2: TGroupBox;
+    edtForm: TEdit;
+    LabelForm: TLabel;
+    adt_activeCOConfirmedTime: TDateTimeField;
+    adt_activeOINQCOQuantity: TIntegerField;
+    adt_activeOINQReleaseCOQuantity: TIntegerField;
+    adt_activeActualReleaseCOQuantity: TIntegerField;
+    adt_active2OINQCOQuantity: TIntegerField;
+    adt_active2OINQReleaseCOQuantity: TIntegerField;
+    adt_active2ActualReleaseCOQuantity: TIntegerField;
+    adt_activeDisplayName: TStringField;
+    adt_active2DisplayName: TStringField;
+    MenuSplitOrder: TMenuItem;
+    adt_activeModelDescription: TStringField;
+    adt_active2ModelDescription: TStringField;
+    MenuNewOrder: TMenuItem;
+    MenuOpenOrder: TMenuItem;
+    MenuReleaseOrder: TMenuItem;
+    MenuShippingOrder: TMenuItem;
+    MenuShippedOrder: TMenuItem;
+    N3: TMenuItem;
+    TabSheet1: TTabSheet;
+    GroupBox3: TGroupBox;
+    gridData3: TDBGridEh;
+    adt_active3: TADODataSet;
+    AutoIncField1: TAutoIncField;
+    StringField1: TStringField;
+    StringField2: TStringField;
+    StringField3: TStringField;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    StringField4: TStringField;
+    FloatField1: TFloatField;
+    FloatField2: TFloatField;
+    FloatField3: TFloatField;
+    DateTimeField1: TDateTimeField;
+    DateTimeField2: TDateTimeField;
+    DateTimeField3: TDateTimeField;
+    DateTimeField4: TDateTimeField;
+    DateTimeField5: TDateTimeField;
+    DateTimeField6: TDateTimeField;
+    StringField5: TStringField;
+    IntegerField3: TIntegerField;
+    StringField6: TStringField;
+    StringField7: TStringField;
+    StringField8: TStringField;
+    StringField9: TStringField;
+    StringField10: TStringField;
+    StringField11: TStringField;
+    IntegerField4: TIntegerField;
+    StringField12: TStringField;
+    IntegerField5: TIntegerField;
+    DateTimeField7: TDateTimeField;
+    DateTimeField8: TDateTimeField;
+    IntegerField6: TIntegerField;
+    IntegerField7: TIntegerField;
+    IntegerField8: TIntegerField;
+    StringField13: TStringField;
+    StringField14: TStringField;
+    ds_active3: TDataSource;
+    adt_activePayment: TStringField;
+    adt_active2Payment: TStringField;
+    adt_activeLoginID: TIntegerField;
+    adt_active2LoginID: TIntegerField;
+    adt_active3Payment: TStringField;
+    adt_active3LoginID: TIntegerField;
+    N4: TMenuItem;
+    MenuBatchEdtCO: TMenuItem;
+    MenuEdtCO: TMenuItem;
+    adt_active2Origin: TStringField;
+    adt_active2Country: TStringField;
+    adt_active2ChineseName: TStringField;
+    adt_active2PlantID2: TIntegerField;
+    adt_activeOrigin: TStringField;
+    adt_activeCountry: TStringField;
+    adt_activeChineseName: TStringField;
+    adt_activePlantID2: TIntegerField;
+    adt_active3Origin: TStringField;
+    adt_active3Country: TStringField;
+    adt_active3ChineseName: TStringField;
+    adt_active3PlantID2: TIntegerField;
+    procedure TreeView1Change(Sender: TObject; Node: TTreeNode);
+    procedure MenuSelectForOperationClick(Sender: TObject);
+    procedure btnUploadClick(Sender: TObject);
+    procedure gridDataDblClick(Sender: TObject);
+    procedure btnGenerateFormClick(Sender: TObject);
+    procedure MenuSplitOrderClick(Sender: TObject);
+    procedure adt_activeBeforeDelete(DataSet: TDataSet);
+    procedure MenuNewOrderClick(Sender: TObject);
+    procedure MenuOpenOrderClick(Sender: TObject);
+    procedure MenuConfirmOrderClick(Sender: TObject);
+    procedure MenuReleaseOrderClick(Sender: TObject);
+    procedure MenuShippingOrderClick(Sender: TObject);
+    procedure MenuShippedOrderClick(Sender: TObject);
+    procedure gridData2Enter(Sender: TObject);
+    procedure gridData2Exit(Sender: TObject);
+    procedure cbbMFTypeDetailChange(Sender: TObject);
+    procedure cbbMFTypeChange(Sender: TObject);
+    procedure cbbTreeTypeChange(Sender: TObject);
+    procedure MenuEdtCOClick(Sender: TObject);
+    procedure MenuBatchEdtCOClick(Sender: TObject);
+    procedure gridData2DblClick(Sender: TObject);
+    procedure cbbFormTypeChange(Sender: TObject);
+  private
+    procedure ChangeOrderStates(warMsg: string; OrderStatesID: integer);
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+    procedure LoadTreeView(nodeName: string); override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uMJ, Math, ufrmSplitCustomerOrder, ufrmEdtCustomerOrder,
+  ufrmBatchEdtCustomerOrder, uCustomerOrderProcessOperationAccess,
+  uCustomerOrderProcessUploadMainframe, uCustomerOrderProcessGenerateForm;
+
+{$R *.dfm}
+
+{ TfrmCustomerOrder }
+
+procedure TfrmCustomerOrderProcess.SetData;
+begin
+//  DM.DataSetQuery(adt_active, 'EXEC usp_GetCustomerOrder @ATDNone=1,@LoginID='
+//    + IntToStr(gVars.CurLoginID) + ',@CustomerOrderStatesID=''1,2,3,4,5''');
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetCustomerOrder @CustomerOrderID=0');
+  DM.DataSetQuery(adt_active2, 'EXEC usp_GetCustomerOrder @CustomerOrderID=0');
+end;
+
+procedure TfrmCustomerOrderProcess.SetUI;
+begin
+  inherited;
+  tbsBody1.TabVisible := true;
+  GroupBox1.Caption := 'Customer Order';
+  GroupBox3.Caption := 'Customer Order';
+  //gridData.FrozenCols := 5;
+  //gridData2.FrozenCols := 5;
+  //gridData3.FrozenCols := 5;
+  cbbTreeType.Items.Add('Plant72/80-CO States');
+  cbbTreeType.Items.Add('Plant38-CO States');
+  cbbTreeType.Items.Add('Plant67/Oversea-CO States');
+  cbbTreeType.ItemIndex := 0;
+  TreeView1.ReadOnly := true;
+
+  if gVars.CurUserPlantIDSet = [1] then
+  begin
+    cbbTreeType.ItemIndex := 1;
+    pnlBodyLeftTop.Enabled := false;
+    //cbbTreeType.ParentColor := true;
+    //sbtnRefresh.Enabled := false;
+    //cbbTreeType.Enabled := false;
+  end;
+  if (gVars.CurUserPlantIDSet = [2]) or (gVars.CurUserPlantIDSet = [3, 4, 5]) then
+  begin
+    cbbTreeType.ItemIndex := 0;
+    //cbbTreeType.ParentColor := true;
+    pnlBodyLeftTop.Enabled := false;
+    //sbtnRefresh.Enabled := false;
+    //cbbTreeType.Enabled := false;
+  end;
+
+  cbbMFType.Items.Add('ORDM');
+  cbbMFType.Items.Add('IS02');
+  cbbMFType.Items.Add('OINQ');
+  cbbMFType.Items.Add('SPLN');
+  cbbMFType.ItemIndex := 0;
+  cbbMFTypeDetail.Items.Add('<1> ADD NEW ORDER');
+  cbbMFTypeDetail.Items.Add('<2> CHANGE ORDERS');
+  cbbMFTypeDetail.ItemIndex := 0;
+  gboxMF2.Visible := false;
+  LabelMFAttach.Caption := 'Freight Cost';
+  edtMFAttach.Text := '0';
+
+  cbbFormType.Items.Add('OA');
+  cbbFormType.Items.Add('Invoice-Plt38');
+  cbbFormType.Items.Add('Invoice-Plt72');
+  cbbFormType.Items.Add('Invoice-Plt80');
+  cbbFormType.ItemIndex := 0;
+  gboxForm2.Visible := true;
+  LabelForm.Caption := 'Freight Cost';
+  edtForm.Text := '0';
+
+  gridData.FieldColumns['CustomerOrderQuantity'].Footer.ValueType := fvtSum;
+  gridData.FieldColumns['TotalAmount'].Footer.ValueType := fvtSum;
+  gridData.FieldColumns['OINQReleaseCOQuantity'].Footer.ValueType := fvtSum;
+  gridData.FieldColumns['ActualReleaseCOQuantity'].Footer.ValueType := fvtSum;
+  gridData2.FieldColumns['CustomerOrderQuantity'].Footer.ValueType := fvtSum;
+  gridData2.FieldColumns['TotalAmount'].Footer.ValueType := fvtSum;
+  gridData2.FieldColumns['OINQReleaseCOQuantity'].Footer.ValueType := fvtSum;
+  gridData2.FieldColumns['ActualReleaseCOQuantity'].Footer.ValueType := fvtSum;
+  gridData3.FieldColumns['CustomerOrderQuantity'].Footer.ValueType := fvtSum;
+  gridData3.FieldColumns['TotalAmount'].Footer.ValueType := fvtSum;
+  gridData3.FieldColumns['OINQReleaseCOQuantity'].Footer.ValueType := fvtSum;
+  gridData3.FieldColumns['ActualReleaseCOQuantity'].Footer.ValueType := fvtSum;
+end;
+
+procedure TfrmCustomerOrderProcess.SetAccess;
+var
+  i: integer;
+begin
+  inherited;
+  //tbtnOperation.Visible := false;
+  MenuEdtCO.Visible := false;
+  MenuBatchEdtCO.Visible := false;
+  MenuSelectForOperation.Visible := false;
+  MenuSplitOrder.Visible := false;
+  MenuNewOrder.Visible := false;
+  MenuOpenOrder.Visible := false;
+  MenuConfirmOrder.Visible := false;
+  MenuReleaseOrder.Visible := false;
+  MenuShippingOrder.Visible := false;
+  MenuShippedOrder.Visible := false;
+
+  gridData.Options := [dgEditing, dgTitles, dgIndicator, dgColumnResize
+    , dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection //, dgRowSelect
+    , dgConfirmDelete, dgCancelOnExit, dgMultiSelect];
+  gridData2.Options := [dgEditing, dgTitles, dgIndicator, dgColumnResize
+    , dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection //, dgRowSelect
+    , dgConfirmDelete, dgCancelOnExit, dgMultiSelect];
+
+  if (gVars.CurUserLevel = 2)
+    or (gVars.CurUserLevel = 8)
+    or (gVars.CurUserLevel = 10)
+    or (gVars.CurUserLevel = 11) then
+  begin
+    for i := 0 to gridData.Columns.Count - 1 do
+    begin
+      if (gridData.Columns[i].FieldName = 'Currency')
+        or (gridData.Columns[i].FieldName = 'Price')
+        or (gridData.Columns[i].FieldName = 'TotalAmount')
+        or (gridData.Columns[i].FieldName = 'Payment') then
+        gridData.Columns[i].Visible := true;
+      if (gridData3.Columns[i].FieldName = 'Currency')
+        or (gridData3.Columns[i].FieldName = 'Price')
+        or (gridData3.Columns[i].FieldName = 'TotalAmount')
+        or (gridData.Columns[i].FieldName = 'Payment') then
+        gridData3.Columns[i].Visible := true;
+    end;
+  end
+  else
+  begin
+    for i := 0 to gridData.Columns.Count - 1 do
+    begin
+      if (gridData.Columns[i].FieldName = 'Currency')
+        or (gridData.Columns[i].FieldName = 'Price')
+        or (gridData.Columns[i].FieldName = 'TotalAmount')
+        or (gridData.Columns[i].FieldName = 'Payment') then
+        gridData.Columns[i].Visible := false;
+      if (gridData3.Columns[i].FieldName = 'Currency')
+        or (gridData3.Columns[i].FieldName = 'Price')
+        or (gridData3.Columns[i].FieldName = 'TotalAmount')
+        or (gridData.Columns[i].FieldName = 'Payment') then
+        gridData3.Columns[i].Visible := false;
+    end;
+  end;
+
+end;
+
+procedure TfrmCustomerOrderProcess.cbbMFTypeChange(Sender: TObject);
+begin
+  if cbbMFType.ItemIndex = 1 then
+  begin
+    cbbMFTypeDetail.Clear;
+    cbbMFTypeDetail.Items.Add('<1> ADD NEW ORDER');
+        //cbbMFTypeDetail.Items.Add('<2> ADD ORDERS TO EXISTING MASTER ORDER');
+        //cbbMFTypeDetail.Items.Add('<3> CHANGE ORDERS');
+        //cbbMFTypeDetail.Items.Add('<4> DELETE ORDERS');
+    cbbMFTypeDetail.ItemIndex := 0;
+    gboxMF2.Visible := false;
+  end
+  else
+  begin
+    cbbMFTypeDetail.Clear;
+    cbbMFTypeDetail.Items.Add('<1> ADD NEW ORDER');
+    cbbMFTypeDetail.Items.Add('<2> CHANGE ORDERS');
+        //cbbMFTypeDetail.Items.Add('<3> DELETE ORDERS');
+    cbbMFTypeDetail.ItemIndex := 0;
+    gboxMF2.Visible := false;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.cbbFormTypeChange(Sender: TObject);
+begin
+  inherited;
+  if cbbFormType.ItemIndex = 0 then
+  begin
+    LabelForm.Caption := 'Freight Cost';
+    edtForm.Text := '0';
+  end
+  else
+  begin
+    LabelForm.Caption := 'Invoice No.';
+    edtForm.Clear;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.cbbTreeTypeChange(Sender: TObject);
+begin
+  inherited;
+  TreeView1.Items[0].Selected := true;
+end;
+
+procedure TfrmCustomerOrderProcess.LoadTreeView(nodeName: string);
+var
+  ftn_type: TTreeNode;
+  adt_select: TADODataSet;
+  aNodeName: string;
+begin
+  inherited;
+  ftn_type := TreeView1.Items.AddChild(nil, nodeName);
+  adt_select := TADODataSet.Create(nil);
+  try
+    case cbbTreeType.ItemIndex of
+      0:
+        begin
+         // DM.DataSetQuery(adt_select, format(sQueryCOStatesSQL, [' order by CustomerOrderStatesID']));
+          DM.DataSetQuery(adt_select, 'EXEC usp_GetCustomerOrderStates');
+          while not adt_select.Eof do
+          begin
+            aNodeName := adt_select.FieldByName('CustomerOrderStatesName').AsString;
+            TreeView1.Items.AddChild(ftn_type, aNodeName);
+            adt_select.Next;
+          end;
+        end;
+      1:
+        begin
+          DM.DataSetQuery(adt_select, 'EXEC usp_GetCustomerOrderStates');
+          while not adt_select.Eof do
+          begin
+            aNodeName := adt_select.FieldByName('CustomerOrderStatesName').AsString;
+            TreeView1.Items.AddChild(ftn_type, aNodeName);
+            adt_select.Next;
+          end;
+        end;
+      2:
+        begin
+          DM.DataSetQuery(adt_select, 'EXEC usp_GetCustomerOrderStates @CustomerOrderStatesID=''1,6''');
+          while not adt_select.Eof do
+          begin
+            aNodeName := adt_select.FieldByName('CustomerOrderStatesName').AsString;
+            TreeView1.Items.AddChild(ftn_type, aNodeName);
+            adt_select.Next;
+          end;
+        end;
+    end;
+  finally
+    adt_select.Free;
+    ftn_type.Expanded := true;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.TreeView1Change(Sender: TObject;
+  Node: TTreeNode);
+begin
+  inherited;
+  if Node = nil then exit;
+  GroupBox2.Caption := Node.Text + ' -- Processing';
+  GroupBox3.Caption := Node.Text + ' -- Changed';
+  PageControl1.ActivePageIndex := 0;
+  pageCtrlOP.ActivePageIndex := 0;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh];
+
+  MenuEdtCO.Visible := false;
+  MenuBatchEdtCO.Visible := false;
+  MenuConfirmOrder.Visible := false;
+  MenuShippingOrder.Visible := false;
+  MenuSelectForOperation.Visible := false;
+  MenuNewOrder.Visible := false;
+  MenuOpenOrder.Visible := false;
+  MenuConfirmOrder.Visible := false;
+  MenuReleaseOrder.Visible := false;
+  MenuShippingOrder.Visible := false;
+  MenuShippedOrder.Visible := false;
+  MenuSplitOrder.Visible := false;
+
+  EnableOperation(Self);
+end;
+
+procedure TfrmCustomerOrderProcess.gridDataDblClick(Sender: TObject);
+begin
+  if gridData.DataSource.DataSet.RecordCount <> 0 then
+    TfrmEdtCustomerOrder.EdtFromList(TADODataSet(gridData.DataSource.DataSet));
+end;
+
+procedure TfrmCustomerOrderProcess.gridData2DblClick(Sender: TObject);
+begin
+  if gridData2.DataSource.DataSet.RecordCount <> 0 then
+    TfrmEdtCustomerOrder.EdtFromList(TADODataSet(gridData2.DataSource.DataSet));
+end;
+
+procedure TfrmCustomerOrderProcess.MenuEdtCOClick(Sender: TObject);
+begin
+  inherited;
+  if DBNavigator1.DataSource.DataSet = adt_active then
+    gridDataDblClick(self)
+  else if DBNavigator1.DataSource.DataSet = adt_active2 then
+    gridData2DblClick(self);
+end;
+
+procedure TfrmCustomerOrderProcess.MenuBatchEdtCOClick(Sender: TObject);
+var
+  COID: string;
+  i: integer;
+begin
+  if (gridData.DataSource.DataSet.RecordCount <> 0)
+    and (gridData.SelectedRows.Count <> 0) then
+  begin
+    COID := '(';
+    gridData.DataSource.DataSet.First;
+    gridData.DataSource.DataSet.DisableControls;
+    gridData2.DataSource.DataSet.DisableControls;
+    try
+      for i := 0 to gridData.SelectedRows.Count - 1 do
+      begin
+        gridData.DataSource.DataSet.Bookmark := gridData.SelectedRows.items[I];
+        COID := COID + '''' + gridData.DataSource.DataSet.FieldByName('CustomerOrderID').AsString + ''',';
+      end;
+    finally
+      gridData.DataSource.DataSet.EnableControls;
+      gridData2.DataSource.DataSet.EnableControls;
+    end;
+    COID := copy(COID, 0, (length(COID) - 1)) + ')';
+    TfrmBatchEdtCustomerOrder.EdtFromList(COID);
+    gridData.DataSource.DataSet.Active := false;
+    gridData.DataSource.DataSet.Active := true;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.MenuNewOrderClick(Sender: TObject);
+begin
+  ChangeOrderStates(TMenuItem(sender).Caption, 1);
+end;
+
+procedure TfrmCustomerOrderProcess.MenuOpenOrderClick(Sender: TObject);
+begin
+  ChangeOrderStates(TMenuItem(sender).Caption, 2);
+end;
+
+procedure TfrmCustomerOrderProcess.MenuConfirmOrderClick(Sender: TObject);
+begin
+  ChangeOrderStates(TMenuItem(sender).Caption, 3);
+end;
+
+procedure TfrmCustomerOrderProcess.MenuReleaseOrderClick(Sender: TObject);
+begin
+  ChangeOrderStates(TMenuItem(sender).Caption, 4);
+end;
+
+procedure TfrmCustomerOrderProcess.MenuShippingOrderClick(Sender: TObject);
+begin
+  ChangeOrderStates(TMenuItem(sender).Caption, 5);
+end;
+
+procedure TfrmCustomerOrderProcess.MenuShippedOrderClick(Sender: TObject);
+begin
+  ChangeOrderStates(TMenuItem(sender).Caption, 6);
+end;
+
+procedure TfrmCustomerOrderProcess.ChangeOrderStates(warMsg: string; OrderStatesID: integer);
+
+  procedure ClearGridDataSelectRow;
+  begin
+    gridData.ClearFilter;
+    gridData.ApplyFilter;
+    gridData.DataSource.DataSet := nil;
+    gridData.DataSource.DataSet := adt_active;
+    gridData.SelectedRows.Clear;
+  end;
+
+  procedure ClearGridData2SelectRow;
+  begin
+    gridData2.ClearFilter;
+    gridData2.ApplyFilter;
+    gridData2.DataSource.DataSet := nil;
+    gridData2.DataSource.DataSet := adt_active2;
+    gridData2.SelectedRows.Clear;
+  end;
+var
+  i: integer;
+  coID: string;
+  adt_from: TADODataSet;
+  gridFrom: TDBGridEh;
+begin
+  if MessageDlg(warMsg + '?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then exit;
+
+  if gridData2.PopupMenu = nil then
+  begin
+    adt_from := TADODataSet(gridData.DataSource.DataSet);
+    gridFrom := gridData;
+  end
+  else
+  begin
+    adt_from := TADODataSet(gridData2.DataSource.DataSet);
+    gridFrom := gridData2;
+  end;
+  if adt_from.RecordCount = 0 then
+    ShowMessage('There haven''t data in this grid.'); Exit;
+  if gridFrom.SelectedRows.Count = 0 then
+    ShowMessage('please select rows first.'); Exit;
+
+  adt_from.DisableControls;
+  try
+    coID := '';
+    for i := 0 to gridFrom.SelectedRows.Count - 1 do
+    begin
+      adt_from.Bookmark := gridFrom.SelectedRows.items[I];
+      coID := coID + adt_from.FieldByName('CustomerOrderID').AsString + ',';
+      case OrderStatesID of
+        2: //open order
+          begin
+            if ([1] <= gVars.CurUserPlantIDSet) then
+            begin
+              if adt_from.FieldByName('CustomerOrderNumber').IsNull then
+              begin
+                ShowMessage('Order No. can''t be empty.');
+                Exit;
+              end;
+            end
+            else
+            begin
+              if adt_from.FieldByName('ETD').IsNull then
+              begin
+                ShowMessage('ETD can''t be empty.');
+                Exit;
+              end;
+            end;
+          end;
+        3: //confim order
+          begin
+            if cbbTreeType.ItemIndex = 1 then
+            begin
+              try
+                DM.DataSetModify(' exec usp_InsertProductionScheduleCUD');
+              except on E: Exception do
+                  MessageDlg(E.Message + 'Error at process customer order to production schedule.', mtWarning, [mbOK], 0);
+              end;
+            end;
+            if ([1] <= gVars.CurUserPlantIDSet) then
+            begin
+              if adt_from.FieldByName('ETD').IsNull then
+              begin
+                ShowMessage('ETD can''t be empty.');
+                Exit;
+              end;
+            end
+            else
+            begin
+              if adt_from.FieldByName('CustomerOrderNumber').IsNull then
+              begin
+                ShowMessage('CustomerOrderNumber can''t be empty.');
+                Exit;
+              end;
+            end;
+          end;
+        4: //release order
+          begin
+            if ((Trim(adt_from.FieldByName('OINQReleaseCOQuantity').AsString) = '')
+              and (Trim(adt_from.FieldByName('ActualReleaseCOQuantity').AsString) = '')) then
+            begin
+              ShowMessage('OINQ Release qty. can''t be empty.');
+              Exit;
+            end;
+          end;
+        5: //shipping order
+          begin
+            if adt_from.FieldByName('InvoiceNumber').IsNull then
+            begin
+              ShowMessage('InvoiceNumber can''t be empty.');
+              Exit;
+            end;
+          end;
+        6: //shipped order
+          begin
+            if adt_from.FieldByName('ATD').IsNull then
+            begin
+              ShowMessage('ATD can''t be empty.');
+              Exit;
+            end;
+          end;
+      end;
+    end;
+    coID := copy(coID, 0, (length(coID) - 1));
+    //DM.DataSetModify(Format(sUpdateCustomerOrderStatesSQL, [OrderStatesID, coID]));
+
+    DM.DataSetModify('EXEC usp_UpdateCustomerOrder @CustomerOrderStatesID=5'
+      + ',@CustomerOrderID=' + coID);
+    ClearGridDataSelectRow;
+    adt_from.Active := false;
+    adt_from.Active := true;
+  finally
+    adt_from.EnableControls;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.MenuSelectForOperationClick(Sender: TObject);
+var
+  i: integer;
+  sqlConst, COID, orderStatesID: string;
+begin
+  if gridData.DataSource.DataSet.RecordCount = 0 then
+  begin
+    ShowMessage('There haven''t data in this grid.');
+    Exit;
+  end;
+  if gridData.SelectedRows.Count = 0 then
+  begin
+    ShowMessage('please select rows first.');
+    Exit;
+  end;
+
+  gridData.DataSource.DataSet.First;
+  orderStatesID := gridData.DataSource.DataSet.FieldByName('CustomerOrderStatesID').AsString;
+  COID := '';
+  gridData.DataSource.DataSet.DisableControls;
+  gridData2.DataSource.DataSet.DisableControls;
+  try
+    for i := 0 to gridData.SelectedRows.Count - 1 do
+    begin
+      gridData.DataSource.DataSet.Bookmark := gridData.SelectedRows.items[I];
+      COID := COID + gridData.DataSource.DataSet.FieldByName('CustomerOrderID').AsString + ',';
+    end;
+    gridData2.DataSource.DataSet.First;
+    while not gridData2.DataSource.DataSet.Eof do
+    begin
+      COID := COID + gridData2.DataSource.DataSet.FieldByName('CustomerOrderID').AsString + ',';
+      gridData2.DataSource.DataSet.Next;
+    end;
+  finally
+    gridData.DataSource.DataSet.EnableControls;
+    gridData2.DataSource.DataSet.EnableControls;
+  end;
+  COID := copy(COID, 0, (length(COID) - 1));
+
+  gridData.SelectedRows.Clear;
+  //gridData.ClearFilter;
+  //gridData.ApplyFilter;
+  gridData.DataSource.DataSet := nil;
+  gridData.DataSource.DataSet := adt_active;
+  gridData.SelectedRows.Clear;
+  gridData.Selection.Clear;
+
+  case cbbTreeType.ItemIndex of
+    0:
+      sqlConst := ',@PlantID=''2,3,4,5''';
+    1:
+      sqlConst := ',@PlantID=1';
+    2:
+      sqlConst := ',@PlantID=''6,7''';
+  end;
+  sqlConst := sqlConst + ',@CustomerOrderStatesID=' + orderStatesID;
+  sqlConst := sqlConst + ',@CustomerOrderIDNone=''' + COID + '''';
+  sqlConst := sqlConst + ',@LoginID=' + IntToStr(gVars.CurLoginID);
+  sqlConst := sqlConst + ',@RTDNone=1';
+  sqlConst := Copy(sqlConst, 2, length(sqlConst));
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetCustomerOrder ' + sqlConst);
+  DM.DataSetQuery(adt_active2, 'EXEC usp_GetCustomerOrder @CustomerOrderID=''' + COID + '''');
+  adt_active.Active := false;
+  adt_active.Active := true;
+  adt_active2.Active := false;
+  adt_active2.Active := true;
+end;
+
+procedure TfrmCustomerOrderProcess.MenuSplitOrderClick(Sender: TObject);
+begin
+  if gridData.DataSource.DataSet.RecordCount = 0 then
+  begin
+    ShowMessage('There haven''t data in this grid.');
+    Exit;
+  end;
+  if MessageDlg('Split order?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    if TfrmSplitCustomerOrder.EdtFromList(TADODataSet(gridData.DataSource.DataSet)) then
+    begin
+      gridData.DataSource.DataSet.Active := false;
+      gridData.DataSource.DataSet.Active := true;
+    end;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.adt_activeBeforeDelete(
+  DataSet: TDataSet);
+begin
+  inherited;
+  try
+    if DataSet.fieldbyname('CustomerOrderID').AsString <> '' then
+    begin
+      DM.DataSetModify('EXEC usp_DeleteCustomerOrder @CustomerOrderID='
+        + DataSet.fieldbyname('CustomerOrderID').AsString);
+      DataSet.Active := false;
+      DataSet.Active := true;
+      gridData2.DataSource.DataSet.Active := false;
+      gridData2.DataSource.DataSet.Active := true;
+    end;
+  finally
+    Abort;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.gridData2Enter(Sender: TObject);
+begin
+  inherited;
+  MenuSelectForOperation.Visible := false;
+  MenuSplitOrder.Visible := false;
+end;
+
+procedure TfrmCustomerOrderProcess.gridData2Exit(Sender: TObject);
+begin
+  inherited;
+  MenuSelectForOperation.Visible := true;
+  MenuSplitOrder.Visible := true;
+end;
+
+procedure TfrmCustomerOrderProcess.cbbMFTypeDetailChange(Sender: TObject);
+begin
+  if (cbbMFType.ItemIndex = 1) and (cbbMFTypeDetail.ItemIndex = 1) then
+  begin
+    LabelMFAttach.Caption := 'M No.';
+    gboxMF2.Visible := true;
+  end
+  else
+  begin
+    gboxMF2.Visible := false;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.btnUploadClick(Sender: TObject);
+var
+  objUploadMF: TCustomerOrderProcessUploadMainframe;
+begin
+  objUploadMF := TCustomerOrderProcessUploadMainframe.Create;
+  try
+    objUploadMF.UploadMainframe(self);
+  finally
+    objUploadMF.Free;
+  end;
+end;
+
+procedure TfrmCustomerOrderProcess.btnGenerateFormClick(Sender: TObject);
+var
+  coGenerateForm: TCustomerOrderProcessGenerateForm;
+begin
+  coGenerateForm := TCustomerOrderProcessGenerateForm.Create;
+  try
+    coGenerateForm.GenerateForm(self);
+  finally
+    coGenerateForm.Free;
+  end;
+end;
+
+  {
+  //sqlConst := sqlConst + ' and ( (ISNull(ISNull(ATA,ETD),RTD)>=getdate()-2) or (RTD is null) )';
+  sqlConst := '';
+  //sqlConst := ' and ( (ISNull(ISNull(ATA,ETD),RTD)>=getdate()-2) or (RTD is null) )';
+  sqlConst := sqlConst + ' and CustomerOrderStatesID=''' + orderStatesID + '''';
+  sqlConst := sqlConst + ' and LoginID=' + IntToStr(gVars.CurLoginID);
+  sqlConst := sqlConst + ' and CustomerOrderID in' + COID;
+  DM.DataSetQuery(adt_active2, format(sQueryCustomerOrderSQL, [sqlConst]));
+  }
+  {
+  case cbbTreeType.ItemIndex of
+    0:
+      sqlConst := ' and (PlantID in (''2'',''3'',''4'',''5'') or  PlantID2 in (''2'',''3'',''4'',''5''))';
+    1:
+      sqlConst := ' and (PlantID =1 or PlantID2=1)';
+    2:
+      sqlConst := ' and (PlantID in (''6'',''7'') or PlantID2 in (''6'',''7''))';
+  end;
+  sqlConst := sqlConst + ' and ( (ISNull(ISNull(ATA,ETD),RTD)>=getdate()-2) or (RTD is null) )';
+  sqlConst := sqlConst + ' and CustomerOrderStatesID=''' + orderStatesID + '''';
+  sqlConst := sqlConst + ' and CustomerOrderID not in' + COID;
+  sqlConst := sqlConst + ' and LoginID=' + IntToStr(gVars.CurLoginID);
+  DM.DataSetQuery(adt_active, format(sQueryCustomerOrderSQL, [sqlConst]));
+  }
+{
+  sqlConst := ' and ((ATD is null) or (ATD>getdate()-2))';
+  sqlConst := sqlConst + ' and LoginID =' + IntToStr(gVars.CurLoginID);
+  sqlConst := sqlConst + ' and CustomerOrderStatesID<>6';
+  DM.DataSetQuery(adt_active, format(sQueryCustomerOrderSQL, [sqlConst]));
+  DM.DataSetQuery(adt_active2, format(sQueryCustomerOrderSQL, [' and CustomerOrderID=0']));
+  DM.DataSetQuery(adt_active3, format(sQueryCustomerOrderSQL, [' and CustomerOrderID=0']));
+  }
+     {     DM.DataSetQuery(adt_select, format(sQueryCOStatesSQL,
+            [' and CustomerOrderStatesID=1 or  CustomerOrderStatesID=6'
+            + ' order by CustomerOrderStatesID']));    DM.DataSetModify(Format(sDeleteCustomerOrderSQL,
+    [' and CustomerOrderID=' + DataSet.fieldbyname('CustomerOrderID').AsString]));
+    }
+
+end.

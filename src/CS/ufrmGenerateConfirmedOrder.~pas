@@ -1,0 +1,113 @@
+unit ufrmGenerateConfirmedOrder;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicDT, PropFilerEh, MemTableDataEh, Db, ADODB,
+  DataDriverEh, MemTableEh, Menus, PropStorageEh, ActnList, ImgList,
+  GridsEh, DBGridEh, StdCtrls, ExtCtrls, DBCtrls, ComCtrls, ToolWin;
+
+type
+  TfrmGenerateConfirmedOrder = class(TfrmDBBasicDT)
+    adt_activeCustomerOrderID: TAutoIncField;
+    adt_activeCustomerOrderNumber: TStringField;
+    adt_activeMNumber: TStringField;
+    adt_activeInvoiceNumber: TStringField;
+    adt_activeCustomerID: TIntegerField;
+    adt_activeModelID: TIntegerField;
+    adt_activeCurrency: TStringField;
+    adt_activePrice: TFloatField;
+    adt_activeCustomerOrderQuantity: TFloatField;
+    adt_activeTotalAmount: TFloatField;
+    adt_activeContractDate: TDateTimeField;
+    adt_activeRTD: TDateTimeField;
+    adt_activeETD: TDateTimeField;
+    adt_activeATD: TDateTimeField;
+    adt_activeETA: TDateTimeField;
+    adt_activeATA: TDateTimeField;
+    adt_activeRemark: TStringField;
+    adt_activeCustomerOrderStatesID: TIntegerField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeModel: TStringField;
+    adt_activeCustomerOrderStatesName: TStringField;
+    adt_activePaymentTerms: TStringField;
+    adt_activeCustomerPuchaseOrderNumber: TStringField;
+    adt_activeDestination: TStringField;
+    adt_activeReasonOfDelayDesc: TStringField;
+    adt_active2CustomerOrderID: TAutoIncField;
+    adt_active2CustomerOrderNumber: TStringField;
+    adt_active2MNumber: TStringField;
+    adt_active2InvoiceNumber: TStringField;
+    adt_active2CustomerID: TIntegerField;
+    adt_active2ModelID: TIntegerField;
+    adt_active2Currency: TStringField;
+    adt_active2Price: TFloatField;
+    adt_active2CustomerOrderQuantity: TFloatField;
+    adt_active2TotalAmount: TFloatField;
+    adt_active2ContractDate: TDateTimeField;
+    adt_active2RTD: TDateTimeField;
+    adt_active2ETD: TDateTimeField;
+    adt_active2ATD: TDateTimeField;
+    adt_active2ETA: TDateTimeField;
+    adt_active2ATA: TDateTimeField;
+    adt_active2Remark: TStringField;
+    adt_active2CustomerOrderStatesID: TIntegerField;
+    adt_active2CustomerNumber: TStringField;
+    adt_active2CustomerName: TStringField;
+    adt_active2Model: TStringField;
+    adt_active2CustomerOrderStatesName: TStringField;
+    adt_active2PaymentTerms: TStringField;
+    adt_active2CustomerPuchaseOrderNumber: TStringField;
+    adt_active2Destination: TStringField;
+    adt_active2ReasonOfDelayDesc: TStringField;
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uSQLConsts, uMJ, ufrmDBBasic;
+{$R *.dfm}
+
+{ TfrmGenerateConfirmedOrder }
+
+procedure TfrmGenerateConfirmedOrder.SetData;
+begin
+  DM.DataSetQuery(adt_active, format(sQueryCustomerOrderSQL, [' and c.CustomerOrderStatesID=3']));
+  DM.DataSetQuery(adt_active2, format(sQueryCustomerOrderSQL, [' and c.CustomerOrderStatesID=4']));
+end;
+
+procedure TfrmGenerateConfirmedOrder.SetUI;
+begin
+  inherited;
+  gridData.FrozenCols := 4;
+  gridData2.FrozenCols := 4;
+  pnlBottom.Visible := true;
+  GroupBox1.Caption := 'Open Order--order waitting confirmed by scheduler';
+  GroupBox2.Caption := 'Confirmed Order--order have been confirmed by scheduler';
+end;
+
+procedure TfrmGenerateConfirmedOrder.SetAccess;
+begin
+  inherited;
+  if CurUser = '' then
+    CurUserLevel := '0';
+  case StrToInt(CurUserLevel) of
+    2:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh];
+      end;
+  end;
+end;
+
+end.
+

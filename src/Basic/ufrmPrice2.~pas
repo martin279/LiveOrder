@@ -1,0 +1,142 @@
+unit ufrmPrice2;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, DB, ADODB, PrnDbgeh, Menus,
+  PropStorageEh, ActnList, ImgList, GridsEh, DBGridEh, PrViewEh, StdCtrls,
+  DBCtrls, ComCtrls, ToolWin, ExtCtrls;
+
+type
+  TfrmPrice2 = class(TfrmDBBasicPrn)
+    adt_activePriceID: TAutoIncField;
+    adt_activeCustomerID: TIntegerField;
+    adt_activeModelID: TIntegerField;
+    adt_activeCurrency: TStringField;
+    adt_activePrice: TBCDField;
+    adt_activePaymentTerms: TStringField;
+    adt_activePriceterm: TStringField;
+    adt_activeEffectDate: TDateTimeField;
+    adt_activeRemark: TStringField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeModel: TStringField;
+    adt_activeDemandQuantity: TIntegerField;
+    adt_customer: TADODataSet;
+    adt_model: TADODataSet;
+    adt_activeCustomerName1: TStringField;
+    adt_activeModel1: TStringField;
+    adt_activePriceStatesID: TIntegerField;
+    adt_activePriceStatesName: TStringField;
+    adt_activeCreatorLoginID: TIntegerField;
+    adt_activeDisplayName: TStringField;
+    adt_activeCreateTime: TDateTimeField;
+    procedure adt_activeBeforeDelete(DataSet: TDataSet);
+    procedure adt_activeBeforePost(DataSet: TDataSet);
+    procedure gridDataDblClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uSQLConsts, uMJ, ufrmDBBasic;
+
+{$R *.dfm}
+
+{ TfrmPrice }
+
+procedure TfrmPrice2.SetData;
+var
+  sqlConst: string;
+begin
+  sqlConst := ' and c.PlantID in' + CurUserPlantID;
+  DM.DataSetQuery(adt_customer, format(sQueryCustomerSQL, [sqlConst]));
+  sqlConst := ' and p.PlantID in' + CurUserPlantID;
+  DM.DataSetQuery(adt_model, format(sQueryModelSQL, [sqlConst]));
+  sqlConst := '';
+  case CurUserLevel of
+    8:
+      sqlConst := ' and p.CustomerID in'
+        + ' (select sc.CustomerID from SalesCustomer sc'
+        + ' left outer join Sales s ON sc.SalesID = s.SalesID'
+        + ' where s.LoginID=' + IntToStr(CurLoginID) + ')';
+  end;
+  DM.DataSetQuery(adt_active, format(sQueryPriceSQL, [sqlConst]));
+end;
+
+procedure TfrmPrice2.SetUI;
+begin
+  inherited;
+  gridData.FrozenCols := 5;
+  gridData.FieldColumns['PriceStatesName'].ReadOnly := true;
+end;
+
+procedure TfrmPrice2.SetAccess;
+begin
+  inherited;
+  {
+  case CurUserLevel of
+    1:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+    2:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+    8:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+    10:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+    11:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+  end;   }
+end;
+
+procedure TfrmPrice2.adt_activeBeforeDelete(DataSet: TDataSet);
+begin
+  inherited;
+//
+end;
+
+procedure TfrmPrice2.adt_activeBeforePost(DataSet: TDataSet);
+begin
+  inherited;
+  if Trim(gridData.DataSource.DataSet.FieldByName('DemandQuantity').AsString) = '' then
+    gridData.DataSource.DataSet.FieldByName('DemandQuantity').Value := 1;
+  gridData.DataSource.DataSet.FieldByName('PriceStatesID').Value := 1;
+end;
+
+procedure TfrmPrice2.gridDataDblClick(Sender: TObject);
+begin
+  inherited;
+//
+end;
+
+end.
+

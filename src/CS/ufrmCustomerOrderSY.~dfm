@@ -1,0 +1,1036 @@
+inherited frmCustomerOrderSY: TfrmCustomerOrderSY
+  Left = 36
+  Top = 159
+  Width = 973
+  Height = 537
+  Caption = 'frmCustomerOrderSY'
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited PnlTop: TPanel
+    Width = 965
+    inherited CoolBar1: TCoolBar
+      Width = 965
+      Bands = <
+        item
+          Control = ToolBar1
+          ImageIndex = -1
+          Width = 965
+        end>
+      inherited ToolBar1: TToolBar
+        Width = 952
+        inherited DBNavigator1: TDBNavigator
+          Hints.Strings = ()
+        end
+      end
+    end
+  end
+  inherited pnlBottom: TPanel
+    Top = 462
+    Width = 965
+  end
+  inherited pnlBody: TPanel
+    Width = 965
+    Height = 437
+    inherited Splitter1: TSplitter
+      Top = 325
+      Width = 965
+    end
+    inherited PageControl1: TPageControl
+      Width = 965
+      Height = 325
+      inherited tbsBody1: TTabSheet
+        inherited GroupBox1: TGroupBox
+          Top = 105
+          Width = 957
+          Height = 189
+          inherited gridData: TDBGridEh
+            Width = 953
+            Height = 172
+            OnCellClick = gridDataCellClick
+            Columns = <
+              item
+                EditButtons = <>
+                FieldName = 'CustomerOrderID'
+                Footers = <>
+                Title.Caption = 'ID'
+                Width = 36
+              end
+              item
+                EditButtons = <>
+                FieldName = 'CustomerNumber'
+                Footers = <>
+                Title.Caption = 'Customer Code'
+                Width = 53
+              end
+              item
+                EditButtons = <>
+                FieldName = 'CustomerName'
+                Footers = <>
+                Title.Caption = 'Customer Name'
+                Width = 118
+              end
+              item
+                EditButtons = <>
+                FieldName = 'Model'
+                Footers = <>
+                Width = 106
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ModelDescription'
+                Footers = <>
+                Title.Caption = 'Model Desc.'
+                Width = 67
+              end
+              item
+                EditButtons = <>
+                FieldName = 'InvoiceNumber'
+                Footers = <>
+                Title.Caption = 'Invoice No.'
+                Width = 49
+              end
+              item
+                EditButtons = <>
+                FieldName = 'MNumber'
+                Footers = <>
+                Title.Caption = 'M No.'
+                Width = 51
+              end
+              item
+                EditButtons = <>
+                FieldName = 'CustomerOrderNumber'
+                Footers = <>
+                Title.Caption = 'Order No.'
+                Width = 51
+              end
+              item
+                EditButtons = <>
+                FieldName = 'CustomerOrderQuantity'
+                Footers = <>
+                Title.Caption = 'Order Qty.'
+                Width = 38
+              end
+              item
+                EditButtons = <>
+                FieldName = 'Currency'
+                Footers = <>
+                Width = 41
+              end
+              item
+                EditButtons = <>
+                FieldName = 'Price'
+                Footers = <>
+                Width = 47
+              end
+              item
+                EditButtons = <>
+                FieldName = 'TotalAmount'
+                Footers = <>
+                Title.Caption = 'Total Amount'
+                Width = 52
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ContractDate'
+                Footers = <>
+                Title.Caption = 'Contract Date'
+                Width = 90
+              end
+              item
+                EditButtons = <>
+                FieldName = 'RTD'
+                Footers = <>
+                Width = 90
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ETD'
+                Footers = <>
+                Width = 90
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ATD'
+                Footers = <>
+                Width = 90
+              end
+              item
+                EditButtons = <>
+                FieldName = 'Remark'
+                Footers = <>
+                Width = 81
+              end
+              item
+                EditButtons = <>
+                FieldName = 'CustomerPurchaseOrderNumber'
+                Footers = <>
+                Title.Caption = 'Customer PO No.'
+                Width = 77
+              end
+              item
+                EditButtons = <>
+                FieldName = 'Payment'
+                Footers = <>
+                Width = 73
+              end
+              item
+                EditButtons = <>
+                FieldName = 'COGenerateTime'
+                Footers = <>
+                Title.Caption = 'CO Generate Time'
+                Width = 84
+              end
+              item
+                EditButtons = <>
+                FieldName = 'COConfirmedTime'
+                Footers = <>
+                Title.Caption = 'CO Confirmed Time'
+                Width = 83
+              end
+              item
+                EditButtons = <>
+                FieldName = 'PlantCode'
+                Footers = <>
+                Title.Caption = 'Plant'
+                Width = 35
+              end
+              item
+                EditButtons = <>
+                FieldName = 'BusinessApplicationName'
+                Footers = <>
+                Title.Caption = 'Application'
+                Width = 52
+              end
+              item
+                EditButtons = <>
+                FieldName = 'CustomerOrderStatesName'
+                Footers = <>
+                Title.Caption = 'Order States'
+                Width = 72
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ReasonOfDelayDesc'
+                Footers = <>
+                Title.Caption = 'Delay Desc.'
+                Width = 84
+              end
+              item
+                EditButtons = <>
+                FieldName = 'DisplayName'
+                Footers = <>
+                Title.Caption = 'Creator'
+                Width = 70
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ETA'
+                Footers = <>
+                Width = 74
+              end
+              item
+                EditButtons = <>
+                FieldName = 'ATA'
+                Footers = <>
+                Width = 83
+              end>
+          end
+        end
+        object Panel2: TPanel
+          Left = 0
+          Top = 0
+          Width = 957
+          Height = 105
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 1
+          object ScrollBox1: TScrollBox
+            Left = 0
+            Top = 0
+            Width = 957
+            Height = 105
+            Align = alClient
+            BevelInner = bvNone
+            BevelOuter = bvNone
+            TabOrder = 0
+            object Label8: TLabel
+              Left = 414
+              Top = 80
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object Label7: TLabel
+              Left = 412
+              Top = 56
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label6: TLabel
+              Left = 412
+              Top = 31
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object Label5: TLabel
+              Left = 412
+              Top = 7
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label4: TLabel
+              Left = 203
+              Top = 81
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object Label3: TLabel
+              Left = 203
+              Top = 57
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label1: TLabel
+              Left = 200
+              Top = 6
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label2: TLabel
+              Left = 200
+              Top = 30
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object Label9: TLabel
+              Left = 54
+              Top = 6
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label10: TLabel
+              Left = 54
+              Top = 31
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object Label11: TLabel
+              Left = 56
+              Top = 54
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label12: TLabel
+              Left = 56
+              Top = 80
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object Label13: TLabel
+              Left = 776
+              Top = 58
+              Width = 23
+              Height = 13
+              Caption = 'From'
+            end
+            object Label14: TLabel
+              Left = 776
+              Top = 80
+              Width = 13
+              Height = 13
+              Caption = 'To'
+            end
+            object btnQuery: TButton
+              Left = 866
+              Top = 20
+              Width = 75
+              Height = 25
+              Caption = 'Query'
+              TabOrder = 0
+              OnClick = btnQueryClick
+            end
+            object dbcbbCreator: TDBLookupComboboxEh
+              Left = 776
+              Top = 5
+              Width = 80
+              Height = 21
+              DropDownBox.Columns = <
+                item
+                  FieldName = 'CommunicatorCode'
+                  Title.Caption = 'Code'
+                end
+                item
+                  FieldName = 'DisplayName'
+                  Title.Caption = 'Name'
+                end>
+              DropDownBox.Options = [dlgColumnResizeEh, dlgColLinesEh]
+              DropDownBox.UseMultiTitle = True
+              DropDownBox.ShowTitles = True
+              DropDownBox.Sizable = True
+              DropDownBox.Width = -1
+              EditButtons = <>
+              KeyField = 'LoginID'
+              ListField = 'CommunicatorCode'
+              ListSource = ds_communicator
+              TabOrder = 1
+              Visible = True
+            end
+            object dbcbbProductSeries: TDBLookupComboboxEh
+              Left = 621
+              Top = 5
+              Width = 94
+              Height = 21
+              EditButtons = <>
+              KeyField = 'ProductSeriesID'
+              ListField = 'ProductSeriesName'
+              ListSource = ds_productSeries
+              TabOrder = 2
+              Visible = True
+            end
+            object dbcbbPlant: TDBLookupComboboxEh
+              Left = 621
+              Top = 31
+              Width = 80
+              Height = 21
+              EditButtons = <>
+              KeyField = 'PlantID'
+              ListField = 'PlantCode'
+              ListSource = ds_plant
+              TabOrder = 3
+              Visible = True
+              OnChange = dbcbbPlantChange
+            end
+            object chkFY: TCheckBox
+              Left = 5
+              Top = 3
+              Width = 47
+              Height = 30
+              Caption = 'Fiscal Year'
+              TabOrder = 4
+              WordWrap = True
+            end
+            object chkFM: TCheckBox
+              Left = 5
+              Top = 52
+              Width = 50
+              Height = 28
+              Caption = 'Fiscal Month'
+              TabOrder = 5
+              WordWrap = True
+            end
+            object chkPlant: TCheckBox
+              Left = 562
+              Top = 33
+              Width = 46
+              Height = 17
+              Caption = 'Plant'
+              TabOrder = 6
+            end
+            object chkProductSeries: TCheckBox
+              Left = 561
+              Top = 4
+              Width = 57
+              Height = 24
+              Caption = 'Product Series'
+              TabOrder = 7
+              WordWrap = True
+            end
+            object chkRTD: TCheckBox
+              Left = 156
+              Top = 6
+              Width = 40
+              Height = 17
+              Caption = 'RTD'
+              TabOrder = 8
+            end
+            object chkETD: TCheckBox
+              Left = 156
+              Top = 57
+              Width = 40
+              Height = 17
+              Caption = 'ETD'
+              TabOrder = 9
+            end
+            object chkATD: TCheckBox
+              Left = 352
+              Top = 4
+              Width = 41
+              Height = 17
+              Caption = 'ATD'
+              TabOrder = 10
+            end
+            object chkContractDate: TCheckBox
+              Left = 352
+              Top = 52
+              Width = 60
+              Height = 25
+              Caption = 'Contract Date'
+              TabOrder = 11
+              WordWrap = True
+            end
+            object chkCreator: TCheckBox
+              Left = 718
+              Top = 7
+              Width = 55
+              Height = 17
+              Caption = 'Creator'
+              TabOrder = 12
+            end
+            object cbbFYFrom: TComboBox
+              Left = 81
+              Top = 4
+              Width = 73
+              Height = 21
+              ItemHeight = 13
+              TabOrder = 13
+              Items.Strings = (
+                'FY11'
+                'FY10'
+                'FY09'
+                'FY08'
+                'FY07'
+                'FY06'
+                'FY05'
+                'FY04'
+                'FY03'
+                'FY02'
+                'FY01')
+            end
+            object cbbFYTo: TComboBox
+              Left = 81
+              Top = 29
+              Width = 73
+              Height = 21
+              ItemHeight = 13
+              TabOrder = 14
+              Items.Strings = (
+                'FY11'
+                'FY10'
+                'FY09'
+                'FY08'
+                'FY07'
+                'FY06'
+                'FY05'
+                'FY04'
+                'FY03'
+                'FY02'
+                'FY01')
+            end
+            object cbbFMFrom: TComboBox
+              Left = 81
+              Top = 53
+              Width = 73
+              Height = 21
+              ItemHeight = 13
+              TabOrder = 15
+            end
+            object cbbFMTo: TComboBox
+              Left = 81
+              Top = 79
+              Width = 73
+              Height = 21
+              ItemHeight = 13
+              TabOrder = 16
+            end
+            object dtpRTDFrom: TDateTimePicker
+              Left = 227
+              Top = 4
+              Width = 124
+              Height = 21
+              Date = 39891.832985000000000000
+              Time = 39891.832985000000000000
+              TabOrder = 17
+            end
+            object dtpRTDTo: TDateTimePicker
+              Left = 227
+              Top = 28
+              Width = 124
+              Height = 21
+              Date = 39891.833010312500000000
+              Time = 39891.833010312500000000
+              TabOrder = 18
+            end
+            object dtpETDFrom: TDateTimePicker
+              Left = 227
+              Top = 52
+              Width = 124
+              Height = 21
+              Date = 39891.833047928240000000
+              Time = 39891.833047928240000000
+              TabOrder = 19
+            end
+            object dtpETDTo: TDateTimePicker
+              Left = 227
+              Top = 76
+              Width = 124
+              Height = 21
+              Date = 39891.833067650460000000
+              Time = 39891.833067650460000000
+              TabOrder = 20
+            end
+            object dtpATDTo: TDateTimePicker
+              Left = 439
+              Top = 29
+              Width = 120
+              Height = 21
+              Date = 39891.833917256950000000
+              Time = 39891.833917256950000000
+              TabOrder = 21
+            end
+            object dtpContractDateFrom: TDateTimePicker
+              Left = 439
+              Top = 55
+              Width = 120
+              Height = 21
+              Date = 39891.833922314820000000
+              Time = 39891.833922314820000000
+              TabOrder = 22
+            end
+            object dtpContractDateTo: TDateTimePicker
+              Left = 439
+              Top = 78
+              Width = 120
+              Height = 21
+              Date = 39891.833928472220000000
+              Time = 39891.833928472220000000
+              TabOrder = 23
+            end
+            object chkBusinessApplication: TCheckBox
+              Left = 562
+              Top = 58
+              Width = 73
+              Height = 17
+              Caption = 'Application'
+              TabOrder = 24
+            end
+            object dbcbbBusinessApplication: TDBLookupComboboxEh
+              Left = 634
+              Top = 56
+              Width = 81
+              Height = 21
+              EditButtons = <>
+              KeyField = 'BusinessApplicationID'
+              ListField = 'BusinessApplicationName'
+              ListSource = ds_business
+              TabOrder = 25
+              Visible = True
+            end
+            object chkSales: TCheckBox
+              Left = 718
+              Top = 32
+              Width = 49
+              Height = 17
+              Caption = 'Sales'
+              TabOrder = 26
+            end
+            object dbcbbSales: TDBLookupComboboxEh
+              Left = 776
+              Top = 32
+              Width = 80
+              Height = 21
+              EditButtons = <>
+              KeyField = 'SalesID'
+              ListField = 'DisplayName'
+              ListSource = ds_sales
+              TabOrder = 27
+              Visible = True
+            end
+            object chkOrderStates: TCheckBox
+              Left = 560
+              Top = 80
+              Width = 51
+              Height = 17
+              Caption = 'States'
+              TabOrder = 28
+            end
+            object cbbOrderStates: TComboBox
+              Left = 624
+              Top = 78
+              Width = 91
+              Height = 21
+              Style = csDropDownList
+              ItemHeight = 13
+              ItemIndex = 1
+              TabOrder = 29
+              Text = 'UnShipped Order'
+              Items.Strings = (
+                'Shipped Order'
+                'UnShipped Order')
+            end
+            object chkChangeTime: TCheckBox
+              Left = 719
+              Top = 56
+              Width = 57
+              Height = 27
+              Caption = 'Change Time'
+              TabOrder = 30
+              WordWrap = True
+            end
+            object dtpChangeTimeFrom: TDateTimePicker
+              Left = 803
+              Top = 56
+              Width = 89
+              Height = 21
+              Date = 39918.930450949080000000
+              Time = 39918.930450949080000000
+              TabOrder = 31
+            end
+            object dtpChangeTimeTo: TDateTimePicker
+              Left = 803
+              Top = 79
+              Width = 90
+              Height = 21
+              Date = 39918.930724027780000000
+              Time = 39918.930724027780000000
+              TabOrder = 32
+            end
+            object dtpATDFrom: TDateTimePicker
+              Left = 439
+              Top = 3
+              Width = 120
+              Height = 21
+              Date = 39918.936954305560000000
+              Time = 39918.936954305560000000
+              TabOrder = 33
+            end
+          end
+        end
+      end
+    end
+    inherited GroupBox2: TGroupBox
+      Top = 328
+      Width = 965
+      Height = 109
+      Caption = 'Change Log'
+      inherited gridData2: TDBGridEh
+        Width = 961
+        Height = 92
+        Columns = <
+          item
+            EditButtons = <>
+            FieldName = 'ChangeField'
+            Footers = <>
+            Title.Caption = 'Change Field'
+            Width = 88
+          end
+          item
+            EditButtons = <>
+            FieldName = 'RTD'
+            Footers = <>
+          end
+          item
+            EditButtons = <>
+            FieldName = 'ETD'
+            Footers = <>
+          end
+          item
+            EditButtons = <>
+            FieldName = 'CustomerOrderQuantity'
+            Footers = <>
+            Title.Caption = 'Order Qty.'
+            Width = 65
+          end
+          item
+            EditButtons = <>
+            FieldName = 'ChangeTime'
+            Footers = <>
+            Title.Caption = 'Change Time'
+          end>
+      end
+    end
+  end
+  inherited ImageList1: TImageList
+    Left = 776
+  end
+  inherited ActionList1: TActionList
+    Left = 824
+  end
+  inherited SaveDialog1: TSaveDialog
+    Left = 722
+  end
+  inherited PropStorageEh1: TPropStorageEh
+    StoredProps.Strings = (
+      '<P>.ActiveControl'
+      '<P>.Height'
+      '<P>.Left'
+      '<P>.PixelsPerInch'
+      '<P>.Top'
+      '<P>.Width'
+      'pnlBody.GroupBox2.gridData2.<P>.Columns.ColumnsIndex'
+      'pnlBody.GroupBox2.gridData2.<P>.Columns.<ForAllItems>.Width'
+      
+        'pnlBody.PageControl1.tbsBody1.GroupBox1.gridData.<P>.Columns.Col' +
+        'umnsIndex'
+      
+        'pnlBody.PageControl1.tbsBody1.GroupBox1.gridData.<P>.Columns.<Fo' +
+        'rAllItems>.Width')
+    Left = 674
+  end
+  inherited PopupMenu1: TPopupMenu
+    Left = 900
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object MenuAddOrderComments: TMenuItem
+      Caption = 'Add Order Comments'
+      OnClick = MenuAddOrderCommentsClick
+    end
+  end
+  inherited adt_active: TADODataSet
+    object adt_activeCustomerOrderID: TAutoIncField
+      FieldName = 'CustomerOrderID'
+      ReadOnly = True
+    end
+    object adt_activeCustomerOrderNumber: TStringField
+      FieldName = 'CustomerOrderNumber'
+    end
+    object adt_activeMNumber: TStringField
+      FieldName = 'MNumber'
+    end
+    object adt_activeInvoiceNumber: TStringField
+      FieldName = 'InvoiceNumber'
+    end
+    object adt_activeCustomerID: TIntegerField
+      FieldName = 'CustomerID'
+    end
+    object adt_activeModelID: TIntegerField
+      FieldName = 'ModelID'
+    end
+    object adt_activeCurrency: TStringField
+      FieldName = 'Currency'
+      Size = 10
+    end
+    object adt_activePrice: TBCDField
+      FieldName = 'Price'
+      Precision = 18
+      Size = 2
+    end
+    object adt_activeCustomerOrderQuantity: TFloatField
+      FieldName = 'CustomerOrderQuantity'
+    end
+    object adt_activeTotalAmount: TBCDField
+      FieldName = 'TotalAmount'
+      Precision = 18
+      Size = 2
+    end
+    object adt_activeContractDate: TDateTimeField
+      FieldName = 'ContractDate'
+    end
+    object adt_activeRTD: TDateTimeField
+      FieldName = 'RTD'
+    end
+    object adt_activeETD: TDateTimeField
+      FieldName = 'ETD'
+    end
+    object adt_activeATD: TDateTimeField
+      FieldName = 'ATD'
+    end
+    object adt_activeETA: TDateTimeField
+      FieldName = 'ETA'
+    end
+    object adt_activeATA: TDateTimeField
+      FieldName = 'ATA'
+    end
+    object adt_activeRemark: TStringField
+      FieldName = 'Remark'
+      Size = 30
+    end
+    object adt_activeCustomerPurchaseOrderNumber: TStringField
+      FieldName = 'CustomerPurchaseOrderNumber'
+      Size = 50
+    end
+    object adt_activePayment: TStringField
+      FieldName = 'Payment'
+      Size = 50
+    end
+    object adt_activeReasonOfDelayID: TIntegerField
+      FieldName = 'ReasonOfDelayID'
+    end
+    object adt_activeCustomerOrderStatesID: TIntegerField
+      FieldName = 'CustomerOrderStatesID'
+    end
+    object adt_activeReasonOfDelayRemark: TStringField
+      FieldName = 'ReasonOfDelayRemark'
+      Size = 50
+    end
+    object adt_activeCOGenerateTime: TDateTimeField
+      FieldName = 'COGenerateTime'
+    end
+    object adt_activeCOConfirmedTime: TDateTimeField
+      FieldName = 'COConfirmedTime'
+    end
+    object adt_activeLoginID: TIntegerField
+      FieldName = 'LoginID'
+    end
+    object adt_activeCustomerNumber: TStringField
+      FieldName = 'CustomerNumber'
+      Size = 10
+    end
+    object adt_activeCustomerName: TStringField
+      FieldName = 'CustomerName'
+      Size = 40
+    end
+    object adt_activeOrigin: TStringField
+      FieldName = 'Origin'
+    end
+    object adt_activeCountry: TStringField
+      FieldName = 'Country'
+      Size = 15
+    end
+    object adt_activeChineseName: TStringField
+      FieldName = 'ChineseName'
+      Size = 100
+    end
+    object adt_activePlantID: TIntegerField
+      FieldName = 'PlantID'
+    end
+    object adt_activePlantCode: TStringField
+      FieldName = 'PlantCode'
+      Size = 15
+    end
+    object adt_activeBusinessApplicationID: TIntegerField
+      FieldName = 'BusinessApplicationID'
+    end
+    object adt_activeBusinessApplicationName: TStringField
+      FieldName = 'BusinessApplicationName'
+      Size = 10
+    end
+    object adt_activeModel: TStringField
+      FieldName = 'Model'
+      Size = 25
+    end
+    object adt_activeModelDescription: TStringField
+      FieldName = 'ModelDescription'
+      Size = 80
+    end
+    object adt_activeCustomerOrderStatesName: TStringField
+      FieldName = 'CustomerOrderStatesName'
+      Size = 15
+    end
+    object adt_activeReasonOfDelayDesc: TStringField
+      FieldName = 'ReasonOfDelayDesc'
+      Size = 50
+    end
+    object adt_activeDisplayName: TStringField
+      FieldName = 'DisplayName'
+    end
+  end
+  inherited adt_active2: TADODataSet
+    CommandText = 'select * from CustomerOrderChangeLog'
+    object adt_active2CustomerOrderChangeLogID: TAutoIncField
+      FieldName = 'CustomerOrderChangeLogID'
+      ReadOnly = True
+    end
+    object adt_active2CustomerOrderID: TIntegerField
+      FieldName = 'CustomerOrderID'
+    end
+    object adt_active2CustomerOrderQuantity: TFloatField
+      FieldName = 'CustomerOrderQuantity'
+    end
+    object adt_active2RTD: TDateTimeField
+      FieldName = 'RTD'
+    end
+    object adt_active2ETD: TDateTimeField
+      FieldName = 'ETD'
+    end
+    object adt_active2ChangeField: TStringField
+      FieldName = 'ChangeField'
+      Size = 30
+    end
+    object adt_active2ChangeTime: TDateTimeField
+      FieldName = 'ChangeTime'
+    end
+  end
+  object adt_productSeries: TADODataSet
+    Connection = DM.ADOConnection1
+    CommandText = 'select * from ProductSeries'
+    Parameters = <>
+    Left = 249
+    Top = 4
+  end
+  object ds_productSeries: TDataSource
+    DataSet = adt_productSeries
+    Left = 288
+    Top = 5
+  end
+  object adt_plant: TADODataSet
+    Parameters = <>
+    Left = 322
+    Top = 3
+  end
+  object ds_plant: TDataSource
+    DataSet = adt_plant
+    Left = 370
+    Top = 3
+  end
+  object adt_communicator: TADODataSet
+    Connection = DM.ADOConnection1
+    CommandText = 
+      'select c.*,l.DisplayName from Communicator c'#13#10' left outer join L' +
+      'ogin l on c.LoginID=l.LoginID'
+    Parameters = <>
+    Left = 408
+    Top = 1
+    object adt_communicatorCommunicatorID: TAutoIncField
+      FieldName = 'CommunicatorID'
+      ReadOnly = True
+    end
+    object adt_communicatorCommunicatorCode: TStringField
+      FieldName = 'CommunicatorCode'
+      Size = 3
+    end
+    object adt_communicatorCommunicatorPhone: TStringField
+      FieldName = 'CommunicatorPhone'
+      Size = 30
+    end
+    object adt_communicatorCommunicatorFax: TStringField
+      FieldName = 'CommunicatorFax'
+      Size = 30
+    end
+    object adt_communicatorCommunicatorMail: TStringField
+      FieldName = 'CommunicatorMail'
+      Size = 50
+    end
+    object adt_communicatorLoginID: TIntegerField
+      FieldName = 'LoginID'
+    end
+    object adt_communicatorDisplayName: TStringField
+      FieldName = 'DisplayName'
+    end
+  end
+  object ds_communicator: TDataSource
+    DataSet = adt_communicator
+    Left = 456
+    Top = 1
+  end
+  object adt_business: TADODataSet
+    Parameters = <>
+    Left = 498
+    Top = 4
+  end
+  object ds_business: TDataSource
+    DataSet = adt_business
+    Left = 536
+    Top = 3
+  end
+  object adt_sales: TADODataSet
+    Parameters = <>
+    Left = 576
+    Top = 1
+  end
+  object ds_sales: TDataSource
+    DataSet = adt_sales
+    Left = 609
+  end
+end

@@ -1,0 +1,425 @@
+unit ufrmAddCustomerOrder;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmBasic, ActnList, ImgList, ComCtrls, ToolWin, ExtCtrls,
+  StdCtrls, DBGridEh, Mask, DBCtrlsEh, DBLookupEh, DB, ADODB, DateUtils,
+  Buttons, DBCtrls, uDMEntity, uDMManager;
+
+type
+
+  TfrmAddCustomerOrder = class(TfrmBasic)
+    GroupBox1: TGroupBox;
+    btnSave: TButton;
+    btnClose: TButton;
+    adt_customer: TADODataSet;
+    adt_model: TADODataSet;
+    ds_customer: TDataSource;
+    ds_model: TDataSource;
+    GroupBox3: TGroupBox;
+    adt_forwarder: TADODataSet;
+    adt_forwarderForwarderID: TAutoIncField;
+    adt_forwarderForwarderName: TStringField;
+    ds_forwarder: TDataSource;
+    adt_modelPlantID: TIntegerField;
+    adt_modelModelID: TIntegerField;
+    adt_modelProductSeriesID: TIntegerField;
+    adt_modelProductFamilyID: TIntegerField;
+    adt_modelModel: TStringField;
+    adt_modelModelDescription: TStringField;
+    adt_modelProductClassification: TStringField;
+    adt_modelIsValid: TBooleanField;
+    adt_modelPlantCode: TStringField;
+    adt_modelProductSeriesName: TStringField;
+    adt_modelProductFamilyName: TStringField;
+    pnlModel: TPanel;
+    Label7: TLabel;
+    sbtnAddModel: TSpeedButton;
+    Label13: TLabel;
+    sbtnAddApplication: TSpeedButton;
+    LabelBusinessApplication: TLabel;
+    Label6: TLabel;
+    Label5: TLabel;
+    Label16: TLabel;
+    Label11: TLabel;
+    dbcbbModel: TDBLookupComboboxEh;
+    memoRemark: TMemo;
+    chkBoxKeyOrder: TCheckBox;
+    edtOrderQty: TEdit;
+    cbbCurrency: TComboBox;
+    edtPrice: TEdit;
+    dtpRTD: TDateTimePicker;
+    edtCustomerPONo: TEdit;
+    dbcbbBusinessApplication: TDBLookupComboboxEh;
+    Panel1: TPanel;
+    Label4: TLabel;
+    Label19: TLabel;
+    sbtnAddCustomer: TSpeedButton;
+    dbcbbCustomer: TDBLookupComboboxEh;
+    dbedtCustomerName: TDBEditEh;
+    pnlShip: TPanel;
+    Label8: TLabel;
+    Label3: TLabel;
+    Label2: TLabel;
+    Label17: TLabel;
+    Label15: TLabel;
+    memoDestination: TMemo;
+    edtMNo: TEdit;
+    edtInstruction: TEdit;
+    edtFreight: TEdit;
+    dbcbbForwarder: TDBLookupComboboxEh;
+    adt_business: TADODataSet;
+    ds_business: TDataSource;
+    procedure btnCloseClick(Sender: TObject);
+    procedure edtOrderQtyKeyPress(Sender: TObject; var Key: Char);
+    procedure btnSaveClick(Sender: TObject);
+    procedure edtOrderQtyExit(Sender: TObject);
+    procedure sbtnAddCustomerClick(Sender: TObject);
+    procedure sbtnAddModelClick(Sender: TObject);
+    procedure sbtnAddApplicationClick(Sender: TObject);
+    procedure dbcbbCustomerChange(Sender: TObject);
+    procedure dbcbbModelChange(Sender: TObject);
+    procedure dbcbbBusinessApplicationChange(Sender: TObject);
+    procedure dbcbbModelExit(Sender: TObject);
+  private
+    { Private declarations }
+    procedure checkPrice;
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+uses DataModule, uMJ, StrUtils, ufrmCustomer, ufrmModel, ufrmEdtModel,
+  ufrmApplicationCustomer;
+
+{$R *.dfm}
+
+{ TfrmEditCO }
+
+procedure TfrmAddCustomerOrder.SetData;
+begin
+  DM.DataSetQuery(adt_customer, 'select * from Customer');
+  DM.DataSetQuery(adt_forwarder, 'select * from Forwarder');
+end;
+
+procedure TfrmAddCustomerOrder.SetUI;
+begin
+  inherited;
+  dtpRTD.DateTime := now;
+  dtpRTD.Checked := false;
+  cbbCurrency.Enabled := false;
+  edtPrice.Enabled := false;
+  mjLockForm(pnlModel);
+  mjLockForm(pnlShip);
+end;
+
+procedure TfrmAddCustomerOrder.SetAccess;
+begin
+  inherited;
+end;
+
+procedure TfrmAddCustomerOrder.dbcbbCustomerChange(Sender: TObject);
+begin
+  inherited;
+  if VarToStr(dbcbbCustomer.Value) = '' then
+  begin
+    ShowMessage('Please select customer first!');
+    dbcbbCustomer.SetFocus;
+    Abort;
+  end
+  else
+  begin
+    if not dbcbbModel.Enabled then
+    begin
+      mjUnLockForm(pnlModel);
+      mjUnLockForm(pnlShip);
+    end;
+    DM.DataSetQuery(adt_model, 'EXEC usp_GetPlantModel @CustomerID=' + VarToStr(dbcbbCustomer.Value));
+    DM.DataSetQuery(adt_business, 'EXEC usp_GetBusinessApplicationCustomer @CustomerID=' + VarToStr(dbcbbCustomer.Value));
+    if adt_business.RecordCount = 0 then
+    begin
+      if VarToStr(dbcbbCustomer.Value) <> '' then
+      begin
+        TfrmApplicationCustomer.EdtFromList(adt_customer);
+      end;
+    end;
+    adt_business.Active := false; //very important, must add
+    adt_business.Active := true;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.dbcbbModelChange(Sender: TObject);
+begin
+  inherited; {
+  if VarToStr(dbcbbModel.Value) = '' then
+  begin
+    ShowMessage('Please select model!');
+    Abort;
+  end
+  else   }
+  begin
+    if dbcbbBusinessApplication.Value <> 8 then
+    begin
+      if LowerCase(LeftStr(dbcbbModel.Text, 2)) = 'zw' then
+      begin
+        dbcbbBusinessApplication.Value := 7;
+      end
+      else if LowerCase(LeftStr(dbcbbModel.Text, 2)) = 'zb' then
+      begin
+        dbcbbBusinessApplication.Value := 6;
+      end
+      else if (LowerCase(LeftStr(dbcbbModel.Text, 2)) = 'zx') or (LowerCase(LeftStr(dbcbbModel.Text, 2)) = 'xj') then
+      begin
+        dbcbbBusinessApplication.Value := 5;
+      end
+      else if (LeftStr(dbcbbModel.Text, 3) = '541') then
+      begin
+        dbcbbBusinessApplication.Value := 10;
+      end
+      else
+        dbcbbBusinessApplication.Value := 1;
+    end;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.dbcbbModelExit(Sender: TObject);
+var
+  adt1: TADODataSet;
+begin
+  inherited;
+  if Copy(UpperCase(dbcbbModel.Text), 1, 3) = 'ZSI' then
+  begin
+    adt1 := TADODataSet.Create(nil);
+    try
+      DM.DataSetQuery(adt1, 'select ComponentItem from ViewBOM where ModelID=''' + VarToStr(dbcbbModel.Value) + '''');
+      memoRemark.Text := 'Component Item: ' + adt1.fieldbyname('ComponentItem').AsString + '; ' + memoRemark.Text;
+    finally
+      adt1.Free;
+    end;
+  end;    
+end;
+
+procedure TfrmAddCustomerOrder.dbcbbBusinessApplicationChange(
+  Sender: TObject);
+var
+  adt1: TADODataSet;
+  ProductFamilyName, ProductClassification: string;
+begin {
+  if dbcbbBusinessApplication.Text = '' then
+  begin
+    ShowMessage('Please select application!');
+    Abort;
+  end;   }
+  ProductFamilyName := adt_model.fieldbyname('ProductFamilyName').AsString;
+  ProductClassification := adt_model.fieldbyname('ProductClassification').AsString;
+  if VarToStr(dbcbbModel.Value) <> '' then
+  begin
+    adt1 := TADODataSet.Create(nil);
+    try
+      if adt_customer.FieldByName('IsKeyOrderCustomer').AsBoolean
+        and ((lowercase(ProductFamilyName) = 'quest') or (lowercase(ProductFamilyName) = 'summit'))
+        and ((lowercase(ProductClassification) = 'a') or (lowercase(ProductClassification) = 'b')) then
+        chkBoxKeyOrder.Checked := true
+      else
+        chkBoxKeyOrder.Checked := false;
+    finally
+      adt1.Free;
+    end;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.checkPrice;
+var
+  adt_price: TADODataSet;
+begin
+  edtPrice.Clear;
+  if dbcbbCustomer.Text = '' then
+  begin
+    ShowMessage('Please select customer');
+    exit;
+  end;
+  if dbcbbModel.Text = '' then
+  begin
+    ShowMessage('Please select model');
+    dbcbbModel.SetFocus;
+    exit;
+  end;
+  if dbcbbBusinessApplication.Text = '' then
+  begin
+    ShowMessage('Please select application');
+    exit;
+  end;
+  if edtOrderQty.Text = '' then
+  begin
+    ShowMessage('Please input order qty.');
+    edtOrderQty.SetFocus;
+    exit;
+  end;
+
+  adt_price := TADODataSet.Create(nil);
+  try
+    DM.DataSetQuery(adt_price, 'EXEC usp_GetPrice '
+      + ' @CustomerID=' + VarToStr(dbcbbCustomer.KeyValue)
+      + ',@ModelID=' + VarToStr(dbcbbModel.KeyValue)
+      + ',@DemandQuantity=' + Trim(edtOrderQty.Text)
+      + ',@GetMaxPrice=1');
+    if adt_price.RecordCount > 0 then
+    begin
+      adt_price.First;
+      cbbCurrency.ItemIndex := cbbCurrency.Items.IndexOf(adt_price.fieldbyname('Currency').AsString);
+      edtPrice.Text := adt_price.fieldbyname('Price').AsString;
+    end;
+  finally
+    cbbCurrency.Enabled := true;
+    edtPrice.Enabled := true;
+    cbbCurrency.SetFocus;
+    adt_price.Free;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.edtOrderQtyKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if (Key = #13) then
+    checkPrice;
+end;
+
+procedure TfrmAddCustomerOrder.edtOrderQtyExit(Sender: TObject);
+begin
+  checkPrice;
+  if (edtOrderQty.Text <> '') and (Copy(UpperCase(dbcbbModel.Text), 1, 3) = 'ZSI') then
+    memoRemark.Text := 'Component Qty.: ' + edtOrderQty.Text + '; ' + memoRemark.Text;
+end;
+
+procedure TfrmAddCustomerOrder.btnSaveClick(Sender: TObject);
+var
+  pRTD, pOINQReleaseQty, rtd, IsKeyOrder: string;
+begin
+  if VarToStr(dbcbbCustomer.value) = '' then
+    ShowMessage('please input Customer.')
+  else if VarToStr(dbcbbModel.value) = '' then
+    ShowMessage('please input Model.')
+  else if VarToStr(dbcbbBusinessApplication.value) = '' then
+    ShowMessage('please select application.')
+  else if (trim(edtOrderQty.Text) = '') then
+    ShowMessage('please input Order Qty.')
+  else if (cbbCurrency.Text = '') then
+    ShowMessage('please input Currency.')
+  else if (trim(edtPrice.Text) = '') then
+    ShowMessage('please input Price.')
+  else
+  begin
+    try
+      try
+        pRTD := '';
+        pOINQReleaseQty := '';
+        if not dtpRTD.Checked then
+        begin
+          if adt_customer.fieldbyname('PlantID').AsInteger = 2 then
+          begin
+            if (DayOfTheWeek(now + 14) = 6) then
+              rtd := FormatDateTime('YYYY-mm-dd', dtpRTD.DateTime + 16)
+            else if (DayOfTheWeek(now + 14) = 7) then
+              rtd := FormatDateTime('YYYY-mm-dd', dtpRTD.DateTime + 15)
+            else
+              rtd := FormatDateTime('YYYY-mm-dd', dtpRTD.DateTime + 14);
+            pRTD := ',@RTD=''' + rtd + '''';
+            pOINQReleaseQty := ',@OINQReleaseCOQuantity=0';
+          end;
+        end
+        else
+          pRTD := ',@RTD=''' + FormatDateTime('YYYY-mm-dd', dtpRTD.DateTime) + '''';
+
+        if chkBoxKeyOrder.Checked then
+          IsKeyOrder := '1'
+        else
+          IsKeyOrder := '0';
+        DM.DataSetModify('EXEC usp_InsertCustomerOrder '
+          + ' @CustomerID=' + VarToStr(dbcbbCustomer.Value)
+          + ',@ModelID=' + VarToStr(dbcbbModel.Value)
+          + ',@BusinessApplicationID=' + VarToStr(dbcbbBusinessApplication.Value)
+          + ',@Currency=''' + cbbCurrency.Text + ''''
+          + ',@CustomerOrderQuantity=' + Trim(edtOrderQty.Text)
+          + ',@Price=' + Trim(edtPrice.Text)
+          + ',@TotalAmount=' + FloatToStr(StrToFloat(Trim(edtOrderQty.Text)) * StrToFloat(trim(edtPrice.Text)))
+          + ',@CustomerPurchaseOrderNumber=''' + trim(edtCustomerPONo.Text) + ''''
+          + ',@Remark=''' + trim(memoRemark.Text) + ''''
+          + ',@Freight=''' + trim(edtFreight.Text) + ''''
+          + ',@Destination=''' + trim(memoDestination.Text) + ''''
+          + ',@LoginID=' + IntToStr(objCurUser.LoginID)
+          + ',@MNumber=''' + trim(edtMNo.Text) + ''''
+          + ',@IsKeyOrder=' + IsKeyOrder
+          + ',@ForwarderID=''' + VarToStr(dbcbbForwarder.Value) + ''''
+          + ',@Instruction=''' + trim(edtInstruction.Text) + ''''
+          + ',@PlantID=' + adt_customer.fieldbyname('PlantID').AsString + pRTD + pOINQReleaseQty);
+      except on E: Exception do
+          MessageDlg(E.Message, mtWarning, [mbOK], 0);
+      end;
+    finally
+      edtOrderQty.Clear;
+      edtPrice.Clear;
+      memoRemark.Clear;
+    end;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.sbtnAddCustomerClick(Sender: TObject);
+begin
+  with TfrmCustomer.Create(Application) do
+  try
+    ShowModal;
+  finally
+    Free;
+    if VarToStr(dbcbbCustomer.Value) <> '' then
+    begin
+      adt_customer.Active := false;
+      adt_customer.Active := true;
+    end;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.sbtnAddModelClick(Sender: TObject);
+begin
+  with TfrmModel.Create(Application) do
+  try
+    ShowModal;
+  finally
+    Free;
+    if VarToStr(dbcbbCustomer.Value) <> '' then
+    begin
+      adt_model.Active := false;
+      adt_model.Active := true;
+    end;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.sbtnAddApplicationClick(Sender: TObject);
+begin
+  with TfrmCustomer.Create(Application) do
+  try
+    ShowModal;
+  finally
+    Free;
+    if VarToStr(dbcbbCustomer.Value) <> '' then
+    begin
+      adt_business.Active := false;
+      adt_business.Active := true;
+    end;
+  end;
+end;
+
+procedure TfrmAddCustomerOrder.btnCloseClick(Sender: TObject);
+begin
+  Close;
+end;
+
+
+end.
+

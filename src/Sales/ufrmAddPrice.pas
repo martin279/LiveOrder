@@ -1,0 +1,163 @@
+unit ufrmAddPrice;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmBasic, ActnList, ImgList, ComCtrls, ToolWin, ExtCtrls, DB,
+  ADODB, DBGridEh, StdCtrls, Mask, DBCtrlsEh, DBLookupEh, uDMEntity, uDMManager;
+
+type
+  TfrmAddPrice = class(TfrmBasic)
+    btnSave: TButton;
+    btnClose: TButton;
+    adt_customer: TADODataSet;
+    ds_customer: TDataSource;
+    adt_model: TADODataSet;
+    ds_model: TDataSource;
+    gboxBasicInfo: TGroupBox;
+    Label4: TLabel;
+    Label7: TLabel;
+    Label6: TLabel;
+    dbcbbModel: TDBLookupComboboxEh;
+    edtDemandQty: TEdit;
+    dbcbbCustomer: TDBLookupComboboxEh;
+    gboxDetailInfo: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    dtpEffectDate: TDateTimePicker;
+    Label16: TLabel;
+    Label13: TLabel;
+    memoRemark: TMemo;
+    cbbCurrency: TComboBox;
+    edtPrice: TEdit;
+    Label5: TLabel;
+    adt_paymentterms: TADODataSet;
+    adt_priceterms: TADODataSet;
+    ds_paymentterms: TDataSource;
+    ds_priceterms: TDataSource;
+    dbcbbPaymentTerms: TDBLookupComboboxEh;
+    dbcbbPriceTerms: TDBLookupComboboxEh;
+    procedure btnCloseClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+    class procedure EdtFromList(adt_from: TADODataSet);
+  end;
+
+
+implementation
+
+uses DataModule, uMJ;
+
+{$R *.dfm}
+
+{ TfrmAddPrice }
+
+procedure TfrmAddPrice.SetData;
+begin
+  DM.DataSetQuery(adt_customer, 'Select * from Customer');
+  DM.DataSetQuery(adt_model, 'Select * from Model');
+  DM.DataSetQuery(adt_paymentterms, 'select * from PaymentTerms');
+  DM.DataSetQuery(adt_priceterms, 'select * from PriceTerms');
+end;
+
+procedure TfrmAddPrice.SetUI;
+begin
+  inherited;
+  edtDemandQty.Text := '1';
+  dtpEffectDate.DateTime := now;
+end;
+
+procedure TfrmAddPrice.SetAccess;
+begin
+  inherited;
+
+end;
+
+class procedure TfrmAddPrice.EdtFromList(adt_from: TADODataSet);
+begin
+  with TfrmAddPrice.Create(Application) do
+  try
+    if adt_from = nil then
+    begin
+    end
+    else
+    begin
+    end;
+    ShowModal;
+  finally
+    Free;
+  end;
+end;
+
+procedure TfrmAddPrice.btnCloseClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmAddPrice.btnSaveClick(Sender: TObject);
+begin
+  if (dbcbbCustomer.Text = '') then
+    ShowMessage('please input Customer.')
+  else if (dbcbbModel.Text = '') then
+    ShowMessage('please input Model.')
+  else if (trim(edtDemandQty.Text) = '') then
+    ShowMessage('please input Order Qty.')
+  else if (cbbCurrency.Text = '') then
+    ShowMessage('please input Currency.')
+  else if (trim(edtPrice.Text) = '') then
+    ShowMessage('please input Price.')
+  else
+  begin
+    try
+      try
+        DM.DataSetModify('EXEC usp_InsertPrice @CustomerID='
+          + VarToStr(dbcbbCustomer.KeyValue)
+          + ',@ModelID=' + VarToStr(dbcbbModel.KeyValue)
+          + ',@DemandQuantity=' + Trim(edtDemandQty.Text)
+          + ',@Currency=''' + cbbCurrency.Text + ''''
+          + ',@Price=' + Trim(edtPrice.Text)
+          + ',@PaymentTermsID=' + VarToStr(dbcbbPaymentTerms.KeyValue)
+          + ',@PriceTermsID=' + VarToStr(dbcbbPriceTerms.KeyValue)
+          + ',@EffectDate=''' + FormatDateTime('YYYY-mm-dd', dtpEffectDate.DateTime) + ''''
+          + ',@Remark=''' + memoRemark.Text + ''''
+          + ',@CreatorLoginID=' + IntToStr(objCurUser.LoginID));
+      except on E: Exception do
+          MessageDlg(E.Message, mtWarning, [mbOK], 0);
+      end;
+    finally
+      edtDemandQty.Text := '1';
+      edtPrice.Clear;
+      memoRemark.Clear;
+    end;
+  end;
+end;
+ {   CustomerID := StrToInt();
+    ModelID := StrToInt();
+    Currency := ;
+    Price := StrToFloat();
+    DemandQuantity := StrToInt();
+    PaymentTermsID := StrToInt();
+    PriceTermsID := StrToInt();
+    EffectDate := ;
+    Remark := ;
+    sqlConst := format(sInsertPriceSQL, [CustomerID, ModelID
+      , DemandQuantity, Currency, Price, PaymentTermsID, PriceTermsID
+        , EffectDate, Remark, CreatorLoginID, CreateTime, PriceStatesID]);
+        DM.DataSetModify(sqlConst);  }
+//  sqlConst := ' and p.PlantID in' + gVars.CurUserPlantID;
+//  DM.DataSetQuery(adt_model, format(sQueryModelSQL, [sqlConst]));
+//  sqlConst := sqlConst + ' and PlantID in' + gVars.CurUserPlantID;
+//  DM.DataSetQuery(adt_customer, format(sQueryCustomerSQL, [sqlConst]));
+//  DM.DataSetQuery(adt_paymentterms, format(sQueryPaymentTermsSQL, [sqlConst]));
+//  DM.DataSetQuery(adt_priceterms, format(sQueryPriceTermsSQL, [sqlConst]));
+
+end.
+

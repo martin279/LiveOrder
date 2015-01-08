@@ -1,0 +1,73 @@
+unit ufrmComponentSeries;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, DB, ADODB, PrnDbgeh, Menus,
+  PropStorageEh, ActnList, ImgList, GridsEh, DBGridEh, PrViewEh, StdCtrls,
+  DBCtrls, ComCtrls, ToolWin, ExtCtrls;
+
+type
+  TfrmComponentSeries = class(TfrmDBBasicPrn)
+    adt_activeComponentSeriesID: TAutoIncField;
+    adt_activeComponentSeriesName: TStringField;
+    adt_activePlantID: TIntegerField;
+    adt_activePlantCode: TStringField;
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+var
+  frmComponentSeries: TfrmComponentSeries;
+
+implementation
+
+uses DataModule, uMJ;
+
+{$R *.dfm}
+
+{ TfrmComponentSeries }
+
+procedure TfrmComponentSeries.SetData;
+begin
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetComponentSeries @PlantID=''' + gVars.CurUserPlantID + '''');
+end;
+
+procedure TfrmComponentSeries.SetUI;
+begin
+  inherited;
+
+end;
+
+procedure TfrmComponentSeries.SetAccess;
+begin
+  inherited;
+  case gVars.CurUserLevel of
+    1:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+    3:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh];
+        gridData.ReadOnly := false;
+      end; {
+    22:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;        }
+  end;
+end;
+
+end.

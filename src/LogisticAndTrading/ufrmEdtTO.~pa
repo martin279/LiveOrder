@@ -1,0 +1,211 @@
+unit ufrmEdtTO;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmBasic, ActnList, ImgList, ComCtrls, ToolWin, ExtCtrls,
+  ADODB, DBCtrls, DB, DBGridEh, DBCtrlsEh, StdCtrls, Mask, DBLookupEh;
+
+type
+  TfrmEdtTO = class(TfrmBasic)
+    ds_active: TDataSource;
+    gboxCOBasicInfor: TGroupBox;
+    Label4: TLabel;
+    LabelPrice: TLabel;
+    Label7: TLabel;
+    Label6: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    LabelTotalAmount: TLabel;
+    Label23: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label5: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label10: TLabel;
+    DBNavigator1: TDBNavigator;
+    gboxSeller: TGroupBox;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label20: TLabel;
+    Label21: TLabel;
+    Label22: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    gboxLogisticIn: TGroupBox;
+    Label27: TLabel;
+    Label28: TLabel;
+    Label29: TLabel;
+    Label30: TLabel;
+    Label31: TLabel;
+    Label32: TLabel;
+    Label33: TLabel;
+    Label34: TLabel;
+    gboxDemandManaging: TGroupBox;
+    Label35: TLabel;
+    Label36: TLabel;
+    Label37: TLabel;
+    Label38: TLabel;
+    Label39: TLabel;
+    Label40: TLabel;
+    gboxLogisticOut: TGroupBox;
+    Label43: TLabel;
+    Label48: TLabel;
+    Label44: TLabel;
+    Label47: TLabel;
+    Label42: TLabel;
+    Label45: TLabel;
+    Label46: TLabel;
+    Label49: TLabel;
+    Label50: TLabel;
+    gboxSales: TGroupBox;
+    Label51: TLabel;
+    Label54: TLabel;
+    Label53: TLabel;
+    Label52: TLabel;
+    Label41: TLabel;
+    DBDateTimeEditEh1: TDBDateTimeEditEh;
+    DBDateTimeEditEh2: TDBDateTimeEditEh;
+    DBDateTimeEditEh3: TDBDateTimeEditEh;
+    DBDateTimeEditEh4: TDBDateTimeEditEh;
+    DBDateTimeEditEh5: TDBDateTimeEditEh;
+    DBDateTimeEditEh6: TDBDateTimeEditEh;
+    DBDateTimeEditEh7: TDBDateTimeEditEh;
+    DBDateTimeEditEh8: TDBDateTimeEditEh;
+    DBDateTimeEditEh9: TDBDateTimeEditEh;
+    DBDateTimeEditEh10: TDBDateTimeEditEh;
+    DBDateTimeEditEh11: TDBDateTimeEditEh;
+    DBDateTimeEditEh12: TDBDateTimeEditEh;
+    DBDateTimeEditEh13: TDBDateTimeEditEh;
+    DBDateTimeEditEh14: TDBDateTimeEditEh;
+    DBDateTimeEditEh15: TDBDateTimeEditEh;
+    DBEditEh1: TDBEditEh;
+    DBEditEh2: TDBEditEh;
+    DBEditEh3: TDBEditEh;
+    DBEditEh4: TDBEditEh;
+    DBEditEh5: TDBEditEh;
+    DBEditEh6: TDBEditEh;
+    DBEditEh7: TDBEditEh;
+    DBEditEh8: TDBEditEh;
+    DBEditEh9: TDBEditEh;
+    DBEditEh10: TDBEditEh;
+    DBEditEh11: TDBEditEh;
+    DBEditEh12: TDBEditEh;
+    DBEditEh13: TDBEditEh;
+    DBEditEh14: TDBEditEh;
+    DBEditEh15: TDBEditEh;
+    DBEditEh16: TDBEditEh;
+    DBEditEh17: TDBEditEh;
+    DBEditEh18: TDBEditEh;
+    DBEditEh19: TDBEditEh;
+    DBLookupComboboxEh1: TDBLookupComboboxEh;
+    DBDateTimeEditEh16: TDBDateTimeEditEh;
+    DBEditEh20: TDBEditEh;
+    DBEditEh21: TDBEditEh;
+    DBEditEh22: TDBEditEh;
+    DBDateTimeEditEh17: TDBDateTimeEditEh;
+    DBText1: TDBText;
+    DBText2: TDBText;
+    DBText3: TDBText;
+    DBText4: TDBText;
+    DBText5: TDBText;
+    DBText6: TDBText;
+    DBText7: TDBText;
+    DBText8: TDBText;
+    DBText9: TDBText;
+    DBText10: TDBText;
+    DBText11: TDBText;
+    DBText12: TDBText;
+    DBText13: TDBText;
+    DBText14: TDBText;
+    DBText15: TDBText;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+    class procedure EdtFromList(adt_from: TADODataSet);
+  end;
+
+implementation
+
+uses DataModule, uMJ;
+
+{$R *.dfm}
+
+{ TfrmEdtTO }
+
+procedure TfrmEdtTO.SetData;
+begin
+//  DM.DataSetQuery(adt_states, 'select * from TradingOrderStatus');
+end;
+
+procedure TfrmEdtTO.SetUI;
+begin
+  inherited;
+  Position := poOwnerFormCenter;
+end;
+
+procedure TfrmEdtTO.SetAccess;
+begin
+  inherited;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast]
+    + [nbPost, nbCancel];
+end;
+
+class procedure TfrmEdtTO.EdtFromList(adt_from: TADODataSet);
+var
+  orderStatesID: integer;
+begin
+  with TfrmEdtTO.Create(Application) do
+  try
+    ds_active.DataSet := adt_from;
+   // orderStatesID := adt_from.fieldbyname('CustomerOrderStatesID').AsInteger;
+                    {
+    adt_from.BeforePost := adt_fromBeforePost;
+    adt_from.BeforeCancel := adt_fromBeforeCancel;
+    adt_from.AfterPost := adt_fromAfterPost;    }
+
+    case gVars.CurUserLevel of
+      1:
+        begin
+        end;
+    end;
+  {  if (adt_fromclone.State in [dsEdit]) then
+      adt_fromclone.Cancel;    }
+    if (adt_from.State in [dsEdit]) then
+      adt_from.Cancel;
+
+    ShowModal;
+    //result := ShowModal = mrOK;
+  finally
+    Free;
+  end;
+end;
+
+procedure TfrmEdtTO.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;      {
+  if (dbdtpRTD.DataSource.DataSet.State in [dsEdit]) then
+  begin
+    if MessageDlg('Is update Order?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      ds_active.DataSet.Post
+    else
+      ds_active.DataSet.Cancel;
+  end;    }
+end;
+
+end.
+

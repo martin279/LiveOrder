@@ -1,0 +1,158 @@
+unit uSendMail;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, PropFilerEh, Menus, PropStorageEh, DB, ADODB, IniFiles,
+  ActnList, ImgList, StdCtrls, Buttons, ComCtrls, GridsEh, DBGridEh, uMJ,
+  DBCtrls, ToolWin, ExtCtrls, uDMEntity, uDMManager, IdHTTP;
+
+
+type
+
+  TMgrSendMail = class
+  private
+    objMgrBasicData: TMgrBasicData;
+  public
+    constructor Create();
+    destructor Destroy; override;
+    procedure SendMailShippingSchedule(COID: string);
+  end;
+
+implementation
+
+uses DataModule;
+
+{ TMgrSendMail }
+
+constructor TMgrSendMail.Create;
+begin
+  objMgrBasicData := TMgrBasicData.Create;
+end;
+
+destructor TMgrSendMail.Destroy;
+begin
+  inherited;
+  objMgrBasicData.Free;
+end;
+
+procedure TMgrSendMail.SendMailShippingSchedule(COID: string);
+var
+  i, aCount: integer;
+  strOrder, htmlBody, strHtmlHead, strHtmlEnd, MailFrom, MailRecipient: widestring;
+  adt1: TADODataSet;
+  fIni: TIniFile;
+  FStrList: TStringList;
+  slCOParam: TStringList;
+  Response: TStringStream;
+  slPSParam: TStringList;
+  IdHTTP1: TIdHTTP;
+begin
+  adt1 := TADODataSet.Create(nil);
+  slCOParam := TStringList.Create;
+  try
+    strHtmlHead := '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+    strHtmlHead := strHtmlHead + '<html xmlns="http://www.w3.org/1999/xhtml">';
+    strHtmlHead := strHtmlHead + '<head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />';
+    strHtmlHead := strHtmlHead + '<style>.datalist{border:1px solid #0058a3;font-family:Arial;border-collapse:collapse;background-color:#eaf5ff;font-size:14px;}';
+    strHtmlHead := strHtmlHead + '.datalist caption{padding-bottom:5px;font:bold 1.4em;text-align:left;}';
+    strHtmlHead := strHtmlHead + '.datalist th{border:1px solid #0058a3;background-color:#4bacff;color:#FFFFFF;font-weight:bold;padding-top:4px; padding-bottom:4px;padding-left:12px; padding-right:12px;text-align:center;}';
+    strHtmlHead := strHtmlHead + '.datalist td{border:1px solid #0058a3;text-align:left;padding-top:4px; padding-bottom:4px;padding-left:10px; padding-right:10px;}';
+    strHtmlHead := strHtmlHead + '.datalist tr.altrow{background-color:#c7e5ff;}</style></head>';
+    strHtmlHead := strHtmlHead + '<body><H1>Add To Shipment.</H1>';
+    //strHtmlHead := strHtmlHead + 'Scan date: ' + scanDate + '.&nbsp;&nbsp;&nbsp;&nbsp;Developer: Martin Ji(martin.ji@emerson.com).&nbsp;&nbsp;&nbsp;&nbsp;';
+    strHtmlHead := strHtmlHead + 'This file is sended automatic, please don''t reply by this mail.<br>';
+    strHtmlHead := strHtmlHead + 'ZSI Model needs send with parts, please refer to REMARK for details.<br>';
+    strHtmlEnd := '</body></html>';
+
+    strOrder := '<H3>Customer Order List</H3>';
+    strOrder := strOrder + '<table class="datalist">';
+    strOrder := strOrder + '<tr> <th scope="col">U No.</th> <th scope="col">Invoice No.</th><th scope="col">CustomerCode</th> '
+      + ' <th scope="col">CustomerName</th> <th scope="col">Model</th> <th scope="col">ModelInvolved</th><th scope="col">Quantity</th> <th scope="col">ETD</th>'
+      + ' <th scope="col">CSCommunicator</th><th scope="col">Forwarder</th><th scope="col">Destination</th>'
+      + ' <th scope="col">M Number</th><th scope="col">PO Number</th><th scope="col">Remark</th><th scope="col">WaitingStates</th> </tr>';
+
+    //DM.DataSetQuery(adt1, 'select * from viewcustomerorder where customerorderid in (' + coID + ')');
+    slCOParam.Append('CustomerOrderID=' + coID);
+    objMgrBasicData.QueryBasicDataBySP(adt1, 'usp_GetCustomerOrder', slCOParam);
+    i := 1;
+    while not adt1.Eof do
+    begin
+      if i mod 2 = 0 then
+        strOrder := strOrder + '<tr class="altrow">'
+      else
+        strOrder := strOrder + '<tr>';
+      strOrder := strOrder + '<td>' + adt1.fieldbyname('CustomerOrderNumber').AsString + '</td><td><center>'
+        + adt1.fieldbyname('InvoiceNumber').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('CustomerNumber').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('CustomerName').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('Model').AsString + '</center></td><td><center>'     
+        + adt1.fieldbyname('ModelInvolved').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('CustomerOrderQuantity').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('ETD').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('DisplayName').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('Forwarder').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('Destination').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('MNumber').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('CustomerPurchaseOrderNumber').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('Remark').AsString + '</center></td><td><center>'
+        + adt1.fieldbyname('ShippingScheduleStatusName').AsString + '</center></td>';
+      i := i + 1;
+      adt1.Next;
+    end;
+    strOrder := strOrder + '</table>';
+
+    htmlBody := strHtmlHead + strOrder + strHtmlEnd;
+
+    fIni := TIniFile.Create(ChangeFileExt(ParamStr(0), '.ini'));
+    FStrList := TStringList.Create;
+    fIni.ReadSection('ShippingScheduleRecipient', FStrList);
+    if FStrList.CommaText = '' then exit;
+    aCount := mjSymbolCount(FStrList.CommaText) + 1;
+    MailRecipient := '';
+    for i := 1 to aCount do
+    begin
+      MailRecipient := MailRecipient + fIni.ReadString('ShippingScheduleRecipient', 'MailRecipient' + IntToStr(i), '') + ';';
+    end;
+    MailRecipient := Copy(MailRecipient, 1, length(MailRecipient) - 1);
+    slCOParam.Clear;
+    slCOParam.Append('loginid=' + IntToStr(objCurUser.LoginID));
+    objMgrBasicData.QueryBasicDataByParam(adt1, 'Communicator', 'CommunicatorID', slCOParam);
+    MailFrom := adt1.fieldbyname('CommunicatorMail').AsString;
+    //mjSendMailReport(MailFrom, MailRecipient, 'Add To Shipment.', htmlBody);
+
+
+             
+    IdHTTP1 := TIdHTTP.Create(nil);
+    Response := TStringStream.Create('');
+    slPSParam := TStringList.Create;
+    try
+      slPSParam.Clear;
+      slPSParam.Append('subject=Add To Shipment.');    
+      slPSParam.Append('mailfrom=' + MailFrom);
+      slPSParam.Append('mailto=' + MailRecipient);
+      slPSParam.Append('content=' + htmlBody);
+      IdHTTP1.post(cfsSendMailUrl, slPSParam, Response);
+      {
+      if (LowerCase(Response.DataString) <> '1') then
+      begin
+        showmessage('Failed send mail.');
+        exit;
+      end;
+      //else
+      //  showmessage('Successfully send mail.');
+      }
+    finally
+      slPSParam.Free;
+      FreeAndNil(Response);
+      FreeAndNil(IdHTTP1);
+    end;         
+  finally
+    slCOParam.Free;
+    adt1.Free;
+  end;
+end;
+
+end.
+

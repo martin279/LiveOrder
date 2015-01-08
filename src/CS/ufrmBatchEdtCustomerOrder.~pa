@@ -1,0 +1,379 @@
+unit ufrmBatchEdtCustomerOrder;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmBasic, ActnList, ImgList, ComCtrls, ToolWin, ExtCtrls, adodb,
+  StdCtrls, Buttons, GridsEh, DBGridEh, Mask, DBCtrlsEh, DB, DBLookupEh;
+
+type
+  TfrmBatchEdtCustomerOrder = class(TfrmBasic)
+    gboxOrder: TGroupBox;
+    chkCustomerPONum: TCheckBox;
+    chkRTD: TCheckBox;
+    edtCustomerPONum: TEdit;
+    dtpRTD: TDateTimePicker;
+    gboxConfirm: TGroupBox;
+    chkRemark: TCheckBox;
+    btnCancel: TBitBtn;
+    btnSave: TButton;
+    adt_plant: TADODataSet;
+    ds_plant: TDataSource;
+    adt_forwarder: TADODataSet;
+    adt_forwarderForwarderID: TAutoIncField;
+    adt_forwarderForwarderName: TStringField;
+    ds_forwarder: TDataSource;
+    ds_login: TDataSource;
+    adt_login: TADODataSet;
+    adt_cargoStatusType: TADODataSet;
+    ds_cargoStatusType: TDataSource;
+    gboxLogistics: TGroupBox;
+    chkLogisticsRefNo: TCheckBox;
+    edtLogisticsRefNo: TEdit;
+    gboxDemanding: TGroupBox;
+    chkRCED: TCheckBox;
+    dtpRCED: TDateTimePicker;
+    chkTargetMonth: TCheckBox;
+    cbbTargetMonth: TComboBox;
+    dtpETD: TDateTimePicker;
+    chkETDChange: TCheckBox;
+    chkETD: TCheckBox;
+    chkInvoiceNum: TCheckBox;
+    edtInvoiceNum: TEdit;
+    edtMNum: TEdit;
+    chkMNum: TCheckBox;
+    chkCustomerOrderNum: TCheckBox;
+    edtCustomerOrderNum: TEdit;
+    chkPayment: TCheckBox;
+    edtPayment: TEdit;
+    dbcbbPlant: TDBLookupComboboxEh;
+    chkPlantCode: TCheckBox;
+    chkForwarder: TCheckBox;
+    dbcbbForwarder: TDBLookupComboboxEh;
+    dtpATD: TDateTimePicker;
+    chkATD: TCheckBox;
+    chkFreight: TCheckBox;
+    edtFreight: TEdit;
+    dbcbbLoginID: TDBLookupComboboxEh;
+    chkCreator: TCheckBox;
+    chkDestination: TCheckBox;
+    chkCargoStatus: TCheckBox;
+    cbbCargoStatus: TComboBox;
+    dbcbbCargoStatusType: TDBLookupComboboxEh;
+    memoCargoStatusRemark: TMemo;
+    edtDestination: TEdit;
+    edtRemark: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    chkInstruction: TCheckBox;
+    edtInstruction: TEdit;
+    chkETA: TCheckBox;
+    dtpETA: TDateTimePicker;
+    ds_states: TDataSource;
+    adt_states: TADODataSet;
+    adt_statesCustomerOrderStatesID: TAutoIncField;
+    adt_statesCustomerOrderStatesName: TStringField;
+    adt_statesCustomerOrderStatesDesc: TStringField;
+    adt_statesOverseaCustomerOrderStatesName: TStringField;
+    chkOrderStates: TCheckBox;
+    dbcbbOrderStates: TDBLookupComboboxEh;
+    procedure btnSaveClick(Sender: TObject);
+    procedure cbbCargoStatusChange(Sender: TObject);
+    procedure dbcbbCargoStatusTypeChange(Sender: TObject);
+  private
+    { Private declarations }
+    COID: string;
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+    class procedure EdtFromList(selectRowID: string; orderStatesID, plantID: integer);
+  end;
+
+
+implementation
+
+uses DataModule, uMJ;
+
+{$R *.dfm}
+
+{ TfrmBatchChange }
+
+procedure TfrmBatchEdtCustomerOrder.SetData;
+begin
+  DM.DataSetQuery(adt_plant, 'select PlantID,PlantCode from Plant');
+  DM.DataSetQuery(adt_forwarder, 'select ForwarderID,ForwarderName from Forwarder');
+  DM.DataSetQuery(adt_login, 'EXEC usp_GetLogin @AccessLevel=2');
+  DM.DataSetQuery(adt_cargoStatusType, 'select * from CustomerOrderCargoStatusType'); 
+  DM.DataSetQuery(adt_states, 'select * from CustomerOrderStates');
+end;
+
+procedure TfrmBatchEdtCustomerOrder.SetUI;
+begin
+  inherited;
+  Position := poOwnerFormCenter;
+  dtpRTD.DateTime := now;
+  dtpETD.DateTime := now;
+  dtpATD.DateTime := now;
+  dtpETA.DateTime := now;
+  dbcbbCargoStatusType.Enabled := false;
+  dbcbbCargoStatusType.Color := clBtnFace;
+  memoCargoStatusRemark.Enabled := false;
+  memoCargoStatusRemark.Color := clBtnFace;
+
+  gboxOrder.Enabled := false;
+  gboxConfirm.Enabled := false;
+  gboxLogistics.Enabled := false;
+  gboxDemanding.Enabled := false;
+end;
+
+procedure TfrmBatchEdtCustomerOrder.SetAccess;
+begin
+  inherited;
+  case gVars.CurUserLevel of    
+    1:
+      begin
+        gboxOrder.Enabled := true;
+        gboxConfirm.Enabled := true;  
+        gboxDemanding.Enabled := true;   
+        gboxLogistics.Enabled := true;
+      end;
+    2:
+      begin
+        gboxOrder.Enabled := true;
+        gboxConfirm.Enabled := true;
+      end;
+    3:
+      begin
+        gboxConfirm.Enabled := true;
+      end;
+    15:
+      begin
+        gboxDemanding.Enabled := true;
+        gboxLogistics.Enabled := true;
+      end;
+    25:
+      begin
+        gboxLogistics.Enabled := true;
+      end;
+  end;
+end;
+
+class procedure TfrmBatchEdtCustomerOrder.EdtFromList(selectRowID: string; orderStatesID, plantID: integer);
+//var
+//  adt_pc: TADODataSet;
+begin
+{  adt_pc := TADODataSet.Create(nil);
+  DM.DataSetQuery(adt_pc, 'select count(distinct CustomerOrderID) as countCO from CustomerOrderChangeLog where CustomerOrderID in'
+    + selectRowID + ' and ChangeField = ''ETD''');    }
+  with TfrmBatchEdtCustomerOrder.Create(Application) do
+  try
+    //if (orderStatesID = 1) and (plantID <> 1) and (plantID <> 7) then
+    //if (orderStatesID = 1) and ((plantID = 2) or (plantID = 3) or (plantID = 4) or (plantID = 5)
+    //or (plantID = 6)) then
+    if (orderStatesID = 1) and (plantID = 6) then
+    begin
+      dtpETD.Enabled := false;
+      chkETD.Enabled := false;
+      chkETDChange.Enabled := false;
+    end;
+    COID := selectRowID;
+    ShowModal;
+  finally
+    Free;
+  end;
+end;
+
+procedure TfrmBatchEdtCustomerOrder.btnSaveClick(Sender: TObject);
+var
+  sqlConstHeader, sqlConst, sqlUSP: string;
+  slCOID: TStringList;
+  i: integer;
+begin
+  inherited;
+  if (not chkRTD.Checked)
+    and (not chkETD.Checked)
+    and (not chkATD.Checked)
+    and (not chkCustomerPONum.Checked)
+    and (not chkMNum.Checked)
+    and (not chkInvoiceNum.Checked)
+    and (not chkCustomerOrderNum.Checked)
+    and (not chkPayment.Checked)
+    and (not chkRemark.Checked)
+    and (not chkPlantCode.Checked)
+    and (not chkInstruction.Checked)
+    and (not chkForwarder.Checked)
+    and (not chkDestination.Checked)
+    and (not chkFreight.Checked)
+    and (not chkETA.Checked)
+    and (not chkCreator.Checked)
+    and (not chkCargoStatus.Checked)
+    and (not chkTargetMonth.Checked)
+    and (not chkLogisticsRefNo.Checked)
+    and (not chkRCED.Checked)
+    and (not chkOrderStates.Checked) then
+  begin
+    ShowMessage('You must select one checkbox at least.');
+    exit;
+  end;
+  sqlConstHeader := ' update CustomerOrder set ';
+  sqlConst := '';
+  sqlUSP := '';
+  if chkRTD.Checked then
+    sqlConst := sqlConst + ',RTD =''' + FormatDateTime('YYYY-mm-dd', dtpRTD.DateTime) + ''' ';
+  if chkETD.Checked then
+    sqlConst := sqlConst + ',ETD =''' + FormatDateTime('YYYY-mm-dd', dtpETD.DateTime) + ''' '
+      + ',COConfirmedTime =''' + FormatDateTime('YYYY-mm-dd', now()) + ''' ';
+  if chkATD.Checked then
+    sqlConst := sqlConst + ',ATD =''' + FormatDateTime('YYYY-mm-dd', dtpATD.DateTime) + ''' ';
+  if chkETA.Checked then
+    sqlConst := sqlConst + ',ETA =''' + FormatDateTime('YYYY-mm-dd', dtpETA.DateTime) + ''' ';
+  if chkCustomerPONum.Checked then
+    sqlConst := sqlConst + ',CustomerPurchaseOrderNumber =''' + Trim(edtCustomerPONum.Text) + ''' ';
+  if chkMNum.Checked then
+    sqlConst := sqlConst + ',MNumber =''' + Trim(edtMNum.Text) + ''' ';
+  if chkInvoiceNum.Checked then
+    sqlConst := sqlConst + ',InvoiceNumber =''' + Trim(edtInvoiceNum.Text) + ''' ';
+  if chkCustomerOrderNum.Checked then
+    sqlConst := sqlConst + ',CustomerOrderNumber =''' + Trim(edtCustomerOrderNum.Text) + ''' ';
+  if chkPayment.Checked then
+    sqlConst := sqlConst + ',Payment =''' + Trim(edtPayment.Text) + ''' ';
+  if chkRemark.Checked then
+    sqlConst := sqlConst + ',Remark =''' + Trim(edtRemark.Text) + ''' ';
+  if chkPlantCode.Checked then
+    sqlConst := sqlConst + ',PlantID =' + VarToStr(dbcbbPlant.Value);
+  if chkInstruction.Checked then
+    sqlConst := sqlConst + ',Instruction =''' + Trim(edtInstruction.Text) + ''' ';
+  if chkForwarder.Checked then
+    sqlConst := sqlConst + ',Forwarder =''' + VarToStr(dbcbbForwarder.Value) + ''' ';
+  if chkDestination.Checked then
+    sqlConst := sqlConst + ',Destination =''' + VarToStr(edtDestination.Text) + ''' ';
+  if chkFreight.Checked then
+    sqlConst := sqlConst + ',Freight =''' + VarToStr(edtFreight.Text) + ''' ';
+  if chkCreator.Checked then
+    sqlConst := sqlConst + ',LoginID =''' + VarToStr(dbcbbLoginID.Value) + ''' ';
+  if chkTargetMonth.Checked then
+    sqlConst := sqlConst + ',TargetMonth =''' + Trim(cbbTargetMonth.Text) + ''' ';
+  if chkLogisticsRefNo.Checked then
+    sqlConst := sqlConst + ',LogisticsReferenceNumber =''' + Trim(edtLogisticsRefNo.Text) + ''' ';
+  if chkRCED.Checked then
+    sqlConst := sqlConst + ',RCED =''' + FormatDateTime('YYYY-mm-dd', dtpRCED.DateTime) + ''' ';  
+  if chkOrderStates.Checked then
+    sqlConst := sqlConst + ',CustomerOrderStatesID =''' + VarToStr(dbcbbOrderStates.Value) + ''' ';
+  if chkCargoStatus.Checked then
+  begin
+    if cbbCargoStatus.ItemIndex = 0 then
+      sqlConst := sqlConst + ',CargoStatus =''' + Trim(cbbCargoStatus.Text) + ''' '
+    else
+    begin
+      if dbcbbCargoStatusType.Value <> 16 then
+        sqlConst := sqlConst + ',CargoStatus =''' + Trim(cbbCargoStatus.Text) + ''' '
+          + ',CargoStatusTypeID =' + VarToStr(dbcbbCargoStatusType.Value)
+      else
+        sqlConst := sqlConst + ',CargoStatus =''' + Trim(cbbCargoStatus.Text) + ''' '
+          + ',CargoStatusTypeID =' + VarToStr(dbcbbCargoStatusType.Value)
+          + ',CargoStatusRemark =''' + Trim(memoCargoStatusRemark.Text) + ''' ';
+    end;
+  end;
+
+  sqlConst := sqlConst + ',UpdateTime =Getdate() ';
+  sqlConst := sqlConst + ' Where CustomerOrderID in ' + COID;
+  sqlConst := copy(sqlConst, 2, length(sqlConst));
+  sqlConst := sqlConstHeader + sqlConst;
+  DM.DataSetModify(sqlConst);
+
+  COID := copy(COID, 2, length(COID) - 2);
+  slCOID := mjSplit(COID, ',');
+  if (chkETDChange.Checked) then
+  begin
+    for i := 0 to slCOID.Count - 1 do
+    begin
+      sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+        + '@CustomerOrderID=' + slCOID[i] + ','
+        + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+     // + '@ETD=''' + VarToStr(DataSet.FieldByName('ETD').OldValue) + ''','
+      + '@ChangeField=''ETD''';
+    end;
+  end;
+  if (chkRCED.Checked) then
+  begin
+    for i := 0 to slCOID.Count - 1 do
+    begin
+      sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+        + '@CustomerOrderID=' + slCOID[i] + ','
+        + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+        + '@ChangeField=''RCED''';
+    end;
+  end;
+  if (chkTargetMonth.Checked) then
+  begin
+    for i := 0 to slCOID.Count - 1 do
+    begin
+      sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+        + '@CustomerOrderID=' + slCOID[i] + ','
+        + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+        + '@ChangeField=''TargetMonth''';
+    end;
+  end;
+  if sqlUSP <> '' then
+  begin
+    DM.DataSetModify(sqlUSP);
+  end;
+  Close;
+end;
+
+procedure TfrmBatchEdtCustomerOrder.cbbCargoStatusChange(Sender: TObject);
+begin
+  inherited;
+  if chkCargoStatus.Checked then
+  begin
+    case cbbCargoStatus.ItemIndex of
+      0:
+        begin
+          dbcbbCargoStatusType.Enabled := false;
+          dbcbbCargoStatusType.Color := clBtnFace;
+          memoCargoStatusRemark.Enabled := false;
+          memoCargoStatusRemark.Color := clBtnFace;
+        end;
+      1:
+        begin
+          dbcbbCargoStatusType.Enabled := true;
+          dbcbbCargoStatusType.Color := clWindow;
+        end;
+      2:
+        begin
+          dbcbbCargoStatusType.Enabled := true;
+          dbcbbCargoStatusType.Color := clWindow;
+        end;
+    end;
+  end
+  else
+  begin
+    dbcbbCargoStatusType.Enabled := false;
+    dbcbbCargoStatusType.Color := clBtnFace;
+    memoCargoStatusRemark.Enabled := false;
+    memoCargoStatusRemark.Color := clBtnFace;
+  end;
+end;
+
+procedure TfrmBatchEdtCustomerOrder.dbcbbCargoStatusTypeChange(
+  Sender: TObject);
+begin
+  inherited;
+  if (chkCargoStatus.Checked) and (dbcbbCargoStatusType.Value = 16) then
+  begin
+    memoCargoStatusRemark.Enabled := true;
+    memoCargoStatusRemark.Color := clWindow;
+  end
+  else
+  begin
+    memoCargoStatusRemark.Enabled := false;
+    memoCargoStatusRemark.Color := clBtnFace;
+  end;
+end;
+
+end.
+

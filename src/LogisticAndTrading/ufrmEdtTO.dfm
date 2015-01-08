@@ -1,0 +1,1384 @@
+inherited frmEdtTO: TfrmEdtTO
+  Left = 207
+  Top = 115
+  BorderStyle = bsDialog
+  Caption = 'frmEdtTO'
+  ClientHeight = 570
+  ClientWidth = 1136
+  OldCreateOrder = True
+  Position = poScreenCenter
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Label58: TLabel
+    Left = 288
+    Top = 6
+    Width = 43
+    Height = 13
+    Caption = 'Order ID:'
+  end
+  object Label60: TLabel
+    Left = 472
+    Top = 6
+    Width = 72
+    Height = 13
+    Caption = 'Logistic Status:'
+  end
+  object gboxCOBasicInfor: TGroupBox
+    Left = 5
+    Top = 24
+    Width = 860
+    Height = 84
+    Caption = 'Order Information'
+    Color = clMoneyGreen
+    ParentColor = False
+    TabOrder = 0
+    object Label4: TLabel
+      Left = 8
+      Top = 21
+      Width = 72
+      Height = 13
+      Caption = 'Customer Code'
+    end
+    object LabelPrice: TLabel
+      Left = 389
+      Top = 42
+      Width = 55
+      Height = 13
+      Caption = 'Invoice No.'
+    end
+    object Label7: TLabel
+      Left = 8
+      Top = 63
+      Width = 29
+      Height = 13
+      Caption = 'Model'
+    end
+    object Label6: TLabel
+      Left = 245
+      Top = 63
+      Width = 46
+      Height = 13
+      Caption = 'Order No.'
+    end
+    object Label18: TLabel
+      Left = 245
+      Top = 42
+      Width = 29
+      Height = 13
+      Caption = 'M No.'
+    end
+    object Label19: TLabel
+      Left = 8
+      Top = 42
+      Width = 75
+      Height = 13
+      Caption = 'Customer Name'
+    end
+    object LabelTotalAmount: TLabel
+      Left = 245
+      Top = 21
+      Width = 48
+      Height = 13
+      Caption = 'Order Qty.'
+    end
+    object Label23: TLabel
+      Left = 389
+      Top = 63
+      Width = 24
+      Height = 13
+      Caption = 'Plant'
+    end
+    object Label1: TLabel
+      Left = 389
+      Top = 21
+      Width = 66
+      Height = 13
+      Caption = 'Contract Date'
+    end
+    object Label2: TLabel
+      Left = 528
+      Top = 21
+      Width = 23
+      Height = 13
+      Caption = 'RTD'
+    end
+    object Label3: TLabel
+      Left = 528
+      Top = 42
+      Width = 22
+      Height = 13
+      Caption = 'ETD'
+    end
+    object Label5: TLabel
+      Left = 528
+      Top = 63
+      Width = 22
+      Height = 13
+      Caption = 'ATD'
+    end
+    object Label8: TLabel
+      Left = 671
+      Top = 21
+      Width = 74
+      Height = 13
+      Caption = 'Cutomer PO No'
+    end
+    object Label9: TLabel
+      Left = 671
+      Top = 42
+      Width = 59
+      Height = 13
+      Caption = 'Order States'
+    end
+    object Label10: TLabel
+      Left = 671
+      Top = 63
+      Width = 67
+      Height = 13
+      Caption = 'Communicator'
+    end
+    object DBText1: TDBText
+      Left = 90
+      Top = 19
+      Width = 150
+      Height = 17
+      Color = clSilver
+      DataField = 'CustomerNumber'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText2: TDBText
+      Left = 90
+      Top = 40
+      Width = 150
+      Height = 17
+      Color = clSilver
+      DataField = 'CustomerName'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText3: TDBText
+      Left = 90
+      Top = 61
+      Width = 150
+      Height = 17
+      Color = clSilver
+      DataField = 'Model'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText5: TDBText
+      Left = 299
+      Top = 40
+      Width = 85
+      Height = 17
+      Color = clSilver
+      DataField = 'MNumber'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText6: TDBText
+      Left = 299
+      Top = 61
+      Width = 85
+      Height = 17
+      Color = clSilver
+      DataField = 'CustomerOrderNumber'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText7: TDBText
+      Left = 459
+      Top = 19
+      Width = 65
+      Height = 17
+      Color = clSilver
+      DataField = 'ContractDate'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText8: TDBText
+      Left = 459
+      Top = 40
+      Width = 65
+      Height = 17
+      Color = clSilver
+      DataField = 'InvoiceNumber'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText9: TDBText
+      Left = 459
+      Top = 61
+      Width = 65
+      Height = 17
+      Color = clSilver
+      DataField = 'PlantCode'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText10: TDBText
+      Left = 559
+      Top = 19
+      Width = 99
+      Height = 17
+      Color = clSilver
+      DataField = 'RTD'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText12: TDBText
+      Left = 559
+      Top = 61
+      Width = 99
+      Height = 17
+      Color = clSilver
+      DataField = 'ATD'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText13: TDBText
+      Left = 750
+      Top = 19
+      Width = 99
+      Height = 17
+      Color = clSilver
+      DataField = 'CustomerPurchaseOrderNumber'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText14: TDBText
+      Left = 750
+      Top = 40
+      Width = 99
+      Height = 17
+      Color = clSilver
+      DataField = 'CustomerOrderStatesName'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBText15: TDBText
+      Left = 750
+      Top = 61
+      Width = 99
+      Height = 17
+      Color = clSilver
+      DataField = 'CommunicatorName'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object dbtxtCOQty: TDBText
+      Left = 299
+      Top = 18
+      Width = 85
+      Height = 17
+      Color = clSilver
+      DataField = 'CustomerOrderQuantity'
+      DataSource = ds_active
+      ParentColor = False
+    end
+    object DBDateTimeEditEh2: TDBDateTimeEditEh
+      Left = 555
+      Top = 37
+      Width = 105
+      Height = 21
+      DataField = 'ETD'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 0
+      Visible = True
+    end
+  end
+  object DBNavigator1: TDBNavigator
+    Left = 8
+    Top = 3
+    Width = 240
+    Height = 18
+    DataSource = ds_active
+    TabOrder = 1
+  end
+  object gboxSeller: TGroupBox
+    Left = 5
+    Top = 110
+    Width = 860
+    Height = 144
+    Caption = 'Seller'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+    object Label12: TLabel
+      Left = 8
+      Top = 19
+      Width = 36
+      Height = 13
+      Caption = 'Part No'
+    end
+    object Label13: TLabel
+      Left = 8
+      Top = 44
+      Width = 25
+      Height = 13
+      Caption = 'Code'
+    end
+    object Label14: TLabel
+      Left = 8
+      Top = 63
+      Width = 63
+      Height = 26
+      Caption = 'PO To Seller Date'
+      WordWrap = True
+    end
+    object Label15: TLabel
+      Left = 8
+      Top = 96
+      Width = 67
+      Height = 13
+      Caption = 'Buyer PO NO.'
+    end
+    object Label16: TLabel
+      Left = 203
+      Top = 19
+      Width = 71
+      Height = 13
+      Caption = 'Shipping Mode'
+    end
+    object Label17: TLabel
+      Left = 203
+      Top = 70
+      Width = 71
+      Height = 13
+      Caption = 'OA Reply Date'
+    end
+    object Label20: TLabel
+      Left = 419
+      Top = 19
+      Width = 76
+      Height = 13
+      Caption = 'Ex-Factory Date'
+    end
+    object Label21: TLabel
+      Left = 419
+      Top = 44
+      Width = 82
+      Height = 13
+      Caption = 'Ex-Factory Date1'
+    end
+    object Label22: TLabel
+      Left = 419
+      Top = 70
+      Width = 88
+      Height = 13
+      Caption = 'Logistic DTD Time'
+    end
+    object Label24: TLabel
+      Left = 203
+      Top = 96
+      Width = 77
+      Height = 13
+      Caption = 'RCED Seller OA'
+    end
+    object Label25: TLabel
+      Left = 640
+      Top = 12
+      Width = 67
+      Height = 26
+      Caption = 'Stock Due To Order Cancel'
+      WordWrap = True
+    end
+    object Label26: TLabel
+      Left = 203
+      Top = 122
+      Width = 96
+      Height = 13
+      Caption = 'Seller Buyer Remark'
+    end
+    object Label11: TLabel
+      Left = 640
+      Top = 70
+      Width = 84
+      Height = 13
+      Caption = 'Seller Invoice No.'
+    end
+    object Label55: TLabel
+      Left = 640
+      Top = 44
+      Width = 90
+      Height = 13
+      Caption = 'Seller Invoice Date'
+    end
+    object Label50: TLabel
+      Left = 8
+      Top = 118
+      Width = 67
+      Height = 13
+      Caption = 'Buyer PO Qty.'
+    end
+    object Label57: TLabel
+      Left = 202
+      Top = 44
+      Width = 86
+      Height = 13
+      Caption = 'Air Freight Paid By'
+    end
+    object DBDateTimeEditEh1: TDBDateTimeEditEh
+      Left = 78
+      Top = 66
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerPOtoSellerdate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 2
+      Visible = True
+    end
+    object dbdtpSellerOAReplyDate: TDBDateTimeEditEh
+      Left = 291
+      Top = 66
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerOAReplyDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 3
+      Visible = True
+    end
+    object dbdtpSellerExFacDate: TDBDateTimeEditEh
+      Left = 517
+      Top = 15
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerExFactoryDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 4
+      Visible = True
+    end
+    object dbdtpSellerExFacDate1: TDBDateTimeEditEh
+      Left = 517
+      Top = 40
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerExFactoryDate1'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 5
+      Visible = True
+    end
+    object DBDateTimeEditEh5: TDBDateTimeEditEh
+      Left = 291
+      Top = 92
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerRCEDSellerOA'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 6
+      Visible = True
+    end
+    object DBEditEh1: TDBEditEh
+      Left = 78
+      Top = 15
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerPartNo'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 0
+      Visible = True
+    end
+    object DBEditEh2: TDBEditEh
+      Left = 78
+      Top = 40
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerCode'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 1
+      Visible = True
+    end
+    object dbedtBuyerPONo: TDBEditEh
+      Left = 78
+      Top = 92
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerBuyerPOnumber'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 7
+      Visible = True
+    end
+    object DBEditEh5: TDBEditEh
+      Left = 304
+      Top = 118
+      Width = 568
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerBuyerRemark'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 8
+      Visible = True
+    end
+    object DBDateTimeEditEh17: TDBDateTimeEditEh
+      Left = 517
+      Top = 66
+      Width = 121
+      Height = 21
+      DataField = 'SellerLogisticDTDtime'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 9
+      Visible = True
+    end
+    object DBDateTimeEditEh18: TDBDateTimeEditEh
+      Left = 732
+      Top = 40
+      Width = 121
+      Height = 21
+      DataField = 'SellerInvoiceDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 10
+      Visible = True
+    end
+    object DBEditEh23: TDBEditEh
+      Left = 732
+      Top = 66
+      Width = 121
+      Height = 21
+      DataField = 'SellerInvoiceNumber'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 11
+      Visible = True
+    end
+    object dbcbbStockDueToOrderCancel: TDBComboBoxEh
+      Left = 732
+      Top = 15
+      Width = 121
+      Height = 21
+      DataField = 'SellerStockDueToOrderCancel'
+      DataSource = ds_active
+      EditButtons = <>
+      Items.Strings = (
+        ''
+        'Yes'
+        'No')
+      KeyItems.Strings = (
+        ''
+        'Yes'
+        'No')
+      TabOrder = 12
+      Visible = True
+    end
+    object dbcbbShippingMode: TDBComboBoxEh
+      Left = 291
+      Top = 15
+      Width = 121
+      Height = 21
+      DataField = 'SellerShippingMode'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 13
+      Visible = True
+      OnChange = dbcbbShippingModeChange
+    end
+    object dbedtBuyerPOQty: TDBEditEh
+      Left = 79
+      Top = 116
+      Width = 121
+      Height = 21
+      Alignment = taLeftJustify
+      DataField = 'SellerBuyerPOQuantity'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 14
+      Visible = True
+    end
+    object dbcbbAirFreightPaidBy: TDBComboBoxEh
+      Left = 291
+      Top = 40
+      Width = 121
+      Height = 21
+      DataField = 'SellerAirFreightPaidBy'
+      DataSource = ds_active
+      EditButtons = <>
+      Items.Strings = (
+        ''
+        'Supplier Cost'
+        'Customer Cost')
+      KeyItems.Strings = (
+        ''
+        'Supplier Cost'
+        'Customer Cost')
+      TabOrder = 15
+      Visible = True
+    end
+  end
+  object gboxLogisticIn: TGroupBox
+    Left = 5
+    Top = 256
+    Width = 860
+    Height = 70
+    Caption = 'Logistic In'
+    Color = clMoneyGreen
+    ParentColor = False
+    TabOrder = 3
+    object Label27: TLabel
+      Left = 8
+      Top = 20
+      Width = 80
+      Height = 13
+      Caption = 'Import Sheet No.'
+    end
+    object Label30: TLabel
+      Left = 287
+      Top = 20
+      Width = 89
+      Height = 13
+      Caption = 'Origin Pickup Date'
+    end
+    object Label31: TLabel
+      Left = 8
+      Top = 44
+      Width = 77
+      Height = 13
+      Caption = 'Seller ETD Date'
+    end
+    object Label32: TLabel
+      Left = 287
+      Top = 48
+      Width = 76
+      Height = 13
+      Caption = 'Seller ETA Date'
+    end
+    object Label33: TLabel
+      Left = 554
+      Top = 19
+      Width = 130
+      Height = 13
+      Caption = 'Act Arrive Warehouse Date'
+    end
+    object Label34: TLabel
+      Left = 554
+      Top = 47
+      Width = 84
+      Height = 13
+      Caption = 'RCED_Logistic In'
+    end
+    object DBDateTimeEditEh10: TDBDateTimeEditEh
+      Left = 383
+      Top = 16
+      Width = 121
+      Height = 21
+      DataField = 'LogisticInOriginPickupDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 0
+      Visible = True
+    end
+    object DBDateTimeEditEh11: TDBDateTimeEditEh
+      Left = 97
+      Top = 40
+      Width = 121
+      Height = 21
+      DataField = 'LogisticInSellerETDDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 1
+      Visible = True
+    end
+    object DBDateTimeEditEh12: TDBDateTimeEditEh
+      Left = 383
+      Top = 44
+      Width = 121
+      Height = 21
+      DataField = 'LogisticInSellerETADate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 2
+      Visible = True
+    end
+    object DBDateTimeEditEh13: TDBDateTimeEditEh
+      Left = 710
+      Top = 16
+      Width = 121
+      Height = 21
+      DataField = 'LogisticInActArriveWarehouseDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 3
+      Visible = True
+    end
+    object DBDateTimeEditEh14: TDBDateTimeEditEh
+      Left = 710
+      Top = 44
+      Width = 121
+      Height = 21
+      DataField = 'LogisticInRCED'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 4
+      Visible = True
+    end
+    object DBEditEh18: TDBEditEh
+      Left = 97
+      Top = 16
+      Width = 121
+      Height = 21
+      DataField = 'LogisticInImportSheetNo'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 5
+      Visible = True
+    end
+  end
+  object gboxDemandManaging: TGroupBox
+    Left = 5
+    Top = 496
+    Width = 860
+    Height = 72
+    Caption = 'Demand Managing'
+    TabOrder = 4
+    object Label35: TLabel
+      Left = 8
+      Top = 20
+      Width = 30
+      Height = 13
+      Caption = 'RCED'
+    end
+    object Label36: TLabel
+      Left = 195
+      Top = 20
+      Width = 59
+      Height = 13
+      Caption = 'Sales Month'
+    end
+    object Label37: TLabel
+      Left = 530
+      Top = 48
+      Width = 66
+      Height = 13
+      Caption = 'DMM Remark'
+    end
+    object Label38: TLabel
+      Left = 664
+      Top = 20
+      Width = 61
+      Height = 13
+      Caption = 'Cargo Status'
+    end
+    object Label39: TLabel
+      Left = 400
+      Top = 20
+      Width = 88
+      Height = 13
+      Caption = 'Cargo Status Type'
+    end
+    object Label40: TLabel
+      Left = 7
+      Top = 48
+      Width = 101
+      Height = 13
+      Caption = 'Cargo Status Remark'
+    end
+    object Label52: TLabel
+      Left = 343
+      Top = 48
+      Width = 59
+      Height = 13
+      Caption = 'DMM Month'
+    end
+    object dbdtpDemandManagingRCED: TDBDateTimeEditEh
+      Left = 64
+      Top = 16
+      Width = 121
+      Height = 21
+      DataField = 'DemandManagingRCED'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 0
+      Visible = True
+    end
+    object DBEditEh6: TDBEditEh
+      Left = 600
+      Top = 44
+      Width = 249
+      Height = 21
+      DataField = 'DemandManagingDMMRemark'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 1
+      Visible = True
+    end
+    object DBEditEh9: TDBEditEh
+      Left = 115
+      Top = 44
+      Width = 222
+      Height = 21
+      DataField = 'DemandManagingCargoStatusRemark'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 2
+      Visible = True
+    end
+    object dbcbbCargoStatus: TDBComboBoxEh
+      Left = 732
+      Top = 16
+      Width = 121
+      Height = 21
+      DataField = 'DemandManagingCargoStatus'
+      DataSource = ds_active
+      EditButtons = <>
+      Items.Strings = (
+        ''
+        'Yes'
+        'No'
+        'Maybe')
+      KeyItems.Strings = (
+        ''
+        'Yes'
+        'No'
+        'Maybe')
+      TabOrder = 3
+      Visible = True
+    end
+    object DBLookupComboboxEh1: TDBLookupComboboxEh
+      Left = 496
+      Top = 16
+      Width = 153
+      Height = 21
+      DataField = 'DemandManagingCargoStatusTypeID'
+      DataSource = ds_active
+      DropDownBox.Columns = <
+        item
+          FieldName = 'CargoStatusType'
+          Title.Caption = 'Cargo Status Type'
+        end
+        item
+          FieldName = 'CargoStatusTypeChinese'
+          Title.Caption = 'Cargo Status Type Chinese'
+        end>
+      DropDownBox.Options = [dlgColumnResizeEh, dlgColLinesEh, dlgRowLinesEh, dlgAutoSortMarkingEh, dlgMultiSortMarkingEh]
+      DropDownBox.UseMultiTitle = True
+      DropDownBox.ShowTitles = True
+      DropDownBox.Sizable = True
+      DropDownBox.Width = 600
+      EditButtons = <>
+      KeyField = 'CargoStatusTypeID'
+      ListField = 'CargoStatusType'
+      ListSource = ds_cargo
+      TabOrder = 4
+      Visible = True
+    end
+    object dbedtSalesMonth: TDBEditEh
+      Left = 259
+      Top = 16
+      Width = 133
+      Height = 21
+      DataField = 'DemandManagingSalesMonth'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 5
+      Visible = True
+    end
+    object dbedtDMMMonth: TDBEditEh
+      Left = 406
+      Top = 44
+      Width = 120
+      Height = 21
+      DataField = 'DemandManagingDMMMonth'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 6
+      Visible = True
+    end
+  end
+  object gboxLogisticOut: TGroupBox
+    Left = 5
+    Top = 400
+    Width = 860
+    Height = 94
+    Caption = 'Logistic Out'
+    Color = clMoneyGreen
+    ParentColor = False
+    TabOrder = 5
+    object Label43: TLabel
+      Left = 8
+      Top = 42
+      Width = 46
+      Height = 13
+      Caption = 'Incoterms'
+    end
+    object Label48: TLabel
+      Left = 316
+      Top = 42
+      Width = 101
+      Height = 13
+      Caption = 'Delivery Onboard Act'
+    end
+    object Label44: TLabel
+      Left = 559
+      Top = 42
+      Width = 127
+      Height = 13
+      Caption = 'Forwarder Pickup Date Est'
+    end
+    object Label47: TLabel
+      Left = 559
+      Top = 16
+      Width = 80
+      Height = 13
+      Caption = 'Delivery ETA Est'
+    end
+    object Label42: TLabel
+      Left = 8
+      Top = 16
+      Width = 120
+      Height = 13
+      Caption = 'Logistic Export Sheet No.'
+    end
+    object Label45: TLabel
+      Left = 316
+      Top = 16
+      Width = 81
+      Height = 13
+      Caption = 'Delivery ETD Est'
+    end
+    object Label46: TLabel
+      Left = 8
+      Top = 68
+      Width = 76
+      Height = 13
+      Caption = 'Logistic Remark'
+    end
+    object DBEditEh17: TDBEditEh
+      Left = 134
+      Top = 12
+      Width = 169
+      Height = 21
+      DataField = 'LogisticOutLogisticExportSheetNo'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 0
+      Visible = True
+    end
+    object DBEditEh20: TDBEditEh
+      Left = 134
+      Top = 64
+      Width = 707
+      Height = 21
+      DataField = 'LogisticOutLogisticRemark'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 1
+      Visible = True
+    end
+    object DBDateTimeEditEh16: TDBDateTimeEditEh
+      Left = 720
+      Top = 12
+      Width = 121
+      Height = 21
+      DataField = 'LogisticOutDeliveryETAEst'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 2
+      Visible = True
+    end
+    object DBDateTimeEditEh19: TDBDateTimeEditEh
+      Left = 720
+      Top = 38
+      Width = 121
+      Height = 21
+      DataField = 'LogisticOutForwarderPickupDateEst'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 3
+      Visible = True
+    end
+    object DBDateTimeEditEh20: TDBDateTimeEditEh
+      Left = 427
+      Top = 12
+      Width = 121
+      Height = 21
+      DataField = 'LogisticOutDeliveryETDEst'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 4
+      Visible = True
+    end
+    object DBDateTimeEditEh21: TDBDateTimeEditEh
+      Left = 427
+      Top = 38
+      Width = 121
+      Height = 21
+      DataField = 'LogisticOutDeliveryonboardAct'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 5
+      Visible = True
+    end
+    object dbcbbIncoterms: TDBComboBoxEh
+      Left = 134
+      Top = 38
+      Width = 169
+      Height = 21
+      DataField = 'LogisticOutIncoterms'
+      DataSource = ds_active
+      EditButtons = <>
+      Items.Strings = (
+        ''
+        'FCA Suzhou Warehouse'
+        'FCA Shanghai Warehouse'
+        'CPT'
+        'CIP'
+        'DAP'
+        'DDP')
+      KeyItems.Strings = (
+        ''
+        'FCA Suzhou Warehouse'
+        'FCA Shanghai Warehouse'
+        'CPT'
+        'CIP'
+        'DAP'
+        'DDP')
+      TabOrder = 6
+      Visible = True
+    end
+  end
+  object gboxSales: TGroupBox
+    Left = 871
+    Top = 208
+    Width = 236
+    Height = 46
+    Caption = 'Sales'
+    Color = clMoneyGreen
+    ParentColor = False
+    TabOrder = 7
+    object Label51: TLabel
+      Left = 14
+      Top = 22
+      Width = 69
+      Height = 13
+      Caption = 'Product Family'
+    end
+    object DBEditEh12: TDBEditEh
+      Left = 88
+      Top = 18
+      Width = 121
+      Height = 21
+      DataField = 'SalesAnalysisProductFamily'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 0
+      Visible = True
+    end
+  end
+  object gboxWH: TGroupBox
+    Left = 5
+    Top = 327
+    Width = 860
+    Height = 73
+    Caption = 'Third Party Warehouse'
+    TabOrder = 8
+    object Label41: TLabel
+      Left = 12
+      Top = 21
+      Width = 162
+      Height = 13
+      Caption = 'Delivery Plan To Warehouse Date'
+    end
+    object Label49: TLabel
+      Left = 312
+      Top = 21
+      Width = 132
+      Height = 13
+      Caption = 'Goods EX-Warehouse Date'
+      WordWrap = True
+    end
+    object Label28: TLabel
+      Left = 12
+      Top = 50
+      Width = 58
+      Height = 13
+      Caption = 'Packing List'
+    end
+    object Label29: TLabel
+      Left = 472
+      Top = 50
+      Width = 37
+      Height = 13
+      Caption = 'Remark'
+    end
+    object Label56: TLabel
+      Left = 631
+      Top = 21
+      Width = 74
+      Height = 13
+      Caption = 'Receiving Date'
+    end
+    object Label59: TLabel
+      Left = 312
+      Top = 50
+      Width = 40
+      Height = 13
+      Caption = 'Ref. No.'
+    end
+    object DBDateTimeEditEh8: TDBDateTimeEditEh
+      Left = 183
+      Top = 20
+      Width = 121
+      Height = 21
+      DataField = 'DeliveryPlanToWarehouseDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 0
+      Visible = True
+    end
+    object dbdtpGoodsExWHdate: TDBDateTimeEditEh
+      Left = 454
+      Top = 17
+      Width = 121
+      Height = 21
+      DataField = 'GoodsEXThirdPartyWarehouseDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 1
+      Visible = True
+    end
+    object DBEditEh24: TDBEditEh
+      Left = 517
+      Top = 46
+      Width = 333
+      Height = 21
+      DataField = 'ThirdPartyWarehouseRemark'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 2
+      Visible = True
+    end
+    object DBDateTimeEditEh9: TDBDateTimeEditEh
+      Left = 712
+      Top = 17
+      Width = 121
+      Height = 21
+      DataField = 'ThirdPartyWarehouseReceivingDate'
+      DataSource = ds_active
+      EditButtons = <>
+      Kind = dtkDateEh
+      TabOrder = 3
+      Visible = True
+    end
+    object dbcbbPackingList: TDBComboBoxEh
+      Left = 87
+      Top = 46
+      Width = 217
+      Height = 21
+      DataField = 'ThirdPartyWarehousePackingList'
+      DataSource = ds_active
+      EditButtons = <>
+      Items.Strings = (
+        ''
+        'Sent'
+        'SentAndBack')
+      KeyItems.Strings = (
+        ''
+        'Sent'
+        'SentAndBack')
+      TabOrder = 4
+      Visible = True
+    end
+    object DBEditEh3: TDBEditEh
+      Left = 358
+      Top = 46
+      Width = 103
+      Height = 21
+      DataField = 'ThirdPartyWarehouseReference'
+      DataSource = ds_active
+      EditButtons = <>
+      TabOrder = 5
+      Visible = True
+    end
+  end
+  object gboxCOChangeLog: TGroupBox
+    Left = 869
+    Top = 23
+    Width = 260
+    Height = 175
+    Caption = 'Customer Order Change Log'
+    TabOrder = 6
+    object gridLog: TDBGridEh
+      Left = 2
+      Top = 15
+      Width = 256
+      Height = 158
+      Align = alClient
+      DataSource = ds_Log
+      Flat = True
+      FooterColor = clWindow
+      FooterFont.Charset = DEFAULT_CHARSET
+      FooterFont.Color = clWindowText
+      FooterFont.Height = -11
+      FooterFont.Name = 'MS Sans Serif'
+      FooterFont.Style = []
+      TabOrder = 0
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -11
+      TitleFont.Name = 'MS Sans Serif'
+      TitleFont.Style = []
+      Columns = <
+        item
+          EditButtons = <>
+          FieldName = 'ChangeField'
+          Footers = <>
+          Title.Caption = 'Change Field'
+          Width = 102
+        end
+        item
+          EditButtons = <>
+          FieldName = 'CustomerOrderQuantity'
+          Footers = <>
+          Title.Caption = 'Qty.'
+          Width = 32
+        end
+        item
+          EditButtons = <>
+          FieldName = 'RTD'
+          Footers = <>
+          Width = 63
+        end
+        item
+          EditButtons = <>
+          FieldName = 'ETD'
+          Footers = <>
+          Width = 60
+        end
+        item
+          EditButtons = <>
+          FieldName = 'ChangeTime'
+          Footers = <>
+          Title.Caption = 'Change Time'
+          Width = 72
+        end
+        item
+          EditButtons = <>
+          FieldName = 'displayname'
+          Footers = <>
+          Title.Caption = 'Change By'
+          Width = 61
+        end>
+    end
+  end
+  object dbedtCustomerOrderID: TDBEditEh
+    Left = 334
+    Top = 3
+    Width = 121
+    Height = 19
+    Alignment = taLeftJustify
+    Color = clSilver
+    DataField = 'CustomerOrderID'
+    DataSource = ds_active
+    EditButtons = <>
+    Flat = True
+    TabOrder = 9
+    Visible = True
+    OnChange = dbedtCustomerOrderIDChange
+  end
+  object dbedtLogisticStatus: TDBEditEh
+    Left = 550
+    Top = 3
+    Width = 121
+    Height = 19
+    Alignment = taLeftJustify
+    Color = clSilver
+    DataField = 'TradingOrderStatusName'
+    DataSource = ds_active
+    EditButtons = <>
+    Flat = True
+    ReadOnly = True
+    TabOrder = 10
+    Visible = True
+  end
+  object ds_active: TDataSource
+    Left = 682
+    Top = 1
+  end
+  object ds_cargo: TDataSource
+    DataSet = adt_cargo
+    Left = 760
+  end
+  object adt_cargo: TADODataSet
+    Parameters = <>
+    Left = 720
+  end
+  object ds_Log: TDataSource
+    DataSet = adt_Log
+    Left = 834
+    Top = 1
+  end
+  object adt_Log: TADODataSet
+    Parameters = <>
+    Left = 802
+    Top = 1
+    object adt_LogCustomerOrderChangeLogID: TAutoIncField
+      FieldName = 'CustomerOrderChangeLogID'
+      ReadOnly = True
+    end
+    object adt_LogCustomerOrderID: TIntegerField
+      FieldName = 'CustomerOrderID'
+    end
+    object adt_LogCustomerOrderQuantity: TFloatField
+      FieldName = 'CustomerOrderQuantity'
+    end
+    object adt_LogRTD: TDateTimeField
+      FieldName = 'RTD'
+    end
+    object adt_LogETD: TDateTimeField
+      FieldName = 'ETD'
+    end
+    object adt_LogChangeField: TStringField
+      FieldName = 'ChangeField'
+      Size = 30
+    end
+    object adt_LogChangeTime: TDateTimeField
+      FieldName = 'ChangeTime'
+    end
+    object adt_LogChangeBy: TIntegerField
+      FieldName = 'ChangeBy'
+    end
+  end
+end

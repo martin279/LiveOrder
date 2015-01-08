@@ -1,0 +1,195 @@
+unit uDlgLogin;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, StdCtrls, ADODB, DB;
+
+type
+  TLoginDlg = class(TForm)
+    Label3: TLabel;
+    Label4: TLabel;
+    Bevel1: TBevel;
+    Panel1: TPanel;
+    Label1: TLabel;
+    Image1: TImage;
+    Label2: TLabel;
+    EdtUsername: TEdit;
+    EdtPassword: TEdit;
+    BtnLogin: TButton;
+    BtnExit: TButton;
+    adt_active: TADODataSet;
+    adt_active2: TADODataSet;
+    lblVersion: TLabel;
+    procedure BtnExitClick(Sender: TObject);
+    procedure BtnLoginClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure EdtUsernameKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure EdtPasswordKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    //function GetLocalIpList(var IpList: TStringList): Integer;
+  public
+    { Public declarations }
+  end;
+
+var
+  LoginDlg: TLoginDlg;
+
+implementation
+
+uses uMJ, DataModule, Math, ufrmMain;
+
+{$R *.dfm}
+
+procedure TLoginDlg.FormCreate(Sender: TObject);
+begin
+  caption := 'Login';
+  Label1.Caption := Application.Title;
+  lblVersion.Caption := 'Version: ' + mjGetBuildInfo;
+end;
+
+procedure TLoginDlg.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+//  action := cafree;
+end;
+
+procedure TLoginDlg.BtnExitClick(Sender: TObject);
+begin
+  close;
+end;
+
+procedure TLoginDlg.BtnLoginClick(Sender: TObject);
+{var
+  IpList: TStringList;
+  a: integer; }
+begin
+{  IpList := TStringList.Create;
+  a := mjGetLocalIpList(IpList);
+  //ShowMessage(IpList.Strings[0]);
+  if ((LowerCase(trim(EdtUsername.Text)) = 'um10')
+    or (LowerCase(trim(EdtUsername.Text)) = 'us20')) then
+  begin
+    if IpList.Strings[0] <> '10.166.72.49' then
+    begin
+      ShowMessage('please login in UM10 or US20 Station(ip address must: 10.166.72.49).');
+      Exit;
+    end;
+  end;
+  }
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetLoginPlant '
+    + ' @LoginName = ''' + trim(EdtUsername.Text) + ''''
+    + ',@LoginPassword=''' + trim(EdtPassword.Text) + '''');
+  if adt_active.RecordCount = 0 then
+  begin
+    ShowMessage('Login error, please check username and password.');
+    Exit;
+  end
+  else if not adt_active.FieldByName('IsValid').AsBoolean then
+  begin
+    ShowMessage('Login error, this login name is locked by administrator.');
+    Exit;
+  end;
+
+  adt_active.First;
+  gVars.CurLoginID := adt_active.fieldbyname('LoginID').AsInteger;
+  gVars.CurUserLevel := adt_active.fieldbyname('AccessLevel').AsInteger;
+  gVars.CurUserDisplayName := adt_active.fieldbyname('DisplayName').AsString;
+
+ // DM.DataSetQuery(adt_active2, format(sQueryCommunicatorSQL, [' and c.LoginID=' + IntToStr(gVars.CurLoginID)]));
+  DM.DataSetQuery(adt_active2, 'EXEC usp_GetCommunicator @LoginID=' + IntToStr(gVars.CurLoginID));
+  gVars.CurUserMFDisplayName := adt_active2.fieldbyname('MainframeDisplayName').AsString;
+  gVars.CurCommunicatorID := adt_active2.fieldbyname('CommunicatorID').AsInteger;
+
+  gVars.CurUserPlantID := '';
+  gVars.CurUserPlant := '';
+  while not adt_active.Eof do
+  begin
+    Include(gVars.CurUserPlantIDSet, adt_active.fieldbyname('PlantID').AsInteger);
+    gVars.CurUserPlantID := gVars.CurUserPlantID + adt_active.fieldbyname('PlantID').AsString + ',';
+    gVars.CurUserPlant := gVars.CurUserPlant + adt_active.fieldbyname('PlantCode').AsString + ',';
+    adt_active.Next;
+  end;
+  gVars.CurUserPlantID := copy(gVars.CurUserPlantID, 0, (length(gVars.CurUserPlantID) - 1));
+  gVars.CurUserPlant := copy(gVars.CurUserPlant, 0, (length(gVars.CurUserPlant) - 1));
+
+  if EdtUsername.Text = '' then
+  begin
+    application.MessageBox('please input your username!', 'Prompt!');
+    EdtUsername.SetFocus;
+    EdtUsername.SelectAll;
+    exit;
+  end
+  else if EdtPassword.Text = '' then
+  begin
+    application.MessageBox('please input your password!', 'Prompt!');
+    EdtPassword.SetFocus;
+    EdtPassword.SelectAll;
+    exit;
+  end
+  else if adt_active.RecordCount = 0 then
+  begin
+    application.MessageBox('Wrong username or password!', 'Prompt!');
+    EdtUsername.SetFocus;
+    EdtUsername.SelectAll;
+    exit;
+  end;
+
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetLoginBusinessApplication @LoginID=' + IntToStr(gVars.CurLoginID));
+  gVars.CurUserBusinessID := '';
+  gVars.CurUserBusiness := '';
+  while not adt_active.Eof do
+  begin
+    gVars.CurUserBusinessID := gVars.CurUserBusinessID + adt_active.fieldbyname('BusinessApplicationID').AsString + ',';
+    gVars.CurUserBusiness := gVars.CurUserBusiness + adt_active.fieldbyname('BusinessApplicationName').AsString + ',';
+    adt_active.Next;
+  end;
+  gVars.CurUserBusinessID := copy(gVars.CurUserBusinessID, 0, (length(gVars.CurUserBusinessID) - 1));
+  gVars.CurUserBusiness := copy(gVars.CurUserBusiness, 0, (length(gVars.CurUserBusiness) - 1));
+
+  if gVars.CurUser = '' then
+  begin
+    gVars.CurUser := trim(EdtUsername.Text);
+  end;
+  if gVars.CurState = false then
+  begin
+    self.Close;
+    gVars.CurUserLonginTime := now;
+    //mjCloseAllForm();
+  end;
+
+  mjDisabledMenu(frmMain);
+  DM.GetUserPurviewMenu(gVars.CurLoginID);
+end;
+
+procedure TLoginDlg.EdtUsernameKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (key = vk_down) or (key = 13) then
+  begin
+    self.EdtPassword.SetFocus;
+  end;
+end;
+
+procedure TLoginDlg.EdtPasswordKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (key = vk_down) or (key = 13) then
+  begin
+    self.BtnLoginClick(self);
+  end;
+end;
+
+procedure TLoginDlg.FormShow(Sender: TObject);
+begin
+ // EdtUsername.Text := 'alee';
+ // EdtPassword.Text := 'alee';
+end;
+
+end.
+

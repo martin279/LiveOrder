@@ -1,0 +1,106 @@
+unit ufrmCustomerOrderRef;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasic, PropFilerEh, DB, ADODB, Menus, PropStorageEh,
+  ActnList, ImgList, GridsEh, DBGridEh, StdCtrls, ComCtrls, DBCtrls,
+  ToolWin, ExtCtrls;
+
+type
+  TfrmCustomerOrderRef = class(TfrmDBBasic)
+    adt_activeCustomerOrderID: TAutoIncField;
+    adt_activeCustomerOrderNumber: TStringField;
+    adt_activeMNumber: TStringField;
+    adt_activeInvoiceNumber: TStringField;
+    adt_activeCustomerID: TIntegerField;
+    adt_activeModelID: TIntegerField;
+    adt_activeCurrency: TStringField;
+    adt_activePrice: TBCDField;
+    adt_activeCustomerOrderQuantity: TFloatField;
+    adt_activeTotalAmount: TBCDField;
+    adt_activeContractDate: TDateTimeField;
+    adt_activeRTD: TDateTimeField;
+    adt_activeETD: TDateTimeField;
+    adt_activeATD: TDateTimeField;
+    adt_activeETA: TDateTimeField;
+    adt_activeATA: TDateTimeField;
+    adt_activeRemark: TStringField;
+    adt_activeCustomerPurchaseOrderNumber: TStringField;
+    adt_activePayment: TStringField;
+    adt_activeReasonOfDelayID: TIntegerField;
+    adt_activeCustomerOrderStatesID: TIntegerField;
+    adt_activeReasonOfDelayRemark: TStringField;
+    adt_activeCOGenerateTime: TDateTimeField;
+    adt_activeCOConfirmedTime: TDateTimeField;
+    adt_activeLoginID: TIntegerField;
+    adt_activePlantID: TIntegerField;
+    adt_activeOINQCOQuantity: TIntegerField;
+    adt_activeOINQReleaseCOQuantity: TIntegerField;
+    adt_activeActualReleaseCOQuantity: TIntegerField;
+    adt_activeFreight: TStringField;
+    adt_activeDestination: TStringField;
+    adt_activeIsPrintInvoice: TBooleanField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeOrigin: TStringField;
+    adt_activeCountry: TStringField;
+    adt_activeChineseName: TStringField;
+    adt_activePlantCode: TStringField;
+    adt_activeBusinessApplicationID: TIntegerField;
+    adt_activeBusinessApplicationName: TStringField;
+    adt_activeModel: TStringField;
+    adt_activeModelDescription: TStringField;
+    adt_activeProductSeriesID: TIntegerField;
+    adt_activeProductSeriesName: TStringField;
+    adt_activePlantID2: TIntegerField;
+    adt_activeCustomerOrderStatesName: TStringField;
+    adt_activeReasonOfDelayDesc: TStringField;
+    adt_activeDisplayName: TStringField;
+    adt_activeFiscalYear: TIntegerField;
+    adt_activeFiscalMonth: TIntegerField;
+  private
+    { Private declarations }   
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+uses DataModule, uMJ;
+
+{$R *.dfm}
+
+{ TfrmCustomerOrderRef }
+
+procedure TfrmCustomerOrderRef.SetData;
+begin
+  inherited;
+  DM.DataSetQuery(adt_active, 'exec usp_GetCustomerOrderRef');
+end;
+
+procedure TfrmCustomerOrderRef.SetUI;
+begin
+  inherited;
+
+end;
+
+procedure TfrmCustomerOrderRef.SetAccess;
+begin
+  inherited;
+  case gVars.CurUserLevel of
+    1:
+      begin
+        DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+          + [nbInsert, nbPost, nbEdit, nbDelete, nbCancel];
+        gridData.ReadOnly := false;
+      end;
+  end;
+end;
+
+end.

@@ -1,0 +1,264 @@
+unit ufrmModel;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, DB, ADODB, PrnDbgeh, Menus,
+  PropStorageEh, ActnList, ImgList, GridsEh, DBGridEh, PrViewEh, StdCtrls,
+  DBCtrls, ComCtrls, ToolWin, ExtCtrls, Mask, DBCtrlsEh, DBLookupEh;
+
+type
+  TfrmModel = class(TfrmDBBasicPrn)
+    N2: TMenuItem;
+    MenuEdtModel: TMenuItem;
+    TabSheet1: TTabSheet;
+    ds_mfModel: TDataSource;
+    adt_mfModel: TADODataSet;
+    adt_mfModelMainframeModelID: TAutoIncField;
+    adt_mfModelModelID: TIntegerField;
+    adt_mfModelMainframeModel: TStringField;
+    adt_mfModelModel1: TStringField;
+    gridMFModel: TDBGridEh;
+    TabSheet2: TTabSheet;
+    GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
+    ds_ProductSeries: TDataSource;
+    ds_ProductFamily: TDataSource;
+    adt_ProductSeries: TADODataSet;
+    adt_ProductFamily: TADODataSet;
+    gridSeries: TDBGridEh;
+    gridFamily: TDBGridEh;
+    adt_activeModelID: TAutoIncField;
+    adt_activeModel: TStringField;
+    adt_activeModelDescription: TStringField;
+    adt_activeProductClassification: TStringField;
+    adt_activeIsValid: TBooleanField;
+    adt_activeXRef: TStringField;
+    adt_activeBaseShortHandCode: TStringField;
+    adt_activeProductionFactor: TFloatField;
+    adt_activeSchedulingCode: TStringField;
+    adt_activeBaseSE: TStringField;
+    adt_activeProductSeriesID: TIntegerField;
+    adt_activecatalogue: TStringField;
+    adt_activeSupplier: TStringField;
+    adt_activeCommodityInspection: TStringField;
+    adt_activeNote: TStringField;
+    procedure adt_activeBeforeInsert(DataSet: TDataSet);
+    procedure MenuEdtModelClick(Sender: TObject);
+    procedure actGridSTFilterExecute(Sender: TObject);
+    procedure gridDataEnter(Sender: TObject);
+    procedure gridMFModelEnter(Sender: TObject);
+    procedure gridSeriesEnter(Sender: TObject);
+    procedure gridFamilyEnter(Sender: TObject);
+    procedure gridMFModelGetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+    procedure gridSeriesGetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+    procedure gridFamilyGetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uMJ, ufrmEdtModel, ufrmDBBasic;
+
+{$R *.dfm}
+
+{ TfrmModel }
+
+procedure TfrmModel.SetData;
+begin
+  DM.DataSetQuery(adt_active, 'Select * from Model order by ModelID desc');
+  DM.DataSetQuery(adt_mfModel, 'select * from MainframeModel');
+  DM.DataSetQuery(adt_ProductSeries, 'select * from ProductSeries');
+  DM.DataSetQuery(adt_ProductFamily, 'Select * from ProductFamily');
+end;
+
+procedure TfrmModel.SetUI;
+begin
+  inherited;
+  MenuEdtModel.Visible := false;
+  tbsBody1.TabVisible := true;
+  SetGridUI(gridMFModel, ds_mfModel);
+  SetGridUI(gridSeries, ds_ProductSeries);
+  SetGridUI(gridFamily, ds_ProductFamily);
+end;
+
+procedure TfrmModel.SetAccess;
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert];
+    gridData.OnDblClick := MenuEdtModelClick;
+    MenuEdtModel.Visible := true;
+    gridMFModel.ReadOnly := false;
+    gridSeries.ReadOnly := false;
+    gridFamily.ReadOnly := false;
+  end;
+  if gVars.CurUserLevel = 22 then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast];
+    gridData.OnDblClick := MenuEdtModelClick;
+    MenuEdtModel.Visible := true;
+    TabSheet1.TabVisible := false;
+    TabSheet2.TabVisible := false;
+  end;
+  if (gVars.CurUserLevel = 3) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast];    
+    gridData.OnDblClick := MenuEdtModelClick;
+    MenuEdtModel.Visible := true;
+  end;
+end;
+
+procedure TfrmModel.adt_activeBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  TfrmEdtModel.EdtFromList(adt_active, true);
+  adt_active.Active := false;
+  adt_active.Active := true;
+  Abort;
+end;
+
+procedure TfrmModel.gridMFModelGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  if gridMFModel.SumList.RecNo mod 2 = 1 then
+    Background := $00FFC4C4
+  else
+    Background := $00FFDDDD;
+end;
+
+procedure TfrmModel.gridSeriesGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  if gridSeries.SumList.RecNo mod 2 = 1 then
+    Background := $00FFC4C4
+  else
+    Background := $00FFDDDD;
+end;
+
+procedure TfrmModel.gridFamilyGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  if gridFamily.SumList.RecNo mod 2 = 1 then
+    Background := $00FFC4C4
+  else
+    Background := $00FFDDDD;
+end;
+
+procedure TfrmModel.MenuEdtModelClick(Sender: TObject);
+begin
+  inherited;
+  if adt_active.RecordCount <> 0 then
+    TfrmEdtModel.EdtFromList(adt_active, false);
+  adt_active.Active := false;
+  adt_active.Active := true;
+end;
+
+procedure TfrmModel.actGridSTFilterExecute(Sender: TObject);
+begin
+  if PageControl1.ActivePageIndex = 0 then
+  begin
+    gridData.STFilter.Visible := not gridData.STFilter.Visible;
+    if gridData.STFilter.Visible then
+    begin
+      gridData.ClearFilter;
+      gridData.ApplyFilter;
+    end;
+  end
+  else if PageControl1.ActivePageIndex = 1 then
+  begin
+    gridMFModel.STFilter.Visible := not gridMFModel.STFilter.Visible;
+    if gridMFModel.STFilter.Visible then
+    begin
+      gridMFModel.ClearFilter;
+      gridMFModel.ApplyFilter;
+    end;
+  end
+  else if PageControl1.ActivePageIndex = 2 then
+  begin
+    if gridSeries.Focused then
+    begin
+      gridSeries.STFilter.Visible := not gridSeries.STFilter.Visible;
+      if gridSeries.STFilter.Visible then
+      begin
+        gridSeries.ClearFilter;
+        gridSeries.ApplyFilter;
+      end;
+    end
+    else
+    begin
+      gridFamily.STFilter.Visible := not gridFamily.STFilter.Visible;
+      if gridFamily.STFilter.Visible then
+      begin
+        gridFamily.ClearFilter;
+        gridFamily.ApplyFilter;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmModel.gridDataEnter(Sender: TObject);
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert];
+    DBNavigator1.DataSource := ds_active;
+    gridMFModel.SelectedRows.Clear;
+  end;
+  if gVars.CurUserLevel = 22 then
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast];
+end;
+
+procedure TfrmModel.gridMFModelEnter(Sender: TObject);
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert, nbPost, nbCancel];
+    DBNavigator1.DataSource := ds_mfModel;
+    gridData.SelectedRows.Clear;
+  end;
+end;
+
+procedure TfrmModel.gridSeriesEnter(Sender: TObject);
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert, nbPost, nbCancel];
+    DBNavigator1.DataSource := ds_ProductSeries;
+  end;
+end;
+
+procedure TfrmModel.gridFamilyEnter(Sender: TObject);
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert, nbPost, nbCancel];
+    DBNavigator1.DataSource := ds_ProductFamily;
+  end;
+end;
+
+
+
+
+end.
+

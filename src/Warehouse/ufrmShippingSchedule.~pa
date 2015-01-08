@@ -1,0 +1,256 @@
+unit ufrmShippingSchedule;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, DB, ADODB, PrnDbgeh, Menus,
+  PropStorageEh, ActnList, ImgList, GridsEh, DBGridEh, PrViewEh, StdCtrls,
+  ComCtrls, DBCtrls, ToolWin, ExtCtrls;
+
+type
+  TfrmShippingSchedule = class(TfrmDBBasicPrn)
+    N2: TMenuItem;
+    MenuDone: TMenuItem;
+    tbtnRefresh: TToolButton;
+    Timer1: TTimer;
+    MenuUndo: TMenuItem;
+    adt_activeCustomerOrderID: TIntegerField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeModel: TStringField;
+    adt_activeModelDescription: TStringField;
+    adt_activeMNumber: TStringField;
+    adt_activeCustomerOrderNumber: TStringField;
+    adt_activeCustomerOrderQuantity: TFloatField;
+    adt_activeETD: TDateTimeField;
+    adt_activeCurrency: TStringField;
+    adt_activeInvoiceNumber: TStringField;
+    adt_activeDestination: TStringField;
+    adt_activeCustomerPurchaseOrderNumber: TStringField;
+    adt_activeWarehouseFeedback: TStringField;
+    adt_activeInstruction: TStringField;
+    adt_activeRemark: TStringField;
+    adt_activeCustomerOrderStatesID: TIntegerField;
+    adt_activeCustomerOrderStatesName: TStringField;
+    adt_activeDisplayName: TStringField;
+    adt_activePlanCreateTime: TDateTimeField;
+    adt_activeForwarder: TStringField;
+    adt_activeLotNumber: TIntegerField;
+    adt_activePlantID: TIntegerField;
+    adt_activePlantCode: TStringField;
+    adt_activeBusinessApplicationID: TIntegerField;
+    adt_activeBusinessApplicationName: TStringField;
+    adt_activeWaitingStates: TStringField;
+    adt_activeIsPlanned: TBooleanField;
+    adt_activeQtyToShipment: TFloatField;
+    adt_activeCommunicatorName: TStringField;
+    procedure MenuDoneClick(Sender: TObject);
+    procedure tbtnRefreshClick(Sender: TObject);
+    procedure MenuUndoClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure ClearGridDataSelectRow;
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, ufrmDBBasic, uMJ;
+
+{$R *.dfm}
+
+{ TfrmDBBasicPrn1 }
+
+procedure TfrmShippingSchedule.SetData;
+begin
+  DM.DataSetQuery(adt_active, 'Exec usp_GetShippingSchedule @LoginID=' + IntToStr(gVars.CurLoginID));
+end;
+
+procedure TfrmShippingSchedule.SetUI;
+begin
+  inherited;
+
+end;
+
+procedure TfrmShippingSchedule.SetAccess;
+var
+  i: integer;
+begin
+  inherited;
+  if gVars.CurUserLevel <> 5 then
+  begin
+    MenuUndo.Visible := false;
+    MenuDone.Visible := false;
+    if gVars.CurLoginID = 154 then
+    begin
+      MenuDone.Visible := true;
+      MenuUndo.Visible := true;
+    end;
+  end
+  else if (gVars.CurUserLevel = 5) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbEdit, nbPost, nbCancel];
+    gridData.ReadOnly := false;
+    for i := 0 to gridData.Columns.Count - 1 do
+    begin
+      if gridData.Columns[i].FieldName = 'WarehouseFeedback' then
+        gridData.Columns[i].ReadOnly := false
+      else
+        gridData.Columns[i].ReadOnly := true;
+    end;
+  end;
+  if (gVars.CurUserLevel = 1) then
+    MenuUndo.Visible := true;
+
+{
+  if (gVars.CurUserPlantIDSet = [1]) or (gVars.CurUserLevel = 2) then
+  begin
+    gridData.FieldColumns['WareHouseFeedback'].Visible := false;
+    gridData.FieldColumns['MNumber'].Visible := false;
+    gridData.FieldColumns['LotNumber'].Visible := false;
+  end;
+
+  if gvars.CurUserLevel <> 23 then
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbEdit, nbPost, nbCancel];
+  if (gVars.CurUserLevel = 24) or (gVars.CurUserLevel = 6) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast];
+    gridData.ReadOnly := false;
+  end;   }
+end;
+
+procedure TfrmShippingSchedule.tbtnRefreshClick(Sender: TObject);
+begin
+  inherited;
+//  ClearGridDataSelectRow;
+  adt_active.Active := false;
+  adt_active.Active := true;
+end;
+
+procedure TfrmShippingSchedule.MenuDoneClick(Sender: TObject);
+
+  procedure ClearGridDataSelectRow;
+  begin
+    gridData.ClearFilter;
+    gridData.ApplyFilter;
+    gridData.DataSource.DataSet := nil;
+    gridData.DataSource.DataSet := adt_active;
+    gridData.SelectedRows.Clear;
+  end;
+
+var
+  i: integer;
+  coNum: string;
+  adt_from: TADODataSet;
+  gridFrom: TDBGridEh;
+begin
+  if MessageDlg('Stock Done?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+    exit;
+
+  adt_from := TADODataSet(gridData.DataSource.DataSet);
+  gridFrom := gridData;
+
+  if adt_from.RecordCount = 0 then
+  begin
+    ShowMessage('There haven''t data in this grid.');
+    Exit;
+  end;
+  if gridFrom.SelectedRows.Count = 0 then
+  begin
+    ShowMessage('please select rows first.');
+    Exit;
+  end;
+
+  adt_from.DisableControls;
+  try
+    coNum := '';
+    for i := 0 to gridFrom.SelectedRows.Count - 1 do
+    begin
+      adt_from.Bookmark := gridFrom.SelectedRows.items[I];
+      coNum := coNum + '''''' + adt_from.FieldByName('CustomerOrderNumber').AsString + ''''',';
+    end;
+    coNum := copy(coNum, 0, (length(coNum) - 1));
+    DM.DataSetModify('EXEC usp_UpdateCOWHfeedbackBycoNumber '
+      + ' @WarehouseFeedback=''Done'''
+      + ',@CustomerOrderNumber=''' + coNum + '''');
+    ClearGridDataSelectRow;
+    adt_from.Active := false;
+    adt_from.Active := true;
+  finally
+    adt_from.EnableControls;
+  end;
+end;
+
+procedure TfrmShippingSchedule.MenuUndoClick(Sender: TObject);
+{
+  procedure ClearGridDataSelectRow;
+  begin
+    gridData.ClearFilter;
+    gridData.ApplyFilter;
+    gridData.DataSource.DataSet := nil;
+    gridData.DataSource.DataSet := adt_active;
+    gridData.SelectedRows.Clear;
+  end;
+}
+var
+  i: integer;
+  coNum: string;
+  adt_from: TADODataSet;
+  gridFrom: TDBGridEh;
+begin
+  if MessageDlg('Undo Schedule?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+    exit;
+
+  adt_from := TADODataSet(gridData.DataSource.DataSet);
+  gridFrom := gridData;
+
+  if adt_from.RecordCount = 0 then
+  begin
+    ShowMessage('There haven''t data in this grid.');
+    Exit;
+  end;
+  if gridFrom.SelectedRows.Count = 0 then
+  begin
+    ShowMessage('please select rows first.');
+    Exit;
+  end;
+
+  adt_from.DisableControls;
+  try
+    coNum := '';
+    for i := 0 to gridFrom.SelectedRows.Count - 1 do
+    begin
+      adt_from.Bookmark := gridFrom.SelectedRows.items[I];
+      coNum := coNum + '''''' + adt_from.FieldByName('CustomerOrderNumber').AsString + ''''',';
+    end;
+    coNum := copy(coNum, 0, (length(coNum) - 1)) + '';
+    DM.DataSetModify('EXEC usp_UpdateCOWHStatesByCONumber '
+      + ' @IsPlanned=''0'''
+      + ',@WaitingStates='''''
+      + ',@CustomerOrderNumber=''' + coNum + '''');
+    ClearGridDataSelectRow;
+    adt_from.Active := false;
+    adt_from.Active := true;
+  finally
+    adt_from.EnableControls;
+  end;
+end;
+
+procedure TfrmShippingSchedule.ClearGridDataSelectRow;
+begin
+  gridData.ClearFilter;
+  gridData.ApplyFilter;
+  gridData.DataSource.DataSet := nil;
+  gridData.DataSource.DataSet := adt_active;
+  gridData.SelectedRows.Clear;
+end;
+
+end.
+

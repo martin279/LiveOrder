@@ -1,0 +1,483 @@
+unit uCustomerOrderProcessOperationAccess;
+
+interface
+
+uses SysUtils, DBCtrls, Controls, ufrmCustomerOrderProcess;
+
+procedure EnableOperation(CustomerOrderOPAccess: TfrmCustomerOrderProcess);
+
+implementation
+
+uses DataModule, uMJ;
+
+procedure EnableOperation(CustomerOrderOPAccess: TfrmCustomerOrderProcess);
+var
+  sqlConst: string;
+begin
+  sqlConst := '';
+  with CustomerOrderOPAccess do
+  begin
+    case gVars.CurUserLevel of
+      2:
+        begin
+          case cbbTreeType.ItemIndex of
+            0:
+              sqlConst := ',@PlantID=''2,3,4,5''';
+            1:
+              sqlConst := ',@PlantID=1';
+            2:
+              sqlConst := ',@PlantID=6';
+          end;
+        end;
+      3:
+        begin
+          tbtnOperation.Visible := false;
+          pnlBodyRight.Visible := false;
+          if gVars.CurUserPlantIDSet = [1] then
+            sqlConst := ',@PlantID=''' + gVars.CurUserPlantID + ''''
+          else
+            sqlConst := ',@PlantID=''' + gVars.CurUserPlantID + '''';
+        end;
+    end;
+   // sqlConst := sqlConst + ' and ((ATD is null) or (ATD>getdate()-15))';
+    sqlConst := sqlConst + ',@ATDNone=1';
+    case cbbTreeType.ItemIndex of
+      0: //TreeType--States
+        begin
+          case TreeView1.Selected.Level of
+            0: //selected Level--root
+              begin
+                case gVars.CurUserLevel of
+                  2:
+                    begin
+                      sqlConst := sqlConst + ',@LoginID=' + IntToStr(gVars.CurLoginID);
+                    end;
+                end;
+                gridData.OnDblClick := nil;
+              end;
+            1: //selected Level--states deltail
+              begin
+                gridData.OnDblClick := gridDataDblClick;
+                sqlConst := sqlConst + ',@CustomerOrderStatesName=''' + TreeView1.Selected.Text + '''';
+                case gVars.CurUserLevel of
+                  2: //User access--CS
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := true;
+                      sqlConst := sqlConst + ',@LoginID=' + IntToStr(gVars.CurLoginID);
+
+                      case TreeView1.Selected.Index of
+                        0: //new order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+                              + [nbPost, nbDelete, nbCancel];
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        1: //Open order
+                          begin
+                            MenuNewOrder.Visible := true;
+                            MenuConfirmOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        2: //confirm order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            MenuReleaseOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        3: //release order
+                          begin
+                            MenuConfirmOrder.Visible := true;
+                            MenuShippingOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        4: //shipping order
+                          begin
+                            MenuReleaseOrder.Visible := true;
+                            MenuShippedOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        5:
+                          begin
+                            MenuShippingOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                  3: //User access--Scheduler
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := false;
+                      case TreeView1.Selected.Index of
+                        0: //New Order
+                          begin
+                            if gVars.CurUserPlantIDSet <> [1] then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                        1: //Open Order
+                          begin
+                            if gVars.CurUserPlantIDSet <> [1] then
+                              MenuNewOrder.Visible := true
+                            else
+                              MenuConfirmOrder.Visible := true;
+                          end;
+                        2: //Confirmed Order
+                          begin
+                            if gVars.CurUserPlantIDSet = [1] then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                end;
+              end;
+          end;
+        end;
+      1: //TreeType--Plant38
+        begin
+          case TreeView1.Selected.Level of
+            0: //selected Level--root
+              begin
+                case gVars.CurUserLevel of
+                  2:
+                    sqlConst := sqlConst + ',@LoginID=' + IntToStr(gVars.CurLoginID);
+                end;
+                gridData.OnDblClick := nil;
+              end;
+            1: //selected Level--states deltail
+              begin
+                gridData.OnDblClick := gridDataDblClick;
+                sqlConst := sqlConst + ',@CustomerOrderStatesName=''' + TreeView1.Selected.Text + '''';
+                case gVars.CurUserLevel of
+                  2: //User access--CS
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := true;
+                      sqlConst := sqlConst + ',@LoginID=' + IntToStr(gVars.CurLoginID);
+
+                      case TreeView1.Selected.Index of
+                        0: //new order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+                              + [nbPost, nbDelete, nbCancel];
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        1: //Open order
+                          begin
+                            MenuNewOrder.Visible := true;
+                            MenuConfirmOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        2: //confirm order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            MenuReleaseOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        3: //release order
+                          begin
+                            MenuConfirmOrder.Visible := true;
+                            MenuShippingOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        4: //shipping order
+                          begin
+                            MenuReleaseOrder.Visible := true;
+                            MenuShippedOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        5:
+                          begin
+                            MenuShippingOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                  3: //User access--Scheduler
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := false;
+                      case TreeView1.Selected.Index of
+                        0: //New Order
+                          begin
+                            if ([2] <= gVars.CurUserPlantIDSet)
+                              or ([3, 4, 5] <= gVars.CurUserPlantIDSet) then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                        1: //Open Order
+                          begin
+                            if ([1] <= gVars.CurUserPlantIDSet) then
+                              MenuConfirmOrder.Visible := true
+                            else
+                              MenuNewOrder.Visible := true;
+                          end;
+                        2: //Confirmed Order
+                          begin
+                            if [1] <= gVars.CurUserPlantIDSet then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                end;
+              end;
+          end;
+        end;
+      2: //TreeType--Plant67/oversea
+        begin
+        end;
+    end;
+    if gVars.CurUserLevel = 1 then
+      gridData.OnDblClick := gridDataDblClick;
+    sqlConst := sqlConst + ',@Col=''COGenerateTime Desc''';
+    //DM.DataSetQuery(adt_active, format(sQueryCustomerOrderSQL, [sqlConst]));
+    //DM.DataSetQuery(adt_active2, format(sQueryCustomerOrderSQL, [' and CustomerOrderID=0']));
+    //DM.DataSetQuery(adt_active2, format(sQueryCustomerOrderSQL, [' and CustomerOrderID=0']));
+    sqlConst := Copy(sqlConst, 2, length(sqlConst));
+    DM.DataSetQuery(adt_active, 'EXEC usp_GetCustomerOrder ' + sqlConst);
+    DM.DataSetQuery(adt_active2, 'EXEC usp_GetCustomerOrder @CustomerOrderID=1000000');
+  end;
+end;
+
+{
+procedure EnableOperation(CustomerOrderOPAccess: TfrmCustomerOrderProcess);
+var
+  sqlConst: string;
+begin
+  sqlConst := '';
+  with CustomerOrderOPAccess do
+  begin
+    case gVars.CurUserLevel of
+      2:
+        begin
+          case cbbTreeType.ItemIndex of
+            0:
+              sqlConst := ' and (PlantID in (''2'',''3'',''4'',''5'') or  PlantID2 in (''2'',''3'',''4'',''5''))';
+            1:
+              sqlConst := ' and (PlantID=1 or PlantID2=1)';
+            2:
+              sqlConst := ' and (PlantID in (''6'') or PlantID2 in (''6''))';
+          end;
+        end;
+      3:
+        begin
+          if gVars.CurUserPlantIDSet = [1] then
+            sqlConst := ' and (PlantID in' + gVars.CurUserPlantID
+              + ' or PlantID2 in' + gVars.CurUserPlantID + ')'
+          else
+            sqlConst := ' and PlantID in' + gVars.CurUserPlantID;
+        end;
+    end;
+   // sqlConst := sqlConst + ' and ((ATD is null) or (ATD>getdate()-15))';
+    case cbbTreeType.ItemIndex of
+      0: //TreeType--States
+        begin
+          case TreeView1.Selected.Level of
+            0: //selected Level--root
+              begin
+                case gVars.CurUserLevel of
+                  2:
+                    begin
+                      sqlConst := sqlConst + ' and LoginID =' + IntToStr(gVars.CurLoginID);
+                    end;
+                end;
+                gridData.OnDblClick := nil;
+              end;
+            1: //selected Level--states deltail
+              begin
+                gridData.OnDblClick := gridDataDblClick;
+                sqlConst := sqlConst + ' and CustomerOrderStatesName=''' + TreeView1.Selected.Text + '''';
+                case gVars.CurUserLevel of
+                  2: //User access--CS
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := true;
+                      sqlConst := sqlConst + ' and LoginID =' + IntToStr(gVars.CurLoginID);
+
+                      case TreeView1.Selected.Index of
+                        0: //new order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+                              + [nbPost, nbDelete, nbCancel];
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        1: //Open order
+                          begin
+                            MenuNewOrder.Visible := true;
+                            MenuConfirmOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        2: //confirm order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            MenuReleaseOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        3: //release order
+                          begin
+                            MenuConfirmOrder.Visible := true;
+                            MenuShippingOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        4: //shipping order
+                          begin
+                            MenuReleaseOrder.Visible := true;
+                            MenuShippedOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        5:
+                          begin
+                            MenuShippingOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                  3: //User access--Scheduler
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := false;
+                      case TreeView1.Selected.Index of
+                        0: //New Order
+                          begin
+                            if gVars.CurUserPlantIDSet <> [1] then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                        1: //Open Order
+                          begin
+                            if gVars.CurUserPlantIDSet <> [1] then
+                              MenuNewOrder.Visible := true
+                            else
+                              MenuConfirmOrder.Visible := true;
+                          end;
+                        2: //Confirmed Order
+                          begin
+                            if gVars.CurUserPlantIDSet = [1] then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                end;
+              end;
+          end;
+        end;
+      1: //TreeType--Plant38
+        begin
+          case TreeView1.Selected.Level of
+            0: //selected Level--root
+              begin
+                case gVars.CurUserLevel of
+                  2:
+                    sqlConst := sqlConst + ' and LoginID =' + IntToStr(gVars.CurLoginID);
+                end;
+                gridData.OnDblClick := nil;
+              end;
+            1: //selected Level--states deltail
+              begin
+                gridData.OnDblClick := gridDataDblClick;
+                sqlConst := sqlConst + ' and CustomerOrderStatesName=''' + TreeView1.Selected.Text + '''';
+                case gVars.CurUserLevel of
+                  2: //User access--CS
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := true;
+                      sqlConst := sqlConst + ' and LoginID =' + IntToStr(gVars.CurLoginID);
+
+                      case TreeView1.Selected.Index of
+                        0: //new order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+                              + [nbPost, nbDelete, nbCancel];
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        1: //Open order
+                          begin
+                            MenuNewOrder.Visible := true;
+                            MenuConfirmOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        2: //confirm order
+                          begin
+                            MenuOpenOrder.Visible := true;
+                            MenuReleaseOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        3: //release order
+                          begin
+                            MenuConfirmOrder.Visible := true;
+                            MenuShippingOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        4: //shipping order
+                          begin
+                            MenuReleaseOrder.Visible := true;
+                            MenuShippedOrder.Visible := true;
+                            MenuSplitOrder.Visible := true;
+                            MenuSelectForOperation.Visible := true;
+                          end;
+                        5:
+                          begin
+                            MenuShippingOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                  3: //User access--Scheduler
+                    begin
+                      MenuEdtCO.Visible := true;
+                      MenuBatchEdtCO.Visible := false;
+                      case TreeView1.Selected.Index of
+                        0: //New Order
+                          begin
+                            if ([2] <= gVars.CurUserPlantIDSet)
+                              or ([3, 4, 5] <= gVars.CurUserPlantIDSet) then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                        1: //Open Order
+                          begin
+                            if ([1] <= gVars.CurUserPlantIDSet) then
+                              MenuConfirmOrder.Visible := true
+                            else
+                              MenuNewOrder.Visible := true;
+                          end;
+                        2: //Confirmed Order
+                          begin
+                            if [1] <= gVars.CurUserPlantIDSet then
+                              MenuOpenOrder.Visible := true;
+                          end;
+                      end;
+                    end;
+                end;
+              end;
+          end;
+        end;
+      2: //TreeType--Plant67/oversea
+        begin
+        end;
+    end;
+    if gVars.CurUserLevel = 1 then
+      gridData.OnDblClick := gridDataDblClick;
+    sqlConst := sqlConst + ' order by COGenerateTime Desc';
+    DM.DataSetQuery(adt_active, format(sQueryCustomerOrderSQL, [sqlConst]));
+    DM.DataSetQuery(adt_active2, format(sQueryCustomerOrderSQL, [' and CustomerOrderID=0']));
+  end;
+end;
+}
+end.
+

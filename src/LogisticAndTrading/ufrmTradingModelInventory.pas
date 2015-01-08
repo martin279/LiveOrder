@@ -1,0 +1,141 @@
+unit ufrmTradingModelInventory;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, ActnList, PrnDbgeh, ImgList, DB,
+  ADODB, Menus, PropStorageEh, DBCtrls, ComCtrls, ToolWin, GridsEh,
+  DBGridEh, PrViewEh, StdCtrls, ExtCtrls, uDMManager, uDMEntity;
+
+type
+  TfrmTradingModelInventory = class(TfrmDBBasicPrn)
+    ToolButton1: TToolButton;
+    tbtnRefresh: TToolButton;
+    procedure ToolButton1Click(Sender: TObject);
+    procedure tbtnRefreshClick(Sender: TObject);
+  private
+    { Private declarations }
+    objMgrBasic: TMgrBasicData;
+    procedure UpdateDeltaInv;
+    procedure GetInv();
+  protected
+    procedure InitializeForm; override;
+    procedure DestoryForm; override;
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+uses ufrmDBBasic, DataModule;
+
+{$R *.dfm}
+
+{ TfrmTradingModelInventory }
+
+procedure TfrmTradingModelInventory.InitializeForm;
+begin
+  objMgrBasic := TMgrBasicData.Create;
+  inherited;
+end;
+
+procedure TfrmTradingModelInventory.DestoryForm;
+begin
+  inherited;
+  objMgrBasic.Free;
+end;
+
+procedure TfrmTradingModelInventory.SetData;
+begin
+  inherited;
+  GetInv();
+end;
+
+procedure TfrmTradingModelInventory.SetUI;
+begin
+  inherited;
+
+end;
+
+procedure TfrmTradingModelInventory.SetAccess;
+begin
+  inherited;
+
+end;
+
+procedure TfrmTradingModelInventory.ToolButton1Click(Sender: TObject);
+begin
+  inherited;
+  if MessageDlg('Get data from delta?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    UpdateDeltaInv;
+    ShowMessage('Finish.');
+    tbtnRefresh.Click;
+  end;
+end;
+
+procedure TfrmTradingModelInventory.UpdateDeltaInv;
+var
+  strINVCSV: string;
+  slAll, slInv: TStringList;
+  //slTxt: TStringList;
+  i: integer;
+  wp: WebServiceSoap;
+begin
+  slAll := TStringList.Create;
+  slInv := TStringList.Create;
+ // slTxt := TStringList.Create;
+  try
+    try
+      DM.DataSetModify('delete from TradingModelInventory');
+      //CoInitialize(nil);
+      wp := GetWebServiceSoap(true, 'http://delta-logistics.cn/Ws/WebService.asmx?wsdl');
+      strINVCSV := wp.INVCSV;
+      slAll.Delimiter := '#';
+      slAll.DelimitedText := strINVCSV;
+      for i := 1 to slAll.Count - 1 do
+      begin
+        slInv.Clear;
+        slInv.CommaText := slAll[i];
+        DM.DataSetModify('exec usp_UpdateDeltaInv'
+          + ' @Model=''' + trim(slInv[0]) + ''''
+          + ',@IsBonded=' + slInv[1]
+          + ',@TotalQuantity=' + slInv[2]
+          + ',@FrozenQuantity=' + slInv[3]
+          + ',@AvailableQuantity=' + slInv[4]
+          + ',@AssignedQuantity=' + slInv[5]);
+      end; {
+      slTxt.LoadFromFile('c:\TradingInv.txt');
+      slTxt.AddStrings(slAll);
+      slTxt.SaveToFile('c:\TradingInv.txt'); }
+    except on E: Exception do
+      begin
+        ShowMessage(E.Message);
+      end;
+    end;
+//    CoUnInitialize;
+  finally
+  //  slTxt.Free;
+    slInv.Free;
+    slAll.Free;
+  end;
+end;
+
+procedure TfrmTradingModelInventory.tbtnRefreshClick(Sender: TObject);
+begin
+  inherited;
+  GetInv();
+end;
+
+procedure TfrmTradingModelInventory.GetInv;
+begin
+  DM.DataSetQuery(adt_active, 'select * from ViewTradingModelInventory'
+    + ' order by Model');
+end;
+
+end.
+

@@ -1,0 +1,876 @@
+unit ufrmEdtCustomerOrder;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmBasic, ActnList, ImgList, ComCtrls, ToolWin, ExtCtrls,
+  DBGridEh, DB, ADODB, StdCtrls, Mask, DBCtrlsEh, DBLookupEh, DBCtrls,
+  Buttons, GridsEh, PropFilerEh, PropStorageEh;
+
+type
+  TfrmEdtCustomerOrder = class(TfrmBasic)
+    adt_model: TADODataSet;
+    ds_model: TDataSource;
+    ds_customer: TDataSource;
+    adt_customer: TADODataSet;
+    ds_delay: TDataSource;
+    adt_delay: TADODataSet;
+    ds_active: TDataSource;
+    Panel1: TPanel;
+    Label14: TLabel;
+    dbedtCustomerOrderID: TDBEditEh;
+    Label10: TLabel;
+    gboxCOBasicInfor: TGroupBox;
+    Label4: TLabel;
+    LabelPrice: TLabel;
+    Label7: TLabel;
+    Label6: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    dbcbbModel: TDBLookupComboboxEh;
+    dbcbbCustomer: TDBLookupComboboxEh;
+    dbedtOrderQty: TDBEditEh;
+    dbedtPrice: TDBEditEh;
+    edtModelDesc: TEdit;
+    edtCustomerName: TEdit;
+    gboxCOInfor: TGroupBox;
+    Label13: TLabel;
+    Label11: TLabel;
+    Label16: TLabel;
+    dbdtpRTD: TDBDateTimeEditEh;
+    dbedtCustomerPONo: TDBEditEh;
+    dbedtRemark: TDBEditEh;
+    gboxCOConfirm: TGroupBox;
+    Label1: TLabel;
+    Label9: TLabel;
+    dbcbbDelay: TDBLookupComboboxEh;
+    dbdtpETD: TDBDateTimeEditEh;
+    chkDelay: TCheckBox;
+    gboxCONumber: TGroupBox;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label8: TLabel;
+    dbedtInvoiceNumber: TDBEditEh;
+    dbedtMNumber: TDBEditEh;
+    dbedtOrderNumber: TDBEditEh;
+    gboxCORelease: TGroupBox;
+    gboxBOM: TGroupBox;
+    gridBOM: TDBGridEh;
+    ds_bom: TDataSource;
+    adt_bom: TADODataSet;
+    adt_bomModelID: TIntegerField;
+    adt_bomComponentID: TIntegerField;
+    adt_bomModel: TStringField;
+    adt_bomComponentItem: TStringField;
+    adt_bomComponentQuantity: TFloatField;
+    adt_bomValidFrom: TDateTimeField;
+    adt_bomValidUntil: TDateTimeField;
+    adt_bomComponentDescription: TStringField;
+    PropStorageEh1: TPropStorageEh;
+    Label12: TLabel;
+    Label15: TLabel;
+    Label17: TLabel;
+    dbtxtOINQQty: TDBText;
+    dbtxtOINQReleaseQty: TDBText;
+    dbedtActualReleaseCOQty: TDBEditEh;
+    dbcbbCurrency: TDBComboBoxEh;
+    gboxPayment: TGroupBox;
+    dbedtPayment: TDBEditEh;
+    Label5: TLabel;
+    adt_bomComponentSeriesName: TStringField;
+    gboxShip: TGroupBox;
+    Label20: TLabel;
+    dbdtpATD: TDBDateTimeEditEh;
+    Label21: TLabel;
+    dbdtpContractDate: TDBDateTimeEditEh;
+    gboxCOChangeLog: TGroupBox;
+    gridLog: TDBGridEh;
+    adt_Log: TADODataSet;
+    ds_Log: TDataSource;
+    adt_LogCustomerOrderChangeLogID: TAutoIncField;
+    adt_LogCustomerOrderID: TIntegerField;
+    adt_LogCustomerOrderQuantity: TFloatField;
+    adt_LogRTD: TDateTimeField;
+    adt_LogETD: TDateTimeField;
+    adt_LogChangeField: TStringField;
+    adt_LogChangeTime: TDateTimeField;
+    LabelTotalAmount: TLabel;
+    dbedtTotalAmount: TDBEditEh;
+    dbcbbPlant: TDBLookupComboboxEh;
+    Label23: TLabel;
+    dbcbbBusinessApplication: TDBLookupComboboxEh;
+    ds_business: TDataSource;
+    adt_business: TADODataSet;
+    ds_plant: TDataSource;
+    adt_plant: TADODataSet;
+    LabelBusinessApplication: TLabel;
+    Label22: TLabel;
+    dbedtDelayRemark: TDBEditEh;
+    Label24: TLabel;
+    dbedtCreator: TDBEditEh;
+    adt_LogChangeBy: TIntegerField;
+    adt_Logdisplayname: TStringField;
+    gboxFreight: TGroupBox;
+    Label25: TLabel;
+    Label26: TLabel;
+    dbedtFreight: TDBEditEh;
+    dbedtDestination: TDBEditEh;
+    gboxATA: TGroupBox;
+    Label27: TLabel;
+    Label28: TLabel;
+    dbdtpETA: TDBDateTimeEditEh;
+    dbdtpATA: TDBDateTimeEditEh;
+    dbcbbLoginID: TDBLookupComboboxEh;
+    ds_login: TDataSource;
+    adt_login: TADODataSet;
+    GroupBox3: TGroupBox;
+    dbedtInstruction: TDBEditEh;
+    dbchkIsPlanned: TDBCheckBoxEh;
+    dbedtWarehouseFeedback: TDBEditEh;
+    Label29: TLabel;
+    Label30: TLabel;
+    dbcbbForwarder: TDBLookupComboboxEh;
+    adt_forwarder: TADODataSet;
+    ds_forwarder: TDataSource;
+    adt_forwarderForwarderID: TAutoIncField;
+    adt_forwarderForwarderName: TStringField;
+    dbcbbOrderStates: TDBLookupComboboxEh;
+    ds_states: TDataSource;
+    adt_states: TADODataSet;
+    adt_statesCustomerOrderStatesID: TAutoIncField;
+    adt_statesCustomerOrderStatesName: TStringField;
+    adt_statesCustomerOrderStatesDesc: TStringField;
+    adt_statesOverseaCustomerOrderStatesName: TStringField;
+    sbtnAddDelay: TSpeedButton;
+    Panel2: TPanel;
+    DBNavigator1: TDBNavigator;
+    procedure dbedtOrderQtyKeyPress(Sender: TObject; var Key: Char);
+//    procedure chkRTDClick(Sender: TObject);
+    procedure chkDelayClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure adt_fromBeforePost(DataSet: TDataSet);
+    procedure adt_fromAfterPost(DataSet: TDataSet);
+    procedure adt_fromBeforeCancel(DataSet: TDataSet);
+    procedure adt_customerAfterScroll(DataSet: TDataSet);
+    procedure adt_modelAfterScroll(DataSet: TDataSet);
+//    procedure btnSaveCOReleaseClick(Sender: TObject);
+    procedure dbedtCustomerOrderIDChange(Sender: TObject);
+    procedure dbedtOrderQtyExit(Sender: TObject);
+    procedure dbedtPriceExit(Sender: TObject);
+    procedure dbcbbPlantChange(Sender: TObject);
+    procedure dbcbbDelayChange(Sender: TObject);
+    procedure sbtnAddDelayClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure checkPrice;
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+    class procedure EdtFromList(adt_from: TADODataSet);
+  end;
+
+
+implementation
+
+uses DataModule, uMJ, ufrmReasonOfDelay;
+
+{$R *.dfm}
+
+{ TfrmEdtCustomerOrder }
+
+procedure TfrmEdtCustomerOrder.SetData;
+var
+  pBusiness: string;
+begin
+  DM.DataSetQuery(adt_plant, 'EXEC usp_GetPlant @PlantID=''' + gvars.CurUserPlantID + '''');
+  DM.DataSetQuery(adt_business, 'EXEC usp_GetBusinessApplication @LoginID=' + IntToStr(gvars.CurLoginID));
+  pBusiness := '';
+  if gVars.CurUserBusinessID = '1' then
+    pBusiness := ',@BusinessApplicationID=1'
+  else if gVars.CurUserBusinessID = '2' then
+    pBusiness := ',@BusinessApplicationID=2';
+  //DM.DataSetQuery(adt_customer, 'EXEC usp_GetCustomer @PlantID=''' + gVars.CurUserPlantID + '''' + pBusiness);
+  DM.DataSetQuery(adt_customer, 'EXEC usp_GetCustomer');
+  DM.DataSetQuery(adt_model, 'Select * from Model');
+  DM.DataSetQuery(adt_delay, 'EXEC usp_GetReasonOfDelay');
+  DM.DataSetQuery(adt_login, 'EXEC usp_GetLogin @AccessLevel=2');
+  DM.DataSetQuery(adt_forwarder, 'select * from Forwarder');
+  DM.DataSetQuery(adt_states, 'select * from CustomerOrderStates');
+end;
+
+procedure TfrmEdtCustomerOrder.SetUI;
+begin
+  inherited;
+  Position := poOwnerFormCenter;
+{  LabelBusinessApplication.Visible := false;
+  dbcbbBusinessApplication.Visible := false;       }
+end;
+
+procedure TfrmEdtCustomerOrder.SetAccess;
+begin
+  inherited;
+  gboxCOBasicInfor.Enabled := false;
+  gboxCOInfor.Enabled := false;
+  gboxCOConfirm.Enabled := false;
+  gboxCONumber.Enabled := false;
+  gboxPayment.Enabled := false;
+  gboxShip.Enabled := false;
+  gboxCORelease.Enabled := false;
+  gboxATA.Enabled := false;
+  gboxFreight.Enabled := false;
+
+  dbcbbCurrency.Enabled := false;
+  dbedtPrice.Enabled := false;
+  dbedtTotalAmount.Enabled := false;
+  edtCustomerName.Enabled := false;
+  edtModelDesc.Enabled := false;
+  gridBOM.ReadOnly := true;
+  gridBOM.ParentColor := true;
+  gridLog.ReadOnly := true;
+  gridLog.ParentColor := true;
+  edtCustomerName.ParentColor := true;
+  edtModelDesc.ParentColor := true;
+  dbcbbLoginID.Enabled := false;
+
+  dbedtFreight.Enabled := false;
+  dbedtDestination.Enabled := false;
+  dbedtInstruction.Enabled := false;
+  dbchkIsPlanned.Enabled := false;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast]
+    + [nbPost, nbCancel];
+end;
+
+procedure TfrmEdtCustomerOrder.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  inherited;
+  if (dbdtpRTD.DataSource.DataSet.State in [dsEdit]) then
+  begin
+    if MessageDlg('Is update Order?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      ds_active.DataSet.Post
+    else
+      ds_active.DataSet.Cancel;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.dbedtOrderQtyKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if (Key = #13) then
+  begin
+    checkPrice;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.dbedtOrderQtyExit(Sender: TObject);
+begin
+  checkPrice;
+end;
+
+procedure TfrmEdtCustomerOrder.dbedtPriceExit(Sender: TObject);
+begin
+  dbedtTotalAmount.Text := FloatToStr(StrToInt(dbedtOrderQty.Text) * StrToFloat(dbedtPrice.Text));
+end;
+
+procedure TfrmEdtCustomerOrder.checkPrice;
+var
+  adt_price: TADODataSet;
+begin
+  if dbcbbCustomer.Text = '' then
+  begin
+    ShowMessage('Please select customer');
+    exit;
+  end;
+  if dbcbbModel.Text = '' then
+  begin
+    ShowMessage('Please select model');
+    exit;
+  end;
+  if trim(dbedtOrderQty.Text) = '' then
+  begin
+    ShowMessage('Please input order qty.');
+    exit;
+  end;
+
+  adt_price := TADODataSet.Create(nil);
+  try
+    DM.DataSetQuery(adt_price, 'EXEC usp_GetPrice '
+      + ' @CustomerID=' + VarToStr(dbcbbCustomer.KeyValue)
+      + ',@ModelID=' + VarToStr(dbcbbModel.KeyValue)
+      + ',@DemandQuantity=' + Trim(dbedtOrderQty.Text)
+      + ',@GetMaxPrice=1');
+    if adt_price.RecordCount > 0 then
+    begin
+      adt_price.First;
+      dbcbbCurrency.ItemIndex := dbcbbCurrency.Items.IndexOf(adt_price.fieldbyname('Currency').AsString);
+      dbedtPrice.Text := adt_price.fieldbyname('Price').AsString;
+    end;
+    dbcbbCurrency.Enabled := true;
+    dbedtPrice.Enabled := true;
+    dbcbbCurrency.SetFocus;
+  finally
+    dbedtTotalAmount.Text := FloatToStr(StrToInt(dbedtOrderQty.Text) * StrToFloat(dbedtPrice.Text));
+    adt_price.Free;
+  end;
+end;
+
+class procedure TfrmEdtCustomerOrder.EdtFromList(adt_from: TADODataSet);
+var
+  orderStatesID: integer;
+ // ABeforePost, ABeforeCancel, AAfterPost: TDataSetNotifyEvent;
+begin
+  with TfrmEdtCustomerOrder.Create(Application) do
+  try
+   { adt_fromclone.Clone(adt_from);
+    adt_fromclone.Bookmark := adt_from.Bookmark;    }
+    ds_active.DataSet := adt_from;
+    orderStatesID := adt_from.fieldbyname('CustomerOrderStatesID').AsInteger;
+    edtModelDesc.Text := adt_from.fieldbyname('ModelDescription').AsString;
+    gboxBOM.Caption := 'BOM Of Model : ' + dbcbbModel.Text;
+    gboxCOChangeLog.Caption := 'Change Log Of Order ID : ' + dbedtCustomerOrderID.Text;
+    chkDelay.OnClick := nil;
+    if adt_from.fieldbyname('ReasonOfDelayID').AsString <> '' then
+      chkDelay.Checked := true
+    else
+    begin
+     // chkDelay.Checked := false;
+     // dbcbbDelay.Value := null;
+    end;
+    chkDelay.OnClick := chkDelayClick;
+
+ {   ABeforePost := adt_from.BeforePost;
+    ABeforeCancel := adt_from.BeforeCancel;
+    AAfterPost := adt_from.AfterPost;        }
+        {
+    adt_fromclone.BeforePost := adt_fromBeforePost;
+    adt_fromclone.BeforeCancel := adt_fromBeforeCancel;
+    adt_fromclone.AfterPost := adt_fromAfterPost;    }
+    adt_from.BeforePost := adt_fromBeforePost;
+    adt_from.BeforeCancel := adt_fromBeforeCancel;
+    adt_from.AfterPost := adt_fromAfterPost;
+    adt_customer.AfterScroll := adt_customerAfterScroll;
+    adt_model.AfterScroll := adt_modelAfterScroll;
+    dbcbbOrderStates.Enabled := false;
+
+    case gVars.CurUserLevel of
+      1:
+        begin
+          gboxCOBasicInfor.Enabled := true;
+          gboxCOInfor.Enabled := true;
+          gboxCOConfirm.Enabled := true;
+          gboxCORelease.Enabled := true;
+          gboxCONumber.Enabled := true;
+          gboxPayment.Enabled := true;
+          gboxShip.Enabled := true;
+          dbcbbOrderStates.Enabled := true;
+        end;
+      2: //CS
+        begin
+          gboxCOBasicInfor.Enabled := true;
+          gboxCOInfor.Enabled := true;
+          gboxCORelease.Enabled := true;
+          gboxCONumber.Enabled := true;
+          gboxPayment.Enabled := true;
+          gboxShip.Enabled := true;
+          gboxCOConfirm.Enabled := true;
+          gboxATA.Enabled := true;
+          gboxFreight.Enabled := true;
+
+          dbedtFreight.Enabled := true;
+          dbedtDestination.Enabled := true;
+          dbedtInstruction.Enabled := true;
+          dbchkIsPlanned.Enabled := true;
+          dbcbbLoginID.Enabled := true;
+          dbcbbOrderStates.Enabled := true;
+          dbcbbCurrency.Enabled := true;
+        end;
+      3: //scheduler
+        begin
+          LabelPrice.Visible := false;
+          dbcbbCurrency.Visible := false;
+          dbedtPrice.Visible := false;
+          LabelTotalAmount.Visible := false;
+          dbedtTotalAmount.Visible := false;
+          gboxCOConfirm.Enabled := true;
+          dbedtDelayRemark.Enabled := false;
+          dbedtDelayRemark.Color := clBtnFace;
+          if gVars.CurLoginID = 56 then
+          begin
+            dbdtpETD.Enabled := true;
+          end;
+          if (orderStatesID = 6) or (orderStatesID = 7) then
+            gboxCOConfirm.Enabled := false;
+          if gvars.CurLoginID = 59 then
+          begin
+            gboxCOInfor.Enabled := true;
+            dbdtpRTD.Enabled := false;
+            dbedtCustomerPONo.Enabled := false;
+            dbedtRemark.Enabled := true;
+          end;
+        end;
+      4: //planner
+        begin
+          LabelPrice.Visible := false;
+          dbcbbCurrency.Visible := false;
+          dbedtPrice.Visible := false;
+          LabelTotalAmount.Visible := false;
+          dbedtTotalAmount.Visible := false;
+          gboxCOConfirm.Enabled := true;
+          dbdtpETD.Enabled := false;
+          dbdtpETD.Color := clBtnFace;
+          dbedtDelayRemark.Enabled := false;
+          dbedtDelayRemark.Color := clBtnFace;
+          if (orderStatesID = 6) or (orderStatesID = 7) then
+            gboxCOConfirm.Enabled := false;
+        end;
+      6: //logistic
+        begin
+          gboxATA.Enabled := true;
+          dbdtpETA.Enabled := false;
+        end;
+    end;
+    dbcbbCustomer.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbcbbModel.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbedtOrderQty.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbcbbCurrency.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbedtPrice.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbedtTotalAmount.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbcbbPlant.ParentColor := not gboxCOBasicInfor.Enabled;
+    dbcbbBusinessApplication.ParentColor := not gboxCOBasicInfor.Enabled;
+
+    dbdtpRTD.ParentColor := not gboxCOInfor.Enabled;
+    dbedtCustomerPONo.ParentColor := not gboxCOInfor.Enabled;
+    dbedtRemark.ParentColor := not gboxCOInfor.Enabled;
+
+    dbdtpETD.ParentColor := not gboxCOConfirm.Enabled;
+    dbcbbDelay.ParentColor := not gboxCOConfirm.Enabled;
+    dbedtDelayRemark.ParentColor := not gboxCOConfirm.Enabled;
+    chkDelay.ParentColor := not gboxCOConfirm.Enabled;
+
+    dbedtInvoiceNumber.ParentColor := not gboxCONumber.Enabled;
+    dbedtMNumber.ParentColor := not gboxCONumber.Enabled;
+    dbedtOrderNumber.ParentColor := not gboxCONumber.Enabled;
+
+    dbedtPayment.ParentColor := not gboxPayment.Enabled;
+    dbdtpATD.ParentColor := not gboxShip.Enabled;
+    dbedtActualReleaseCOQty.ParentColor := not gboxCORelease.Enabled;
+    gridBOM.ParentColor := not gboxBOM.Enabled;
+
+    dbdtpETA.ParentColor := not gboxATA.Enabled;
+    dbdtpATA.ParentColor := not gboxATA.Enabled;
+
+  {  if (adt_fromclone.State in [dsEdit]) then
+      adt_fromclone.Cancel;    }
+    if (adt_from.State in [dsEdit]) then
+      adt_from.Cancel;
+
+    ShowModal;
+    //result := ShowModal = mrOK;
+  finally
+   { adt_from.BeforePost := ABeforePost;
+    adt_from.BeforeCancel := ABeforeCancel;
+    adt_from.AfterPost := AAfterPost;   }
+    Free;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.sbtnAddDelayClick(Sender: TObject);
+begin
+  with TfrmReasonOfDelay.Create(Application) do
+  try
+    ShowModal;
+  finally
+    Free;
+    //if VarToStr(dbcbbDelay.Value) <> '' then
+    begin
+      adt_delay.Active := false;
+      adt_delay.Active := true;
+    end;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.chkDelayClick(Sender: TObject);
+begin
+  if chkDelay.Checked then
+  begin
+    if dbcbbDelay.Value <> null then
+    begin
+      dbedtDelayRemark.Enabled := true;
+      dbedtDelayRemark.Color := clWindow;
+    end;
+    if not (dbcbbDelay.DataSource.DataSet.State in [dsEdit]) then
+      dbcbbDelay.DataSource.DataSet.Edit;
+    if dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayID').OldValue = null then
+      dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayID').Value := dbcbbDelay.KeyValue
+    else
+    begin
+      dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayID').Value :=
+        dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayID').OldValue;
+      dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayRemark').Value :=
+        dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayRemark').OldValue;
+    end;
+  end
+  else
+  begin
+    if not (dbcbbDelay.DataSource.DataSet.State in [dsEdit]) then
+      dbcbbDelay.DataSource.DataSet.Edit;
+    dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayID').Value := null;
+    dbcbbDelay.DataSource.DataSet.FieldByName('ReasonOfDelayRemark').Value := null;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.dbcbbDelayChange(Sender: TObject);
+begin
+  if (chkDelay.Checked) and (dbcbbDelay.Value <> null) then
+  begin
+    dbedtDelayRemark.Enabled := true;
+    dbedtDelayRemark.Color := clWindow;
+    dbedtDelayRemark.Clear;
+  end
+  else
+  begin
+    dbedtDelayRemark.Enabled := false;
+    dbedtDelayRemark.Color := clBtnFace;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.adt_customerAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  edtCustomerName.Text := ds_customer.DataSet.FieldByName('CustomerName').AsString;
+end;
+
+procedure TfrmEdtCustomerOrder.adt_modelAfterScroll(DataSet: TDataSet);
+begin
+  inherited;
+  edtModelDesc.Text := ds_model.DataSet.FieldByName('ModelDescription').AsString;
+  if VarToStr(dbcbbModel.KeyValue) <> '' then
+  begin
+    //DM.DataSetQuery(adt_bom, format(sQueryBOMSQL,  [' and ModelID=' + VarToStr(dbcbbModel.KeyValue)]));
+    DM.DataSetQuery(adt_bom, 'EXEC usp_GetBOM @ModelID=' + VarToStr(dbcbbModel.KeyValue));
+    gridBOM.DataSource.DataSet.Active := false;
+    gridBOM.DataSource.DataSet.Active := true;
+  end;
+end;
+
+procedure TfrmEdtCustomerOrder.adt_fromBeforePost(DataSet: TDataSet);
+var
+  sqlUSP: string;
+begin
+  if ((DataSet.FieldByName('BusinessApplicationID').OldValue <> null)
+    and (DataSet.FieldByName('BusinessApplicationID').OldValue <> DataSet.FieldByName('BusinessApplicationID').Value)) then
+  begin
+    if MessageDlg('Are you sure change business application?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+    begin
+      DataSet.FieldByName('BusinessApplicationID').Value := DataSet.FieldByName('BusinessApplicationID').OldValue;
+    end;
+  end;
+  if {(DataSet.FieldByName('ETD').OldValue = null)
+    and }(DataSet.FieldByName('ETD').Value <> null) then
+  begin
+    DataSet.FieldByName('COConfirmedTime').Value := now;
+    if DataSet.FieldByName('CustomerOrderStatesID').Value = 1 then
+    begin
+      //if DataSet.FieldByName('CustomerOrderNumber').AsString <> '' then
+      DataSet.FieldByName('CustomerOrderStatesID').Value := 2;
+    end;
+  end;
+
+  if (DataSet.FieldByName('InvoiceNumber').OldValue <> null)
+    and (LowerCase(Copy(DataSet.FieldByName('InvoiceNumber').OldValue, 1, 1)) <> 'c')
+    and (DataSet.FieldByName('InvoiceNumber').Value = null) then
+  begin
+    if (DataSet.FieldByName('CustomerOrderStatesID').Value = 5)
+      or (DataSet.FieldByName('CustomerOrderStatesID').Value = 6) then
+      DataSet.FieldByName('CustomerOrderStatesID').Value := 4;
+  end;
+
+  sqlUSP := '';
+  if (DataSet.FieldByName('CustomerOrderQuantity').OldValue <> DataSet.FieldByName('CustomerOrderQuantity').Value) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      + '@CustomerOrderQuantity=' + VarToStr(DataSet.FieldByName('CustomerOrderQuantity').OldValue) + ','
+      + '@ChangeField=''CustomerOrderQuantity''';
+  if ((DataSet.FieldByName('RTD').OldValue <> null)
+    and (DataSet.FieldByName('RTD').OldValue <> DataSet.FieldByName('RTD').Value)) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      + '@RTD=''' + VarToStr(DataSet.FieldByName('RTD').OldValue) + ''','
+      + '@ChangeField=''RTD''';
+  if ((DataSet.FieldByName('ETD').OldValue <> null)
+    and (DataSet.FieldByName('ETD').OldValue <> DataSet.FieldByName('ETD').Value)) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      + '@ETD=''' + VarToStr(DataSet.FieldByName('ETD').OldValue) + ''','
+      + '@ChangeField=''ETD''';
+  if ((DataSet.FieldByName('ModelID').OldValue <> null)
+    and (DataSet.FieldByName('ModelID').OldValue <> DataSet.FieldByName('ModelID').Value)) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      //+ '@ETD=''' + VarToStr(DataSet.FieldByName('ETD').OldValue) + ''','
+    + '@ChangeField=''Model''';
+  if sqlUSP <> '' then
+  begin
+    DM.DataSetModify(sqlUSP);
+    gridLog.DataSource.DataSet.Active := false;
+    gridLog.DataSource.DataSet.Active := true;
+  end;
+end;
+
+
+procedure TfrmEdtCustomerOrder.adt_fromAfterPost(DataSet: TDataSet);
+//var
+//  sqlUSP: string;
+begin
+//  if DataSet.FindField('UpdateTime') <> nil then
+//    DataSet.FieldByName('UpdateTime').Value := now();
+//  if {(DataSet.FieldByName('ETD').OldValue = null)
+//    and }(DataSet.FieldByName('ETD').Value <> null) then
+{  begin
+    DataSet.FieldByName('COConfirmedTime').Value := now;
+    if DataSet.FieldByName('CustomerOrderStatesID').Value = 1 then
+    begin
+      //if DataSet.FieldByName('CustomerOrderNumber').AsString <> '' then
+      DataSet.FieldByName('CustomerOrderStatesID').Value := 2;
+    end;
+  end;
+
+  if (DataSet.FieldByName('InvoiceNumber').OldValue <> null)
+    and (LowerCase(Copy(DataSet.FieldByName('InvoiceNumber').OldValue, 1, 1)) <> 'c')
+    and (DataSet.FieldByName('InvoiceNumber').Value = null) then
+  begin
+    if (DataSet.FieldByName('CustomerOrderStatesID').Value = 5)
+      or (DataSet.FieldByName('CustomerOrderStatesID').Value = 6) then
+      DataSet.FieldByName('CustomerOrderStatesID').Value := 4;
+  end;
+
+  sqlUSP := '';
+  if (DataSet.FieldByName('CustomerOrderQuantity').OldValue <> DataSet.FieldByName('CustomerOrderQuantity').Value) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      + '@CustomerOrderQuantity=' + VarToStr(DataSet.FieldByName('CustomerOrderQuantity').OldValue) + ','
+      + '@ChangeField=''CustomerOrderQuantity''';
+  if ((DataSet.FieldByName('RTD').OldValue <> null)
+    and (DataSet.FieldByName('RTD').OldValue <> DataSet.FieldByName('RTD').Value)) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      + '@RTD=''' + VarToStr(DataSet.FieldByName('RTD').OldValue) + ''','
+      + '@ChangeField=''RTD''';
+  if ((DataSet.FieldByName('ETD').OldValue <> null)
+    and (DataSet.FieldByName('ETD').OldValue <> DataSet.FieldByName('ETD').Value)) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      + '@ETD=''' + VarToStr(DataSet.FieldByName('ETD').OldValue) + ''','
+      + '@ChangeField=''ETD''';
+  if ((DataSet.FieldByName('ModelID').OldValue <> null)
+    and (DataSet.FieldByName('ModelID').OldValue <> DataSet.FieldByName('ModelID').Value)) then
+    sqlUSP := sqlUSP + ' EXEC usp_InsertCustomerOrderChangeLog '
+      + '@CustomerOrderID=' + VarToStr(dbedtCustomerOrderID.Value) + ','
+      + '@LoginID=' + IntToStr(gvars.CurLoginID) + ','
+      //+ '@ETD=''' + VarToStr(DataSet.FieldByName('ETD').OldValue) + ''','
+    + '@ChangeField=''Model''';
+  if sqlUSP <> '' then
+  begin
+    DM.DataSetModify(sqlUSP);
+    gridLog.DataSource.DataSet.Active := false;
+    gridLog.DataSource.DataSet.Active := true;
+  end;       }
+  TADODataSet(DataSet).UpdateBatch();
+end;
+
+procedure TfrmEdtCustomerOrder.adt_fromBeforeCancel(DataSet: TDataSet);
+begin
+  if dbcbbDelay.Value = null then
+    chkDelay.Checked := false;
+end;
+
+procedure TfrmEdtCustomerOrder.dbedtCustomerOrderIDChange(Sender: TObject);
+//var
+//  haveETD: boolean;
+begin
+  gboxBOM.Caption := 'BOM Of Model : ' + dbcbbModel.Text;
+  gboxCOChangeLog.Caption := 'Change Log Of Order ID : ' + dbedtCustomerOrderID.Text;
+  if dbedtCustomerOrderID.Value <> null then
+  begin
+    DM.DataSetQuery(adt_Log, 'EXEC usp_GetCustomerOrderChangeLog @CustomerOrderID='
+      + VarToStr(dbedtCustomerOrderID.Value));
+    gridLog.DataSource.DataSet.Active := false;
+    gridLog.DataSource.DataSet.Active := true;
+  end;
+{  if ((ds_active.DataSet.FieldByName('PlantID').AsInteger = 2)
+   // or (ds_active.DataSet.FieldByName('PlantID').AsInteger = 3)
+   // or (ds_active.DataSet.FieldByName('PlantID').AsInteger = 4)
+   )
+    and (ds_active.DataSet.FieldByName('CustomerOrderStatesID').AsInteger = 1) then
+  begin
+    dbdtpETD.Enabled := false;
+  end;    }
+  {
+  if (dbcbbPlant.Value = 2) or (dbcbbPlant.Value = 3) or (dbcbbPlant.Value = 4) or (dbcbbPlant.Value = 5) then
+  begin
+    if adt_Log.RecordCount = 0 then
+      dbdtpETD.Enabled := false;
+    haveETD := false;
+    while not adt_Log.Eof do
+    begin
+      if adt_Log.FieldByName('ChangeField').Value = 'ETD' then
+      begin
+        haveETD := true;
+      end;
+      adt_Log.Next;
+    end;
+    if not haveETD then
+      dbdtpETD.Enabled := false;
+  end;
+  }
+end;
+
+procedure TfrmEdtCustomerOrder.dbcbbPlantChange(Sender: TObject);
+begin {
+  if VarToStr(dbcbbPlant.Value) = '1' then
+  begin
+    LabelBusinessApplication.Visible := true;
+    dbcbbBusinessApplication.Visible := true;
+    dbcbbBusinessApplication.DataSource := ds_active;
+  end
+  else
+  begin
+    LabelBusinessApplication.Visible := false;
+    dbcbbBusinessApplication.Visible := false;
+    dbcbbBusinessApplication.DataSource := nil;
+  end;    }
+end;
+
+{
+ // sqlConst := ' and PlantID in' + gVars.CurUserPlantID;
+ // DM.DataSetQuery(adt_customer, format(sQueryCustomerSQL, [sqlConst]));
+//  DM.DataSetQuery(adt_delay, format(sQueryReasonOfDelaySQL, ['']));
+
+  sqlConst := ' and p.PlantID in' + gVars.CurUserPlantID;
+  DM.DataSetQuery(adt_model, format(sQueryModelSQL, [sqlConst]));
+  }
+
+  {
+    sqlConst := ' and p.CustomerID=' + VarToStr(dbcbbCustomer.KeyValue);
+    sqlConst := sqlConst + ' and p.ModelID=' + VarToStr(dbcbbModel.KeyValue);
+    sqlConst := sqlConst + ' and p.DemandQuantity<=' + dbedtOrderQty.Text;
+    sqlConst := sqlConst + ' and not exists (select 1 from Price a'
+      + ' where p.CustomerID=a.CustomerID and p.ModelID=a.ModelID'
+      + ' and p.demandquantity<a.demandquantity)';
+    DM.DataSetQuery(adt_price, format(sQueryPriceSQL, [sqlConst]));
+     }
+         {
+    chkRTD.OnClick := nil;
+    if adt_from.fieldbyname('RTD').AsString <> '' then
+      chkRTD.Checked := true
+    else
+    begin
+      chkRTD.Checked := false;
+      dbdtp_rtd.Value := null;
+    end;
+    chkRTD.OnClick := chkRTDClick;
+    }
+
+          //gboxCOConfirm.Enabled := true;
+        {
+          case orderStatesID of
+            1: //new order
+              begin
+                gboxCOBasicInfor.Enabled := true;
+                gboxCOInfor.Enabled := true;
+                gboxCONumber.Enabled := true;
+                dbedtInvoiceNumber.Enabled := false;
+                dbedtInvoiceNumber.Color := clBtnFace;
+              end;
+            2: //open order
+              begin
+                gboxCOBasicInfor.Enabled := true;
+                gboxCOInfor.Enabled := true;
+                gboxCONumber.Enabled := true;
+                dbedtInvoiceNumber.Enabled := false;
+                dbedtInvoiceNumber.Color := clBtnFace;
+              end;
+            3: //confirm order
+              begin
+                gboxCOBasicInfor.Enabled := true;
+                gboxCOInfor.Enabled := true;
+                gboxCONumber.Enabled := true;
+                dbedtInvoiceNumber.Enabled := false;
+                dbedtInvoiceNumber.Color := clBtnFace;
+                gboxPayment.Enabled := true;
+              end;
+            4: //release order
+              begin
+                gboxPayment.Enabled := true;
+                gboxCORelease.Enabled := true;
+                gboxCONumber.Enabled := true;
+                dbedtMNumber.Enabled := false;
+                dbedtOrderNumber.Enabled := false;
+                dbedtMNumber.Color := clBtnFace;
+                dbedtOrderNumber.Color := clBtnFace;
+              end;
+            5: //shipping order
+              begin
+                gboxPayment.Enabled := true;
+                gboxCONumber.Enabled := true;
+                dbedtMNumber.Enabled := false;
+                dbedtOrderNumber.Enabled := false;
+                dbedtMNumber.Color := clBtnFace;
+                dbedtOrderNumber.Color := clBtnFace;
+              end;
+            6:
+              begin
+              end;
+        end;
+              }
+
+          (*
+          case orderStatesID of
+            1:
+              begin
+               { gboxCOConfirm.Enabled := true;
+                if ([2] <= gVars.CurUserPlantIDSet)
+                  or ([3, 4, 5] <= gVars.CurUserPlantIDSet) then
+                  gboxCOConfirm.Enabled := true;
+                if ([2] <= gVars.CurUserPlantIDSet)
+                  or ([3, 4, 5] <= gVars.CurUserPlantIDSet) then
+                begin
+                  gboxCOConfirm.Enabled := true;
+                  //gboxCOInfor.Enabled := true;
+                  //dbedtCustomerPONo.Enabled := false;
+                  //dbedtRemark.Enabled := false;
+                  //dbedtCustomerPONo.Color := clBtnFace;
+                  //dbedtRemark.Color := clBtnFace;
+                end;   }
+              end;
+            2:
+              begin
+               { gboxCOConfirm.Enabled := true;
+                if ([2] <= gVars.CurUserPlantIDSet)
+                  or ([3, 4, 5] <= gVars.CurUserPlantIDSet) then
+                begin
+                  dbedtCustomerPONo.Enabled := false;
+                  dbedtRemark.Enabled := false;
+                  dbedtCustomerPONo.Color := clBtnFace;
+                  dbedtRemark.Color := clBtnFace;
+                end;  }
+              end;
+            6:
+              gboxCOConfirm.Enabled := false;
+            7:
+              gboxCOConfirm.Enabled := false;
+          end;    *)
+
+end.
+

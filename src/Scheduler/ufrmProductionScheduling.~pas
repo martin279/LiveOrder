@@ -1,0 +1,791 @@
+unit ufrmProductionScheduling;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicDT, PropFilerEh, DB, ADODB, Menus, PropStorageEh,
+  ActnList, ImgList, GridsEh, DBGridEh, StdCtrls, ComCtrls, ExtCtrls,
+  DBCtrls, ToolWin, Mask, DBCtrlsEh, DBLookupEh, DateUtils, StrUtils,
+  uDMEntity, uDMManager;
+
+type
+  TfrmProductionScheduling = class(TfrmDBBasicDT)
+    pnlQuery: TPanel;
+    dtpRTDFrom: TDateTimePicker;
+    dbcbbLine: TDBLookupComboboxEh;
+    btnQuery: TButton;
+    GroupBox3: TGroupBox;
+    pbarUpload: TProgressBar;
+    btnUpload: TButton;
+    adt_model: TADODataSet;
+    ds_line: TDataSource;
+    adt_line: TADODataSet;
+    adt_activeProductionScheduleID: TAutoIncField;
+    adt_activeAssemblyLineID: TIntegerField;
+    adt_activeModelID: TIntegerField;
+    adt_activePlantID: TIntegerField;
+    adt_activeScheduleQuantity: TIntegerField;
+    adt_activeRTD: TDateTimeField;
+    adt_activeScheduleStartTime: TDateTimeField;
+    adt_activeSchedulePriority: TIntegerField;
+    adt_activeLine: TStringField;
+    adt_activeModel: TStringField;
+    adt_activePlantCode: TStringField;
+    adt_active2ProductionScheduleID: TAutoIncField;
+    adt_active2AssemblyLineID: TIntegerField;
+    adt_active2ModelID: TIntegerField;
+    adt_active2PlantID: TIntegerField;
+    adt_active2ScheduleQuantity: TIntegerField;
+    adt_active2RTD: TDateTimeField;
+    adt_active2ScheduleStartTime: TDateTimeField;
+    adt_active2SchedulePriority: TIntegerField;
+    adt_active2Line: TStringField;
+    adt_active2Model: TStringField;
+    adt_active2PlantCode: TStringField;
+    N2: TMenuItem;
+    MenuSelectForOperation: TMenuItem;
+    cbbIsScheduled: TComboBox;
+    chkLine: TCheckBox;
+    chkScheduleDate: TCheckBox;
+    chkIsScheduled: TCheckBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    dtpRTDTo: TDateTimePicker;
+    adt_activeIsScheduled: TBooleanField;
+    adt_active2IsScheduled: TBooleanField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeCustomerOrderNumber: TStringField;
+    adt_active2CustomerNumber: TStringField;
+    adt_active2CustomerName: TStringField;
+    adt_active2CustomerOrderNumber: TStringField;
+    GroupBox4: TGroupBox;
+    btnDown: TButton;
+    btnUp: TButton;
+    MenuSplitSchedule: TMenuItem;
+    N3: TMenuItem;
+    adt_activeCustomerPurchaseOrderNumber: TStringField;
+    adt_activeCustomerOrderQuantity: TFloatField;
+    adt_activeCustomerOrderID: TAutoIncField;
+    adt_active2CustomerPurchaseOrderNumber: TStringField;
+    adt_active2CustomerOrderQuantity: TFloatField;
+    adt_active2CustomerOrderID: TAutoIncField;
+    adt_activeContractDate: TDateTimeField;
+    adt_activeETD: TDateTimeField;
+    adt_active2ContractDate: TDateTimeField;
+    adt_active2ETD: TDateTimeField;
+    adt_activeCustomerOrderStatesName: TStringField;
+    adt_active2CustomerOrderStatesName: TStringField;
+    adt_activeCustomerOrderStatesID: TIntegerField;
+    adt_activeCountry: TStringField;
+    procedure btnUploadClick(Sender: TObject);
+    procedure btnQueryClick(Sender: TObject);
+    procedure MenuSelectForOperationClick(Sender: TObject);
+    procedure btnUpClick(Sender: TObject);
+    procedure gridDataGetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+    procedure btnDownClick(Sender: TObject);
+    procedure actGridSTFilterExecute(Sender: TObject);
+    procedure gridDataEnter(Sender: TObject);
+    procedure gridData2Enter(Sender: TObject);
+    procedure gridData2GetCellParams(Sender: TObject; Column: TColumnEh;
+      AFont: TFont; var Background: TColor; State: TGridDrawState);
+    procedure gridDataColumns7EditButtonClick(Sender: TObject;
+      var Handled: Boolean);
+    procedure MenuSplitScheduleClick(Sender: TObject);
+    procedure adt_activeBeforePost(DataSet: TDataSet);
+  private
+    { Private declarations }
+    objMgrPS: TMgrProductionSchedule;
+    slPSParam: TStringList;
+    procedure ExchangeAdjacentTwoDBRecordFieldValue(UpOrDown: string);
+  protected
+    procedure InitializeForm; override;
+    procedure DestoryForm; override;
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+uses DataModule, uMJ, ufrmSplitSchedule, ufrmDBBasic;
+
+{$R *.dfm}
+
+{ TfrmProductionScheduling }
+
+procedure TfrmProductionScheduling.InitializeForm;
+begin
+  inherited;
+  objMgrPS := TMgrProductionSchedule.Create;
+  slPSParam := TStringList.Create;
+end;
+
+procedure TfrmProductionScheduling.DestoryForm;
+begin
+  inherited;
+  slPSParam.Free;
+  objMgrPS.Free;
+end;
+
+procedure TfrmProductionScheduling.SetData;
+begin
+  DM.DataSetQuery(adt_line, 'EXEC usp_GetAssemblyLine');
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetProductionScheduleCUD @CustomerOrderID=0');
+  DM.DataSetQuery(adt_active2, 'EXEC usp_GetProductionScheduleCUD @CustomerOrderID=0');
+end;
+
+procedure TfrmProductionScheduling.SetUI;
+var
+  i: integer;
+begin
+  inherited;
+  GroupBox1.Caption := 'Production Schedule';
+  GroupBox2.Caption := 'Production Schedule For Scheduling';
+  dtpRTDFrom.DateTime := (now + 1);
+  dtpRTDTo.DateTime := (now + 1);
+  gridData.FrozenCols := 4;
+  gridData.FieldColumns['ScheduleQuantity'].Footer.ValueType := fvtSum;
+  gridData2.FrozenCols := 4;
+  gridData2.FieldColumns['ScheduleQuantity'].Footer.ValueType := fvtSum;
+  chkIsScheduled.Checked := true;
+  chkScheduleDate.Checked := true;
+  gridData2.SortLocal := false;
+  gridData2.STFilter.Local := false;
+  for i := 0 to gridData2.Columns.Count - 1 do
+  begin
+    if gridData2.Columns[i].Visible = true then
+      gridData2.Columns[i].Title.TitleButton := false;
+  end;
+end;
+
+procedure TfrmProductionScheduling.SetAccess;
+var
+  i: integer;
+begin
+  inherited;
+  case objCurUser.AccessLevel of
+    3:
+      begin
+        MenuSplitSchedule.Visible := true;
+        MenuSelectForOperation.Visible := true;
+        pnlBottom.Visible := true;
+        chkLine.Checked := true;
+        chkLine.Enabled := false;
+        dbcbbLine.KeyValue := 5;
+        dbcbbLine.Enabled := false;
+        gridData.ReadOnly := false;
+        for i := 0 to gridData.Columns.Count - 1 do
+        begin
+          if gridData.Fields[i].FieldName = 'ScheduleStartTime' then
+            gridData.Fields[i].ReadOnly := false
+          else
+            gridData.Fields[i].ReadOnly := true;
+        end;
+      end;
+    4:
+      pnlBottom.Visible := true;
+  end;
+end;
+
+procedure TfrmProductionScheduling.gridDataGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  //inherited;
+  if gridData.DataSource.DataSet.fieldbyname('IsScheduled').AsBoolean = true then
+    Background := $00FFC4C4;
+end;
+
+procedure TfrmProductionScheduling.gridData2GetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  //inherited;
+  if gridData2.DataSource.DataSet.fieldbyname('IsScheduled').AsBoolean = true then
+    Background := $00FFC4C4;
+end;
+
+procedure TfrmProductionScheduling.actGridSTFilterExecute(Sender: TObject);
+begin
+  gridData.STFilter.Visible := not gridData.STFilter.Visible;
+  if gridData.STFilter.Visible then
+  begin
+    gridData.ClearFilter;
+    gridData.ApplyFilter;
+  end;
+end;
+
+procedure TfrmProductionScheduling.gridDataEnter(Sender: TObject);
+begin
+  inherited;
+  MenuSelectForOperation.Visible := true;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+    + [nbEdit, nbPost, nbCancel];
+end;
+
+procedure TfrmProductionScheduling.gridData2Enter(Sender: TObject);
+begin
+  inherited;
+  MenuSelectForOperation.Visible := false;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh];
+end;
+
+procedure TfrmProductionScheduling.gridDataColumns7EditButtonClick(
+  Sender: TObject; var Handled: Boolean);
+begin
+  inherited;
+  if gridData.DataSource.DataSet.FieldByName('IsScheduled').AsBoolean = true then
+  begin
+    ShowMessage('Schedule ID: ' + gridData.DataSource.DataSet.fieldbyname('ProductionScheduleID').AsString
+      + ' has been upload to production line,can''t be modified.');
+    Abort;
+  end;
+end;
+
+procedure TfrmProductionScheduling.btnQueryClick(Sender: TObject);
+begin
+  try
+    RecoverGrid(gridData, ds_active);
+    slPSParam.Clear;
+    slPSParam.Append('PlantID=' + objCurUser.PlantID);
+    if chkLine.Checked then
+      slPSParam.Append('AssemblyLineID=' + VarToStr(dbcbbLine.KeyValue));
+    if chkIsScheduled.Checked then
+      slPSParam.Append('IsScheduled=' + IntToStr(cbbIsScheduled.ItemIndex));
+    if chkScheduleDate.Checked then
+    begin
+      slPSParam.Append('RTDFrom=' + FormatDateTime('YYYY-mm-dd', dtpRTDFrom.DateTime));
+      slPSParam.Append('RTDTo=' + FormatDateTime('YYYY-mm-dd', dtpRTDTo.DateTime));
+    end;
+    slPSParam.Append('Col=IsScheduled desc,AssemblyLineID,RTD,SchedulePriority');
+    objMgrPS.QueryProductionSchedule(adt_active, nil, slPSParam);
+    slPSParam.Clear;
+    slPSParam.Append('CustomerOrderID=0');
+    objMgrPS.QueryProductionSchedule(adt_active2, nil, slPSParam);
+
+    {
+    sqlConst := '@PlantID=''' + gVars.CurUserPlantID + '''';
+    if chkLine.Checked then
+      sqlConst := sqlConst + ',@AssemblyLineID=' + VarToStr(dbcbbLine.KeyValue);
+    if chkIsScheduled.Checked then
+      sqlConst := sqlConst + ',@IsScheduled=' + IntToStr(cbbIsScheduled.ItemIndex);
+    if chkScheduleDate.Checked then
+    begin
+      sqlConst := sqlConst + ',@RTDFrom=''' + FormatDateTime('YYYY-mm-dd', dtpRTDFrom.DateTime)
+        + ''',@RTDTo=''' + FormatDateTime('YYYY-mm-dd', dtpRTDTo.DateTime) + '''';
+    end;
+    sqlConst := sqlConst + ',@Col=''IsScheduled desc,AssemblyLineID,RTD,SchedulePriority''';
+    DM.DataSetQuery(adt_active, 'EXEC usp_GetProductionScheduleCUD ' + sqlConst);
+    DM.DataSetQuery(adt_active2, 'EXEC usp_GetProductionScheduleCUD @CustomerOrderID=0');
+    }
+  except on E: Exception do
+    begin
+      ShowMessage(E.Message);
+    end;
+  end;
+end;
+
+procedure TfrmProductionScheduling.MenuSelectForOperationClick(
+  Sender: TObject);
+var
+  i, AssemblyLineID: integer;
+  ScheduleID, ScheduleDate, sqlConst: string;
+begin
+  if gridData.DataSource.DataSet.RecordCount = 0 then
+  begin
+    ShowMessage('There haven''t data in this grid.');
+    Exit;
+  end;
+  if gridData.SelectedRows.Count = 0 then
+  begin
+    ShowMessage('please select rows first.');
+    Exit;
+  end;
+  ScheduleID := '';
+  ScheduleDate := '';
+  AssemblyLineID := 0;
+  gridData.DataSource.DataSet.DisableControls;
+  gridData2.DataSource.DataSet.DisableControls;
+  try
+    for i := 0 to gridData.SelectedRows.Count - 1 do
+    begin
+      gridData.DataSource.DataSet.Bookmark := gridData.SelectedRows.items[I];
+      if gridData.DataSource.DataSet.FieldByName('IsScheduled').AsBoolean = true then
+      begin
+        ShowMessage('Schedule ID: ' + gridData.DataSource.DataSet.FieldByName('ProductionScheduleID').AsString
+          + ' has been uploaded to product line.');
+        exit;
+      end;
+      if gridData.DataSource.DataSet.FieldByName('ScheduleStartTime').AsString = '' then
+      begin
+        ShowMessage('Please input schedule time for Schedule ID: '
+          + gridData.DataSource.DataSet.FieldByName('ProductionScheduleID').AsString);
+        exit;
+      end;
+      if i = 0 then
+      begin
+        ScheduleDate := FormatDateTime('YYYY-mm-dd',
+          gridData.DataSource.DataSet.FieldByName('ScheduleStartTime').AsDateTime);
+        AssemblyLineID := gridData.DataSource.DataSet.FieldByName('AssemblyLineID').AsInteger;
+      end;
+      if gridData.DataSource.DataSet.FieldByName('AssemblyLineID').AsInteger <> AssemblyLineID then
+      begin
+        ShowMessage('Assembly Line must be identical for operation.');
+        exit;
+      end;
+      if FormatDateTime('YYYY-mm-dd', gridData.DataSource.DataSet.FieldByName('ScheduleStartTime').AsDateTime)
+        <> ScheduleDate then
+      begin
+        ShowMessage('Schedule date must be identical for operation.');
+        exit;
+      end;
+      ScheduleID := ScheduleID + gridData.DataSource.DataSet.FieldByName('ProductionScheduleID').AsString + ',';
+    end;
+    gridData.DataSource.DataSet := nil;
+    gridData.DataSource.DataSet := adt_active;
+
+
+
+
+    sqlConst := ',@PlantID=''' + gVars.CurUserPlantID + '''';
+    if chkLine.Checked then
+      sqlConst := sqlConst + ',@AssemblyLineID=' + VarToStr(dbcbbLine.KeyValue);
+    if chkIsScheduled.Checked then
+      sqlConst := sqlConst + ',@IsScheduled=' + IntToStr(cbbIsScheduled.ItemIndex);
+    if chkScheduleDate.Checked then
+    begin
+      sqlConst := sqlConst + ',@RTDFrom=''' + FormatDateTime('YYYY-mm-dd', dtpRTDFrom.DateTime)
+        + ''',@RTDTo=''' + FormatDateTime('YYYY-mm-dd', dtpRTDTo.DateTime) + '''';
+    end;
+
+
+    gridData2.DataSource.DataSet.First;
+    while not gridData2.DataSource.DataSet.Eof do
+    begin
+      ScheduleID := ScheduleID + gridData2.DataSource.DataSet.FieldByName('ProductionScheduleID').AsString + ',';
+      gridData2.DataSource.DataSet.Next;
+    end;
+    ScheduleID := copy(ScheduleID, 0, (length(ScheduleID) - 1));
+    DM.DataSetQuery(adt_active, 'EXEC usp_GetProductionScheduleCUD @ProductionScheduleIDNone=''' + ScheduleID + '''' + sqlConst);
+    DM.DataSetQuery(adt_active2, 'EXEC usp_GetProductionScheduleCUD @ProductionScheduleID=''' + ScheduleID + ''''
+      + ',@Col=''SchedulePriority''');
+  finally
+    gridData.SelectedRows.Clear;
+    gridData.ClearFilter;
+    gridData.ApplyFilter;
+    gridData.DataSource.DataSet := nil;
+    gridData.DataSource.DataSet := adt_active;
+    gridData.SelectedRows.Clear;
+    gridData.Selection.Clear;
+    gridData.DataSource.DataSet.EnableControls;
+    gridData2.DataSource.DataSet.EnableControls;
+    gridData.DataSource.DataSet.Active := false;
+    gridData.DataSource.DataSet.Active := true;
+    gridData2.DataSource.DataSet.Active := false;
+    gridData2.DataSource.DataSet.Active := true;
+  end;
+end;
+
+procedure TfrmProductionScheduling.btnUploadClick(Sender: TObject);
+
+  function GetProductSNBeginByProductionDate(ScheduleStartTime: TDateTime): string;
+  var
+    sqlConst, strDay, MaxProductSN, sn, snBefore, snEnd: string;
+    adt_product: TADODataSet;
+  begin
+    adt_product := TADODataSet.Create(self);
+    try
+      sqlConst := 'select Max(ProductSerialNumber) as MaxProductSN from ViewProductTracking';
+      sqlConst := sqlConst + ' where Convert(varchar(10),ScheduleStartTime,120)='''
+        + FormatDateTime('YYYY-mm-dd', ScheduleStartTime) + '''';
+      sqlConst := sqlConst + ' and lower(substring(ProductSerialNumber,1,2))=''sz''';
+      sqlConst := sqlConst + ' and len(ProductSerialNumber)>=9';
+      DM.DataSetQuery(adt_product, sqlConst);
+      if adt_product.FieldByName('MaxProductSN').AsString <> '' then
+      begin
+        MaxProductSN := adt_product.FieldByName('MaxProductSN').AsString;
+        {
+        strDay := IntToStr(DayOfTheYear(dtpProductionDate.Date));
+        if Length(strDay) = 1 then
+          strDay := '00' + strDay;
+        if Length(strDay) = 2 then
+          strDay := '0' + strDay;
+        snBefore := 'SZ' + RightStr(IntToStr(Yearof(dtpProductionDate.Date)), 1) + strDay;
+        if MaxUnitSn <> '' then
+          snEnd := IntToStr(strtoint(RightStr(MaxUnitSn, 2)) + 1)
+        else
+          snEnd := '01';
+        if Length(snEnd) = 1 then
+          snEnd := '0' + snEnd;
+        sn := snBefore + snEnd;
+        }
+        sn := LeftStr(MaxProductSN, length(MaxProductSN) - 3)
+          + Format('%.3d', [strtoint(RightStr(MaxProductSN, 3)) + 1]);
+        Result := sn;
+      end
+      else
+      begin
+        strDay := IntToStr(DayOfTheYear(ScheduleStartTime));
+        if Length(strDay) = 1 then
+          strDay := '00' + strDay;
+        if Length(strDay) = 2 then
+          strDay := '0' + strDay;
+        snBefore := 'SZ' + RightStr(IntToStr(Yearof(ScheduleStartTime)), 2) + strDay;
+        snEnd := '001';
+        sn := snBefore + snEnd;
+        Result := sn;
+      end;
+    finally
+      adt_product.Free;
+    end;
+  end;
+
+var
+  ScheduleID, ProductSN, Model: string; // WaCode,
+  i, j, pbarPos, ModelID, ScheduleQuantity: integer;
+  ScheduleStartTime: TDateTime;
+  adt_tracking, adt_bom, adt_sche: TADODataSet;
+  adsp_track: TADOStoredProc;
+  slSPParam: TStringList;
+  objSPParam: TSPParam;
+begin
+  if gridData2.DataSource.DataSet.RecordCount = 0 then
+  begin
+    ShowMessage('Please select schedule from production schedule grid.');
+    exit;
+  end;
+  if MessageDlg('upload schedule to production line?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    PnlTop.Enabled := false;
+    pnlBottom.Enabled := false;
+    pnlQuery.Enabled := false;
+    GroupBox1.Enabled := false;
+    adt_tracking := TADODataSet.Create(nil);
+    adt_bom := TADODataSet.Create(nil);
+    adt_sche := TADODataSet.Create(nil);
+    adsp_track := TADOStoredProc.Create(nil);
+    slSPParam := TStringList.Create;
+    gridData2.DataSource.DataSet.DisableControls;
+    try
+      try
+      //delete schedule in product tracking
+        gridData2.DataSource.DataSet.First;
+        while not gridData2.DataSource.DataSet.Eof do
+        begin
+          ScheduleQuantity := gridData2.DataSource.DataSet.fieldbyname('ScheduleQuantity').AsInteger;
+          if ScheduleQuantity > 99 then
+          begin
+            ShowMessage('Quantity can not greater than 99.');
+            Exit;
+          end;
+        {  ScheduleID := gridData2.DataSource.DataSet.fieldbyname('ProductionScheduleID').AsString;
+          DM.DataSetModify('EXEC usp_DeleteProductTracking '
+            + ' @ProductionScheduleID=' + ScheduleID);  }
+          gridData2.DataSource.DataSet.Next;
+        end;
+
+        pbarPos := 1;
+        gridData2.DataSource.DataSet.First;
+        for i := 1 to gridData2.DataSource.DataSet.RecordCount do
+        begin
+          ModelID := gridData2.DataSource.DataSet.fieldbyname('ModelID').AsInteger;
+          Model := gridData2.DataSource.DataSet.fieldbyname('Model').AsString;
+          ScheduleQuantity := gridData2.DataSource.DataSet.fieldbyname('ScheduleQuantity').AsInteger;
+          ScheduleID := gridData2.DataSource.DataSet.fieldbyname('ProductionScheduleID').AsString;
+          ScheduleStartTime := gridData2.DataSource.DataSet.fieldbyname('ScheduleStartTime').AsDateTime;
+
+          DM.DataSetQuery(adt_sche, 'EXEC usp_GetProductTracking @ProductionScheduleID=' + ScheduleID);
+          if adt_sche.RecordCount <> 0 then
+          begin
+            ShowMessage('Schedule ID: ' + ScheduleID
+              + ' have been manufacturing in production line.');
+            exit;
+          end;
+          if (LowerCase(Copy(Model, 1, 4)) = 'xjam')
+            or (LowerCase(Copy(Model, 1, 4)) = 'xjal') then
+          begin
+            objSPParam := TSPParam.Create;
+            objSPParam.Name := '@SequenceStyle';
+            objSPParam.DataType := ftString;
+            objSPParam.Direction := pdInput;
+            objSPParam.Size := 1;
+            objSPParam.Value := 'M';
+            slSPParam.AddObject('@SequenceStyle', objSPParam);
+            objSPParam := TSPParam.Create;
+            objSPParam.Name := '@SerialNumber';
+            objSPParam.DataType := ftString;
+            objSPParam.Direction := pdOutput;
+            objSPParam.Size := 9;
+            objSPParam.Value := null;
+            slSPParam.AddObject('@SerialNumber', objSPParam);
+            for j := 0 to ScheduleQuantity - 1 do
+            begin
+              DM.SPQuery(adsp_track, 'sp_GetSerialNumber;1', slSPParam);
+              ProductSN := adsp_track.Parameters.ParamByName('@SerialNumber').Value;
+              DM.DataSetModify('EXEC usp_InsertProductTracking '
+                + ' @ProductionScheduleID=' + ScheduleID + ',@ProductSerialNumber=''' + ProductSN + '''');
+              DM.DataSetQuery(adt_tracking, 'select max(ProductTrackingID) as MaxTrackingID from ProductTracking');
+              DM.DataSetQuery(adt_bom, 'EXEC usp_GetBOM @ModelID=' + IntToStr(ModelID));
+              if adt_bom.RecordCount = 0 then
+              begin
+                ShowMessage('Please add BOM for ModelID: ' + IntToStr(ModelID));
+                exit;
+              end;
+              while not adt_bom.Eof do
+              begin
+                DM.DataSetModify('EXEC usp_InsertProductComponentTracking '
+                  + ' @ProductTrackingID=' + adt_tracking.FieldByName('MaxTrackingID').AsString
+                  + ',@ComponentID=' + adt_bom.fieldbyname('ComponentID').AsString);
+                adt_bom.Next;
+                pbarPos := pbarPos + 1;
+                pbarUpload.Position := trunc((pbarPos / (gridData2.DataSource.DataSet.RecordCount * gridData2.FieldColumns['ScheduleQuantity'].Footer.SumValue * adt_bom.RecordCount)) * 100);
+              end;
+            end;
+          end
+          else
+          begin
+            for j := 0 to ScheduleQuantity - 1 do
+            begin
+              ProductSN := GetProductSNBeginByProductionDate(ScheduleStartTime);
+              DM.DataSetModify('EXEC usp_InsertProductTracking '
+                + ' @ProductionScheduleID=' + ScheduleID + ',@ProductSerialNumber=''' + ProductSN + '''');
+              DM.DataSetQuery(adt_tracking, 'select max(ProductTrackingID) as MaxTrackingID from ProductTracking');
+              DM.DataSetQuery(adt_bom, 'EXEC usp_GetBOM @ModelID=' + IntToStr(ModelID));  
+              if adt_bom.RecordCount = 0 then
+              begin
+                ShowMessage('Please add BOM for ModelID: ' + IntToStr(ModelID));
+                exit;
+              end;
+              while not adt_bom.Eof do
+              begin
+                DM.DataSetModify('EXEC usp_InsertProductComponentTracking '
+                  + ' @ProductTrackingID=' + adt_tracking.FieldByName('MaxTrackingID').AsString
+                  + ',@ComponentID=' + adt_bom.fieldbyname('ComponentID').AsString);
+                adt_bom.Next;
+                pbarPos := pbarPos + 1;
+                pbarUpload.Position := trunc((pbarPos / (gridData2.DataSource.DataSet.RecordCount * gridData2.FieldColumns['ScheduleQuantity'].Footer.SumValue * adt_bom.RecordCount)) * 100);
+              end;
+            end;
+          end;
+          DM.DataSetModify('EXEC usp_UpdateProductionScheduleCUDIsScheduled @ProductionScheduleID=' + ScheduleID);
+          gridData2.DataSource.DataSet.Next;
+        end;
+        pbarUpload.Position := 100;
+        btnQuery.Click;
+        ShowMessage('Upload finish.');
+      except on E: Exception do
+        begin
+          ShowMessage(E.Message);
+        end;
+      end;
+    finally
+      gridData2.DataSource.DataSet.Active := false;
+      gridData2.DataSource.DataSet.Active := true;
+      gridData2.DataSource.DataSet.EnableControls;
+      PnlTop.Enabled := true;
+      pnlQuery.Enabled := true;
+      GroupBox1.Enabled := true;
+      pnlBottom.Enabled := true;
+      adt_tracking.Free;
+      adt_bom.Free;
+      adt_sche.Free;
+      adsp_track.Free;
+      slSPParam.Free;
+    end;
+  end;
+end;
+
+procedure TfrmProductionScheduling.ExchangeAdjacentTwoDBRecordFieldValue(UpOrDown: string);
+var
+  sp1, sp2, scID1, scID2: string;
+begin
+  sp1 := gridData2.DataSource.DataSet.FieldByName('SchedulePriority').AsString;
+  scID1 := gridData2.DataSource.DataSet.FieldByName('ProductionScheduleID').AsString;
+  if UpOrDown = 'up' then
+    gridData2.DataSource.DataSet.Prior;
+  if UpOrDown = 'down' then
+    gridData2.DataSource.DataSet.Next;
+  sp2 := gridData2.DataSource.DataSet.FieldByName('SchedulePriority').AsString;
+  scID2 := gridData2.DataSource.DataSet.FieldByName('ProductionScheduleID').AsString;
+  DM.DataSetModify('EXEC usp_UpdateProductionScheduleCUD '
+    + ' @SchedulePriority=' + sp1 + ',@ProductionScheduleID=' + scID2
+    + ' EXEC usp_UpdateProductionScheduleCUD @SchedulePriority=' + sp2
+    + ',@ProductionScheduleID=' + scID1);
+  gridData2.DataSource.DataSet.Active := false;
+  gridData2.DataSource.DataSet.Active := true;
+end;
+
+procedure TfrmProductionScheduling.btnUpClick(Sender: TObject);
+var
+  bk: TBookmark;
+begin
+  gridData2.DataSource.DataSet.DisableControls;
+  bk := gridData2.DataSource.DataSet.GetBookmark;
+  try
+    ExchangeAdjacentTwoDBRecordFieldValue('up');
+  finally
+    if gridData2.DataSource.DataSet.BookmarkValid(bk) then
+      gridData2.DataSource.DataSet.GotoBookmark(bk);
+    gridData2.DataSource.DataSet.FreeBookmark(bk);
+    gridData2.DataSource.DataSet.Prior;
+    gridData2.DataSource.DataSet.EnableControls;
+  end;
+end;
+
+procedure TfrmProductionScheduling.btnDownClick(Sender: TObject);
+var
+  bk: TBookmark;
+begin
+  gridData2.DataSource.DataSet.DisableControls;
+  bk := gridData2.DataSource.DataSet.GetBookmark;
+  try
+    ExchangeAdjacentTwoDBRecordFieldValue('down');
+  finally
+    if gridData2.DataSource.DataSet.BookmarkValid(bk) then
+      gridData2.DataSource.DataSet.GotoBookmark(bk);
+    gridData2.DataSource.DataSet.FreeBookmark(bk);
+    gridData2.DataSource.DataSet.Next;
+    gridData2.DataSource.DataSet.EnableControls;
+  end;
+end;
+
+procedure TfrmProductionScheduling.MenuSplitScheduleClick(Sender: TObject);
+begin
+  if MessageDlg('Split schedule?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    if TfrmSplitSchedule.EdtFromList(TADODataSet(gridData.DataSource.DataSet)) then
+    begin
+      gridData.DataSource.DataSet.Active := false;
+      gridData.DataSource.DataSet.Active := true;
+    end;
+  end;
+end;
+
+procedure TfrmProductionScheduling.adt_activeBeforePost(DataSet: TDataSet);
+var
+  bk: TBookmark;
+begin
+  DataSet.DisableControls;
+  bk := DataSet.GetBookmark;
+  try
+    DM.DataSetModify('EXEC usp_UpdateProductionScheduleCUD @ScheduleStartTime='''
+      + FormatDateTime('YYYY-mm-dd', DataSet.fieldbyname('ScheduleStartTime').AsDateTime) + ''''
+      + ',@ProductionScheduleID=' + DataSet.fieldbyname('ProductionScheduleID').AsString);
+  finally
+    DataSet.Cancel;
+    DataSet.Active := false;
+    DataSet.Active := true;
+    if DataSet.BookmarkValid(bk) then
+      DataSet.GotoBookmark(bk);
+    DataSet.FreeBookmark(bk);
+    DataSet.EnableControls;
+    Abort;
+  end;
+end;
+
+          {
+          sqlDelete := Format(sDeleteProductComponentTrackingSQL,
+            [' and ProductTrackingID in (select ProductTrackingID from ProductTracking'
+            + ' where ProductionScheduleID=' + IntToStr(ScheduleID) + ')']);
+          sqlDelete := sqlDelete + Format(sDeleteProductTrackingSQL, [' and ProductionScheduleID=' + IntToStr(ScheduleID)]);
+          DM.DataSetModify(sqlDelete);}
+          //DM.DataSetQuery(adt_sche, Format(sQueryProductTrackingSQL,  [' and ProductionScheduleID=' + ScheduleID]));
+          //DM.DataSetModify(Format(sUpdateScheduleCUDIsScheduledSQL, [1, ScheduleID]));
+  //DM.DataSetModify(Format(sUpdateProductionScheduleCUDSQL, [sp1, scID2])
+  //  + Format(sUpdateProductionScheduleCUDSQL, [sp2, scID1]));
+              //DM.DataSetModify(Format(sInsertProductTrackingSQL, [ScheduleID, ProductSN, 1]));
+             // DM.DataSetQuery(adt_bom, Format(sQueryBOMSQL, [' and ModelID=' + IntToStr(ModelID)]));
+              //DM.DataSetModify(Format(sInsertProductTrackingSQL, [ScheduleID, ProductSN, 1]));
+            //  DM.DataSetQuery(adt_bom, Format(sQueryBOMSQL, [' and ModelID=' + IntToStr(ModelID)]));
+          {      //sqlConst := ' and ProductionScheduleID not in' + ScheduleID;
+    //DM.DataSetQuery(adt_active, format(sQueryProductionScheduleCUDSQL, [sqlConst]));
+
+   // sqlConst := ' and ProductionScheduleID in' + ScheduleID;
+   // sqlConst := sqlConst + ' order by SchedulePriority';
+  //  DM.DataSetQuery(adt_active2, format(sQueryProductionScheduleCUDSQL, [sqlConst]));
+
+                          ComponentID := adt_bom.fieldbyname('ComponentID').AsInteger;
+                DM.DataSetModify(Format(sInsertProductComponentTrackingSQL,
+                  [adt_tracking.FieldByName('MaxTrackingID').AsInteger, ComponentID]));
+
+                 ComponentID := adt_bom.fieldbyname('ComponentID').AsInteger;
+                DM.DataSetModify(Format(sInsertProductComponentTrackingSQL,
+                  [adt_tracking.FieldByName('MaxTrackingID').AsInteger, ComponentID]));
+
+         ProductSNBegin := GetProductSNBeginByProductionDate(ScheduleStartTime);
+          WaCodeBegin := GetWaCodeBegin;
+          if j = 0 then
+          begin
+            ProductSN := ProductSNBegin;
+            WaCode := WaCodeBegin;
+          end
+          else
+          begin
+            ProductSN := LeftStr(ProductSNBegin, length(ProductSNBegin) - 2)
+              + Format('%.2d', [strtoint(RightStr(ProductSNBegin, 2)) + i]);
+            WaCode := IntToStr(strtoint(WaCodeBegin) + i);
+          end;
+          }
+    {
+  function GetWaCodeBegin: string;
+  var
+    sqlConst, maxWaCode: string;
+    adt_product: TADODataSet;
+  begin
+    adt_product := TADODataSet.Create(self);
+    try
+      sqlConst := 'select Max(Cast(WarrentycardCode as int)) as MaxWarrentycardCode from ProductTracking';
+      DM.DataSetQuery(adt_product, sqlConst);
+      if adt_product.FieldByName('MaxWarrentycardCode').AsString <> '' then
+      begin
+        maxWaCode := adt_product.fieldbyname('MaxWarrentycardCode').AsString;
+        Result := IntToStr(strtoint(maxWaCode) + 1);
+      end
+      else
+        Result := '0';
+    finally
+      adt_product.Free;
+    end;
+  end;
+          WaCode := GetWaCodeBegin;
+            DM.DataSetModify(Format(sInsertProductTrackingSQL,
+              [ScheduleID, ProductSN, WaCode, FormatDateTime('YYYY-mm-dd', ScheduleStartTime), 1]));}
+{        if not (gridData2.DataSource.DataSet.State in [dsEdit]) then
+          gridData2.DataSource.DataSet.Edit;
+        gridData2.FieldColumns['IsScheduled'].ReadOnly := false;
+        gridData2.DataSource.DataSet.FieldByName('IsScheduled').Value := 1;
+        gridData2.DataSource.DataSet.Post;
+        gridData2.FieldColumns['IsScheduled'].ReadOnly := true;  }
+            {WaCode := GetWaCodeBegin;
+            DM.DataSetModify(Format(sInsertProductTrackingSQL,
+              [ScheduleID, ProductSN, WaCode, FormatDateTime('YYYY-mm-dd', ScheduleStartTime), 1]));
+  DM.DataSetQuery(adt_active, format(sQueryProductionScheduleCUDSQL,
+    [' and 0=1']));
+  DM.DataSetQuery(adt_active2, format(sQueryProductionScheduleCUDSQL,
+    [' and 0=1']));
+    //DM.DataSetModify(sInsertProductionScheduleCUDSQL);
+      {
+    sqlConst := ' and PlantID in' + gVars.CurUserPlantID;
+    if chkLine.Checked then
+      sqlConst := sqlConst + ' and AssemblyLineID=' + VarToStr(dbcbbLine.KeyValue);
+    if chkIsScheduled.Checked then
+      sqlConst := sqlConst + ' and IsScheduled=' + IntToStr(cbbIsScheduled.ItemIndex);
+    if chkScheduleDate.Checked then
+    begin
+      sqlConst := sqlConst + ' and RTD>='''
+        + FormatDateTime('YYYY-mm-dd 00:01', dtpRTDFrom.DateTime) + ''''
+        + ' and RTD<='''
+        + FormatDateTime('YYYY-mm-dd 23:59', dtpRTDTo.DateTime) + '''';
+    end;
+   // sqlConst := sqlConst + ' order by IsScheduled desc,AssemblyLineID,RTD,SchedulePriority';
+   // DM.DataSetQuery(adt_active, format(sQueryProductionScheduleCUDSQL, [sqlConst]));
+  //  DM.DataSetQuery(adt_active2, format(sQueryProductionScheduleCUDSQL, [' and 0=1']));
+     }
+
+end.
+

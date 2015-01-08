@@ -1,0 +1,88 @@
+unit ufrmSales;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, DB, ADODB, PrnDbgeh, Menus,
+  PropStorageEh, ActnList, ImgList, GridsEh, DBGridEh, PrViewEh, StdCtrls,
+  ComCtrls, DBCtrls, ToolWin, ExtCtrls;
+
+type
+  TfrmSales = class(TfrmDBBasicPrn)
+    adt_activeSalesID: TAutoIncField;
+    adt_activeSalesPhone: TStringField;
+    adt_activeSalesFax: TStringField;
+    adt_activeSalesMail: TStringField;
+    adt_activeIsValid: TBooleanField;
+    adt_activeLoginID: TIntegerField;
+    adt_activeDisplayName: TStringField;
+    N2: TMenuItem;
+    MenuEdtSales: TMenuItem;
+    tbtnRefresh: TToolButton;
+    procedure MenuEdtSalesClick(Sender: TObject);
+    procedure adt_activeBeforeInsert(DataSet: TDataSet);
+    procedure tbtnRefreshClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+implementation
+
+uses DataModule, uMJ, ufrmDBBasic, ufrmSalesCustomer;
+
+{$R *.dfm}
+
+{ TfrmSales }
+
+procedure TfrmSales.SetData;
+begin
+  DM.DataSetQuery(adt_active, 'Select * from ViewSales order by salesid desc');
+end;
+
+procedure TfrmSales.SetUI;
+begin
+  inherited;
+end;
+
+procedure TfrmSales.SetAccess;
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert];
+    gridData.OnDblClick := MenuEdtSalesClick;
+    MenuEdtSales.Visible := true;
+  end
+  else
+    MenuEdtSales.Visible := false;
+end;
+
+procedure TfrmSales.MenuEdtSalesClick(Sender: TObject);
+begin
+  inherited;
+  if adt_active.RecordCount <> 0 then
+    TfrmSalesCustomer.EdtFromList(adt_active, false);
+end;
+
+procedure TfrmSales.adt_activeBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  TfrmSalesCustomer.EdtFromList(adt_active, true);
+  Abort;
+end;
+
+procedure TfrmSales.tbtnRefreshClick(Sender: TObject);
+begin
+  adt_active.Active := false;
+  adt_active.Active := true;
+end;
+
+end.
+

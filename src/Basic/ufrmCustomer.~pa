@@ -1,0 +1,339 @@
+unit ufrmCustomer;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicPrn, PropFilerEh, DB, ADODB, PrnDbgeh, Menus,
+  PropStorageEh, ActnList, ImgList, GridsEh, DBGridEh, PrViewEh, StdCtrls,
+  DBCtrls, ComCtrls, ToolWin, ExtCtrls, Mask, DBCtrlsEh, DBLookupEh;
+
+type
+  TfrmCustomer = class(TfrmDBBasicPrn)
+    adt_plant: TADODataSet;
+    gboxEdtCustomer: TGroupBox;
+    edtCustomerName: TEdit;
+    Label2: TLabel;
+    edtCustomerNumber: TEdit;
+    Label1: TLabel;
+    Label3: TLabel;
+    dbcbbPlant: TDBLookupComboboxEh;
+    ds_plant: TDataSource;
+    Label4: TLabel;
+    cbbOrigin: TComboBox;
+    btnSave: TButton;
+    Label5: TLabel;
+    LabelCustomerID: TLabel;
+    Label6: TLabel;
+    edtFullName: TEdit;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    edtChineseName: TEdit;
+    edtAddress: TEdit;
+    cbbCountry: TComboBox;
+    edtContactPerson: TEdit;
+    edtTelephone: TEdit;
+    edtFax: TEdit;
+    edtCellPhone: TEdit;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    edtSoldTo: TEdit;
+    edtShipTo: TEdit;
+    edtDestination: TEdit;
+    edtEmail: TEdit;
+    Label17: TLabel;
+    Label18: TLabel;
+    edtRemark: TEdit;
+    Label19: TLabel;
+    dbchkBoxKeyOrder: TDBCheckBoxEh;
+    adt_activeCustomerID: TAutoIncField;
+    adt_activeCustomerNumber: TStringField;
+    adt_activeCustomerName: TStringField;
+    adt_activeCountry: TStringField;
+    adt_activeFullName: TStringField;
+    adt_activeChineseName: TStringField;
+    adt_activeOrigin: TStringField;
+    adt_activeContactPerson: TStringField;
+    adt_activeTelephone: TStringField;
+    adt_activeCustomerAddress: TStringField;
+    adt_activeFax: TStringField;
+    adt_activeCellPhone: TStringField;
+    adt_activeEmail: TStringField;
+    adt_activeCreatorLoginID: TIntegerField;
+    adt_activeCreateTime: TDateTimeField;
+    adt_activePlantID: TIntegerField;
+    adt_activeIsValid: TBooleanField;
+    adt_activeSoldTo: TStringField;
+    adt_activeShipTo: TStringField;
+    adt_activeDestination: TStringField;
+    adt_activeRemark: TStringField;
+    adt_activeIsKeyOrderCustomer: TBooleanField;
+    adt_activePlantCode: TStringField;
+    adt_activeDisplayName: TStringField;
+    adt_activeIsCHN: TStringField;
+    N2: TMenuItem;
+    MenuAssignApplication: TMenuItem;
+    procedure adt_activeAfterPost(DataSet: TDataSet);
+    procedure btnSaveClick(Sender: TObject);
+    procedure gridDataDblClick(Sender: TObject);
+    procedure adt_activeBeforeInsert(DataSet: TDataSet);
+    procedure MenuAssignApplicationClick(Sender: TObject);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uMJ, ufrmApplicationCustomer;
+
+{$R *.dfm}
+
+{ TfrmCustomer }
+
+procedure TfrmCustomer.SetData;
+var
+  sqlConst, sqlBusiness: string;
+begin
+  DM.DataSetQuery(adt_plant, 'EXEC usp_GetPlant');
+  sqlBusiness := '';
+  if gVars.CurUserBusinessID = '1' then
+    sqlBusiness := ',@BusinessApplicationID=1'
+  else if gVars.CurUserBusinessID = '2' then
+    sqlBusiness := ',@BusinessApplicationID=2';
+  sqlConst := '';
+  //sqlConst := '@LoginID=' + IntToStr(gVars.CurLoginID);
+  {
+  if gVars.CurUserLevel = 2 then
+    sqlConst := sqlConst + ',@Roles=''communicator'''
+  else if (gVars.CurUserLevel = 8) or (gVars.CurUserLevel = 11) then
+    sqlConst := sqlConst + ',@Roles=''sales''';    }
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetCustomer @PlantID=''' + gVars.CurUserPlantID + '''' + sqlConst + sqlBusiness + ',@Col=''CustomerID desc''');
+end;
+
+procedure TfrmCustomer.SetUI;
+begin
+  inherited;
+  gridData.FrozenCols := 4;
+  //gridData.FieldColumns['DisplayName'].ReadOnly := true;
+  //gridData.FieldColumns['CreateTime'].ReadOnly := true;
+  //gridData.FieldColumns['IsValid'].ReadOnly := true;
+end;
+
+procedure TfrmCustomer.SetAccess;
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
+      + [nbInsert];
+    gridData.OnDblClick := gridDataDblClick;
+  end
+  else
+    gridData.OnDblClick := nil;
+end;
+
+procedure TfrmCustomer.adt_activeBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  LabelCustomerID.Caption := '';
+  edtCustomerNumber.Text := '';
+  edtCustomerName.Text := '';
+  edtFullName.Text := '';
+  edtChineseName.Text := '';
+  edtAddress.Text := '';
+  cbbCountry.Text := '';
+  edtContactPerson.Text := '';
+  edtTelephone.Text := '';
+  edtFax.Text := '';
+  edtCellPhone.Text := '';
+  edtEmail.Text := '';
+  cbbOrigin.Text := '';
+  edtSoldTo.Text := '';
+  edtShipTo.Text := '';
+  gboxEdtCustomer.Caption := 'Add new customer';
+  pnlBottom.Visible := true;
+  Abort;
+end;
+
+procedure TfrmCustomer.MenuAssignApplicationClick(Sender: TObject);
+begin
+  inherited;
+  if adt_active.RecordCount <> 0 then
+    TfrmApplicationCustomer.EdtFromList(adt_active);
+end;
+
+procedure TfrmCustomer.gridDataDblClick(Sender: TObject);
+begin
+  inherited;
+  if MessageDlg('Change Select customer Information?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  begin
+    gboxEdtCustomer.Caption := 'Edit customer';
+    LabelCustomerID.Caption := gridData.DataSource.DataSet.FieldByName('CustomerID').AsString;
+    edtCustomerNumber.Text := gridData.DataSource.DataSet.FieldByName('CustomerNumber').AsString;
+    edtCustomerName.Text := gridData.DataSource.DataSet.FieldByName('CustomerName').AsString;
+    edtFullName.Text := gridData.DataSource.DataSet.FieldByName('FullName').AsString;
+    edtChineseName.Text := gridData.DataSource.DataSet.FieldByName('ChineseName').AsString;
+    edtAddress.Text := gridData.DataSource.DataSet.FieldByName('CustomerAddress').AsString;
+    cbbCountry.Text := gridData.DataSource.DataSet.FieldByName('Country').AsString;
+    edtContactPerson.Text := gridData.DataSource.DataSet.FieldByName('ContactPerson').AsString;
+    edtTelephone.Text := gridData.DataSource.DataSet.FieldByName('Telephone').AsString;
+    edtFax.Text := gridData.DataSource.DataSet.FieldByName('Fax').AsString;
+    edtCellPhone.Text := gridData.DataSource.DataSet.FieldByName('CellPhone').AsString;
+    edtEmail.Text := gridData.DataSource.DataSet.FieldByName('Email').AsString;
+    cbbOrigin.Text := gridData.DataSource.DataSet.FieldByName('Origin').AsString;
+    edtSoldTo.Text := gridData.DataSource.DataSet.FieldByName('SoldTo').AsString;
+    edtShipTo.Text := gridData.DataSource.DataSet.FieldByName('ShipTo').AsString;
+    edtDestination.Text := gridData.DataSource.DataSet.FieldByName('Destination').AsString;
+    edtRemark.Text := gridData.DataSource.DataSet.FieldByName('Remark').AsString;
+    dbcbbPlant.Value := gridData.DataSource.DataSet.FieldByName('PlantID').AsString;
+    cbbCountry.ItemIndex := cbbCountry.Items.IndexOf(gridData.DataSource.DataSet.FieldByName('Country').AsString);
+    cbbOrigin.ItemIndex := cbbOrigin.Items.IndexOf(gridData.DataSource.DataSet.FieldByName('Origin').AsString);
+    pnlBottom.Visible := true;
+  end;
+end;
+
+procedure TfrmCustomer.btnSaveClick(Sender: TObject);
+var
+  WarnMsg, IsCHN, IsKeyOrder: string;
+begin
+  if LabelCustomerID.Caption <> '' then
+    WarnMsg := 'Save change of customer id: ' + LabelCustomerID.Caption
+  else
+    WarnMsg := 'Add new customer?';
+  begin
+    try
+      if Trim(edtCustomerNumber.Text) = '' then
+      begin
+        ShowMessage('Please input customer number.');
+        Exit;
+      end;
+      if Trim(edtCustomerName.Text) = '' then
+      begin
+        ShowMessage('Please input customer name.');
+        Exit;
+      end;
+      if LowerCase(Trim(cbbCountry.Text)) = 'chn' then
+        IsCHN := '1'
+      else
+        IsCHN := '0';
+      if dbchkBoxKeyOrder.Checked then
+        IsKeyOrder := '1'
+      else
+        IsKeyOrder := '0';
+      if LabelCustomerID.Caption <> '' then
+      begin
+        DM.DataSetModify('EXEC usp_UpdateCustomer '
+          + ' @CustomerID=' + Trim(LabelCustomerID.Caption)
+          + ',@CustomerNumber=''' + Trim(edtCustomerNumber.Text) + ''''
+          + ',@CustomerName=''' + Trim(edtCustomerName.Text) + ''''
+          + ',@FullName=''' + Trim(edtFullName.Text) + ''''
+          + ',@ChineseName=''' + Trim(edtChineseName.Text) + ''''
+          + ',@CustomerAddress=''' + Trim(edtAddress.Text) + ''''
+          + ',@Country=''' + Trim(cbbCountry.Text) + ''''
+          + ',@ContactPerson=''' + Trim(edtContactPerson.Text) + ''''
+          + ',@Telephone=''' + Trim(edtTelephone.Text) + ''''
+          + ',@Fax=''' + Trim(edtFax.Text) + ''''
+          + ',@CellPhone=''' + Trim(edtCellPhone.Text) + ''''
+          + ',@Email=''' + Trim(edtEmail.Text) + ''''
+          + ',@Origin=''' + Trim(cbbOrigin.Text) + ''''
+          + ',@SoldTo=''' + Trim(edtSoldTo.Text) + ''''
+          + ',@ShipTo=''' + Trim(edtShipTo.Text) + ''''
+          + ',@Destination=''' + Trim(edtDestination.Text) + ''''
+          + ',@PlantID=' + VarToStr(dbcbbPlant.Value)
+          + ',@Remark=''' + Trim(edtRemark.Text) + ''''
+          + ',@IsCHN=' + IsCHN
+          + ',@IsKeyOrder=' + IsKeyOrder);
+        LabelCustomerID.Caption := '';
+      end
+      else
+      begin
+        DM.DataSetModify('EXEC usp_InsertCustomer '
+          + ' @CustomerNumber=''' + Trim(edtCustomerNumber.Text) + ''''
+          + ',@CustomerName=''' + Trim(edtCustomerName.Text) + ''''
+          + ',@FullName=''' + Trim(edtFullName.Text) + ''''
+          + ',@ChineseName=''' + Trim(edtChineseName.Text) + ''''
+          + ',@CustomerAddress=''' + Trim(edtAddress.Text) + ''''
+          + ',@Country=''' + Trim(cbbCountry.Text) + ''''
+          + ',@ContactPerson=''' + Trim(edtContactPerson.Text) + ''''
+          + ',@Telephone=''' + Trim(edtCustomerName.Text) + ''''
+          + ',@Fax=''' + Trim(edtTelephone.Text) + ''''
+          + ',@CellPhone=''' + Trim(edtCellPhone.Text) + ''''
+          + ',@Email=''' + Trim(edtEmail.Text) + ''''
+          + ',@Origin=''' + Trim(cbbOrigin.Text) + ''''
+          + ',@SoldTo=''' + Trim(edtSoldTo.Text) + ''''
+          + ',@ShipTo=''' + Trim(edtShipTo.Text) + ''''
+          + ',@Destination=''' + Trim(edtDestination.Text) + ''''
+          + ',@PlantID=' + VarToStr(dbcbbPlant.Value)
+          + ',@Remark=''' + Trim(edtRemark.Text) + ''''
+          + ',@LoginID=' + IntToStr(gVars.CurLoginID)
+          + ',@IsCHN=' + IsCHN
+          + ',@IsKeyOrder=' + IsKeyOrder);
+      end;
+    except on E: Exception do
+      begin
+        ShowMessage(E.Message);
+      end;
+    end;
+    pnlBottom.Visible := false;
+    gridData.SelectedRows.Clear;
+    gridData.Selection.Clear;
+  //gridData.ClearFilter;
+  //gridData.ApplyFilter;
+    gridData.DataSource.DataSet := nil;
+    gridData.DataSource.DataSet := adt_active;
+    gridData.DataSource.DataSet.Active := false;
+    gridData.DataSource.DataSet.Active := true;
+  end;
+end;
+
+procedure TfrmCustomer.adt_activeAfterPost(DataSet: TDataSet);
+begin
+  //  DM.DataSetModify('EXEC usp_InsertCommunicatorCustomer @LoginID=' + IntToStr(gVars.CurLoginID));
+end;
+
+{
+  if not (gridData.DataSource.DataSet.State in [dsEdit]) then
+    gridData.DataSource.DataSet.Edit;
+  gridData.DataSource.DataSet.FieldByName('CreatorLoginID').Value := gVars.CurLoginID;
+  gridData.DataSource.DataSet.FieldByName('CreateTime').Value := now;
+  gridData.DataSource.DataSet.FieldByName('IsValid').Value := 1;
+ // DM.DataSetQuery(adt_plant, format(sQueryPlantSQL, ['']));
+  sqlConst := '';
+  case gVars.CurUserLevel of
+    2:
+      begin
+        sqlConst := ' and CustomerID in'
+          + ' (select cc.CustomerID from CommunicatorCustomer cc'
+          + ' left outer join Communicator r ON cc.CommunicatorID = r.CommunicatorID'
+          + ' where r.LoginID=' + IntToStr(gVars.CurLoginID) + ')';
+      end;
+    8:
+      sqlConst := ' and CustomerID in'
+        + ' (select sc.CustomerID from SalesCustomer sc'
+        + ' left outer join Sales s ON sc.SalesID = s.SalesID'
+        + ' where s.LoginID=' + IntToStr(gVars.CurLoginID) + ')';
+    11:
+      sqlConst := ' and CustomerID in'
+        + ' (select sc.CustomerID from SalesCustomer sc'
+        + ' left outer join Sales s ON sc.SalesID = s.SalesID'
+        + ' where s.LoginID=' + IntToStr(gVars.CurLoginID) + ')';
+  end;
+  sqlConst := sqlConst + ' and PlantID in' + gVars.CurUserPlantID;
+  DM.DataSetQuery(adt_active, format(sQueryCustomerSQL, [sqlConst]));
+}
+
+end.
+

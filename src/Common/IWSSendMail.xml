@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" name="IWSSendMailservice" targetNamespace="http://tempuri.org/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns1="urn:WSSendMailIntf">
+  <types>
+    <xs:schema targetNamespace="urn:WSSendMailIntf" xmlns="urn:WSSendMailIntf">
+      <xs:complexType name="TSendMainParam">
+        <xs:sequence>
+          <xs:element name="Subject" type="xs:string"/>
+          <xs:element name="Body" type="xs:string"/>
+          <xs:element name="Attachment" type="xs:string"/>
+          <xs:element name="From" type="xs:string"/>
+          <xs:element name="Recipient" type="xs:string"/>
+          <xs:element name="CC" type="xs:string"/>
+          <xs:element name="BCC" type="xs:string"/>
+          <xs:element name="HtmlFormat" type="xs:boolean"/>
+          <xs:element name="UseBase64Encode" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </types>
+  <message name="SendMail0Request">
+    <part name="From" type="xs:string"/>
+    <part name="Recipient" type="xs:string"/>
+    <part name="CC" type="xs:string"/>
+    <part name="BCC" type="xs:string"/>
+    <part name="Subject" type="xs:string"/>
+    <part name="Body" type="xs:string"/>
+    <part name="HtmlFormat" type="xs:boolean"/>
+    <part name="Attachment" type="xs:string"/>
+    <part name="UseBase64Encode" type="xs:boolean"/>
+  </message>
+  <message name="SendMail0Response"/>
+  <message name="SendMailEx1Request">
+    <part name="Param" type="ns1:TSendMainParam"/>
+  </message>
+  <message name="SendMailEx1Response"/>
+  <portType name="IWSSendMail">
+    <operation name="SendMail">
+      <input message="tns:SendMail0Request"/>
+      <output message="tns:SendMail0Response"/>
+    </operation>
+    <operation name="SendMailEx">
+      <input message="tns:SendMailEx1Request"/>
+      <output message="tns:SendMailEx1Response"/>
+    </operation>
+  </portType>
+  <binding name="IWSSendMailbinding" type="tns:IWSSendMail">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="SendMail">
+      <soap:operation soapAction="urn:WSSendMailIntf-IWSSendMail#SendMail" style="rpc"/>
+      <input message="tns:SendMail0Request">
+        <soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:WSSendMailIntf-IWSSendMail"/>
+      </input>
+      <output message="tns:SendMail0Response">
+        <soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:WSSendMailIntf-IWSSendMail"/>
+      </output>
+    </operation>
+    <operation name="SendMailEx">
+      <soap:operation soapAction="urn:WSSendMailIntf-IWSSendMail#SendMailEx" style="rpc"/>
+      <input message="tns:SendMailEx1Request">
+        <soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:WSSendMailIntf-IWSSendMail"/>
+      </input>
+      <output message="tns:SendMailEx1Response">
+        <soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:WSSendMailIntf-IWSSendMail"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="IWSSendMailservice">
+    <port name="IWSSendMailPort" binding="tns:IWSSendMailbinding">
+      <soap:address location="http://142.103.41.243:8080/webapps/SMTPMail/WSSendMailISAPI.dll/soap/IWSSendMail"/>
+    </port>
+  </service>
+</definitions>
+

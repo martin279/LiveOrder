@@ -1,0 +1,208 @@
+unit ufrmPrice;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ufrmDBBasicDT, PropFilerEh, DB, ADODB, Menus, PropStorageEh,
+  ActnList, ImgList, GridsEh, DBGridEh, StdCtrls, ExtCtrls, DBCtrls,
+  ComCtrls, ToolWin, uDMEntity, uDMManager;
+
+type
+  TfrmPrice = class(TfrmDBBasicDT)
+    adt_active2PriceChangeLogID: TAutoIncField;
+    adt_active2PriceID: TIntegerField;
+    adt_active2Currency: TStringField;
+    adt_active2Price: TBCDField;
+    adt_active2PaymentTermsID: TIntegerField;
+    adt_active2PriceTermsID: TIntegerField;
+    adt_active2EffectDate: TDateTimeField;
+    adt_active2Remark: TStringField;
+    adt_active2PaymentTerms: TStringField;
+    adt_active2PriceTerms: TStringField;
+    adt_active2DemandQuantity: TIntegerField;
+    adt_active2ChangeTime: TDateTimeField;
+    TabSheet1: TTabSheet;
+    GroupBox3: TGroupBox;
+    gridPaymentTerms: TDBGridEh;
+    GroupBox4: TGroupBox;
+    gridPriceTerms: TDBGridEh;
+    adt_PaymentTerms: TADODataSet;
+    ds_PaymentTerms: TDataSource;
+    ds_PriceTerms: TDataSource;
+    adt_PriceTerms: TADODataSet;
+    procedure gridDataDblClick(Sender: TObject);
+    procedure adt_activeAfterPost(DataSet: TDataSet);
+    procedure gridDataCellClick(Column: TColumnEh);
+    procedure adt_activeBeforeInsert(DataSet: TDataSet);
+    procedure tbtnOperationClick(Sender: TObject);
+    procedure gridDataEnter(Sender: TObject);
+    procedure gridPaymentTermsGetCellParams(Sender: TObject;
+      Column: TColumnEh; AFont: TFont; var Background: TColor;
+      State: TGridDrawState);
+    procedure gridPriceTermsGetCellParams(Sender: TObject;
+      Column: TColumnEh; AFont: TFont; var Background: TColor;
+      State: TGridDrawState);
+    procedure gridPriceTermsEnter(Sender: TObject);
+    procedure gridPaymentTermsEnter(Sender: TObject);
+    procedure PageControl1Changing(Sender: TObject;
+      var AllowChange: Boolean);
+  private
+    { Private declarations }
+  protected
+    procedure SetData; override;
+    procedure SetUI; override;
+    procedure SetAccess; override;
+  public
+    { Public declarations }
+  end;
+
+
+implementation
+
+uses DataModule, uMJ, ufrmEdtPrice, ufrmDBBasic, ufrmAddPrice;
+
+{$R *.dfm}
+
+  { TfrmPrice }
+
+procedure TfrmPrice.SetData;
+var
+  sqlConst: string;
+begin
+  sqlConst := '';
+  if (gVars.CurUserLevel = 2) then
+  begin
+    sqlConst := '@LoginID=' + IntToStr(objCurUser.LoginID);
+  end;
+  if (gVars.CurUserLevel = 8)
+    or (gVars.CurUserLevel = 11) or (gVars.CurUserLevel = 13) then
+  begin
+    sqlConst := '@LoginID=' + IntToStr(objCurUser.LoginID);
+    sqlConst := sqlConst + ',@Roles=''sales''';
+  end;
+  DM.DataSetQuery(adt_active, 'EXEC usp_GetPrice ' + sqlConst);
+  DM.DataSetQuery(adt_active2, 'EXEC usp_GetPriceChangeLog @PriceID=0');
+  DM.DataSetQuery(adt_PaymentTerms, 'EXEC usp_GetPaymentTerms');
+  DM.DataSetQuery(adt_PriceTerms, 'EXEC usp_GetPriceTerms');
+end;
+
+procedure TfrmPrice.SetUI;
+begin
+  inherited;
+  gridData.FrozenCols := 5;
+  gridData2.FrozenCols := 5;
+  GroupBox2.Caption := 'Price Change Log';
+  tbsBody1.TabVisible := true;
+end;
+
+procedure TfrmPrice.SetAccess;
+begin
+  inherited;
+  if (gVars.CurUserLevel = 1) or (gVars.CurUserLevel = 2) then
+  begin
+    DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert];
+    gridData.OnDblClick := gridDataDblClick;
+  end;
+end;
+
+procedure TfrmPrice.gridDataCellClick(Column: TColumnEh);
+begin
+  if gridData.DataSource.DataSet.RecordCount > 0 then
+    DM.DataSetQuery(adt_active2, 'EXEC usp_GetPriceChangeLog @PriceID='
+      + gridData.DataSource.DataSet.FieldByName('PriceID').AsString);
+end;
+
+procedure TfrmPrice.gridDataDblClick(Sender: TObject);
+begin
+  if gridData.DataSource.DataSet.RecordCount <> 0 then
+    TfrmEdtPrice.EdtFromList(TADODataSet(gridData.DataSource.DataSet));
+end;
+
+procedure TfrmPrice.adt_activeAfterPost(DataSet: TDataSet);
+var
+  bk: TBookmark;
+begin
+  inherited;
+  bk := gridData.DataSource.DataSet.GetBookmark;
+  try
+    adt_active.UpdateBatch();
+  finally
+    if gridData.DataSource.DataSet.BookmarkValid(bk) then
+      gridData.DataSource.DataSet.GotoBookmark(bk);
+    gridData.DataSource.DataSet.FreeBookmark(bk);
+  end;
+end;
+
+procedure TfrmPrice.adt_activeBeforeInsert(DataSet: TDataSet);
+begin
+  inherited;
+  TfrmAddPrice.EdtFromList(nil);
+  Abort;
+end;
+
+procedure TfrmPrice.tbtnOperationClick(Sender: TObject);
+begin
+  GroupBox2.Visible := not GroupBox2.Visible;
+  Splitter1.Align := alTop;
+  Splitter1.Align := alBottom;
+end;
+
+procedure TfrmPrice.gridDataEnter(Sender: TObject);
+begin
+  inherited;
+  DBNavigator1.VisibleButtons := [nbFirst, nbPrior, nbNext, nbLast, nbInsert];
+  DBNavigator1.DataSource := ds_active;
+  //gridMFModel.SelectedRows.Clear;
+end;
+
+procedure TfrmPrice.gridPaymentTermsEnter(Sender: TObject);
+begin
+  inherited;
+  DBNavigator1.VisibleButtons := [nbPrior, nbNext, nbInsert, nbPost, nbCancel];
+  DBNavigator1.DataSource := ds_PaymentTerms;
+  //gridPaymentTerms.SelectedRows.Clear;
+end;
+
+procedure TfrmPrice.gridPriceTermsEnter(Sender: TObject);
+begin
+  inherited;
+  DBNavigator1.VisibleButtons := [nbPrior, nbNext, nbInsert, nbPost, nbCancel];
+  DBNavigator1.DataSource := ds_PriceTerms;
+  //gridPriceTerms.SelectedRows.Clear;
+end;
+
+procedure TfrmPrice.gridPaymentTermsGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  if gridPaymentTerms.SumList.RecNo mod 2 = 1 then
+    Background := $00FFC4C4
+  else
+    Background := $00FFDDDD;
+end;
+
+procedure TfrmPrice.gridPriceTermsGetCellParams(Sender: TObject;
+  Column: TColumnEh; AFont: TFont; var Background: TColor;
+  State: TGridDrawState);
+begin
+  if gridPriceTerms.SumList.RecNo mod 2 = 1 then
+    Background := $00FFC4C4
+  else
+    Background := $00FFDDDD;
+end;
+
+
+
+procedure TfrmPrice.PageControl1Changing(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  inherited;
+  if PageControl1.ActivePageIndex = 0 then
+    GroupBox2.Visible := false
+  else if PageControl1.ActivePageIndex = 1 then
+    GroupBox2.Visible := true;
+end;
+
+end.
+
